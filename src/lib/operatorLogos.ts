@@ -1,19 +1,21 @@
-// src/lib/operatorLogos.ts
-// NOTE: Do NOT import figma:asset here. Vercel/Vite cannot resolve those.
-// Put your exported logo files in: /public/assets/operators/
+import hallon from '../assets/operators/hallon.png'
+import vimla from '../assets/operators/vimla.png'
+import comviq from '../assets/operators/comviq.png'
+import fello from '../assets/operators/fello.png'
+import tre from '../assets/operators/tre.png'
+import telenor from '../assets/operators/telenor.png'
+import telia from '../assets/operators/telia.png'
+import tele2 from '../assets/operators/tele2.png'
+import chili from '../assets/operators/chili.png'
 
 export const operatorLogos: Record<string, string> = {
-  Hallon: "/assets/operators/hallon.png",
-  Vimla: "/assets/operators/vimla.png",
-  Comviq: "/assets/operators/comviq.png",
-  Fello: "/assets/operators/fello.png",
-  Telia: "/assets/operators/telia.png",
-  Tre: "/assets/operators/tre.png",
-  Telenor: "/assets/operators/telenor.png",
-  Tele2: "/assets/operators/tele2.png",
-};
-
-export function getOperatorLogo(operator?: string): string | undefined {
-  if (!operator) return undefined;
-  return operatorLogos[operator];
+  hallon,
+  vimla,
+  comviq,
+  fello,
+  tre,
+  telenor,
+  telia,
+  tele2,
+  chili,
 }
