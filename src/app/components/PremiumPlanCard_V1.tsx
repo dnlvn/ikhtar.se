@@ -151,35 +151,47 @@ export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'so
               </div>
             </div>
 
-            {/* RIGHT: CTA button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent card click when button is clicked
-                handleClick();
-              }}
-              disabled={!plan.sourceUrl}
-              className={`
-                px-5 py-2.5 rounded-xl text-[13px] font-bold uppercase
-                transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
-                cursor-pointer disabled:cursor-not-allowed relative overflow-hidden
-                ${isBestDeal 
-                  ? 'text-white shadow-lg hover:brightness-110' 
-                  : 'bg-white border-2 border-green-800 text-green-800 hover:bg-green-50'
-                }
-              `}
-              style={isBestDeal ? { 
-                backgroundImage: 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
-                backgroundSize: '200% auto',
-                animation: 'shimmer-slide 3s ease-in-out infinite',
-                borderRadius: '0.75rem'
-              } : {
-                borderRadius: '0.75rem'
-              }}
-            >
-              <span className="relative flex items-center gap-1.5">
-                {t('card.viewOffer')}
-              </span>
-            </button>
+           {/* RIGHT: CTA button */}
+<button
+  onClick={(e) => {
+    e.stopPropagation(); // Prevent card click when button is clicked
+
+    // GA: track CTA click (safe if GA not loaded)
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'cta_click', {
+        cta_type: 'card',
+        operator: plan.operator,
+        plan_name: plan.plan_name,
+        price: plan.current_price,
+        is_best_deal: Boolean(isBestDeal),
+      });
+    }
+
+    handleClick();
+  }}
+  disabled={!plan.sourceUrl}
+  className={`
+    px-5 py-2.5 rounded-xl text-[13px] font-bold uppercase
+    transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
+    cursor-pointer disabled:cursor-not-allowed relative overflow-hidden
+    ${isBestDeal 
+      ? 'text-white shadow-lg hover:brightness-110' 
+      : 'bg-white border-2 border-green-800 text-green-800 hover:bg-green-50'
+    }
+  `}
+  style={isBestDeal ? { 
+    backgroundImage: 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
+    backgroundSize: '200% auto',
+    animation: 'shimmer-slide 3s ease-in-out infinite',
+    borderRadius: '0.75rem'
+  } : {
+    borderRadius: '0.75rem'
+  }}
+>
+  <span className="relative flex items-center gap-1.5">
+    {t('card.viewOffer')}
+  </span>
+</button>
           </div>
         </div>
       </div>
