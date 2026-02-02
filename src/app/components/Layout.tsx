@@ -10,31 +10,53 @@ export function Layout() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Load Cookiebot only in production (not in Figma preview)
+  // Load Cookiebot + Google Analytics only in production (not Figma / localhost / iframe)
   useEffect(() => {
-    // Check if we're NOT in Figma environment
-    const isFigmaPreview = window.location.hostname.includes('figma.com') || 
-                           window.location.hostname.includes('localhost') ||
-                           window.self !== window.top; // Check if in iframe
-    
-    if (!isFigmaPreview) {
-      // Only load in production
-      const script = document.createElement('script');
-      script.id = 'Cookiebot';
-      script.src = 'https://consent.cookiebot.com/uc.js';
-      script.setAttribute('data-cbid', '3d7bc1e2-7d49-44a0-9a40-b52bc495fe7e');
-      script.setAttribute('data-blockingmode', 'auto');
-      script.type = 'text/javascript';
-      document.head.appendChild(script);
+    if (typeof window === 'undefined') return;
 
-      return () => {
-        // Cleanup on unmount
-        const existingScript = document.getElementById('Cookiebot');
-        if (existingScript) {
-          existingScript.remove();
-        }
-      };
-    }
+    const isFigmaPreview =
+      window.location.hostname.includes('figma.com') ||
+      window.location.hostname.includes('localhost') ||
+      window.self !== window.top;
+
+    if (isFigmaPreview) return;
+
+    // ---------- Cookiebot ----------
+    const cookiebotScript = document.createElement('script');
+    cookiebotScript.id = 'Cookiebot';
+    cookiebotScript.src = 'https://consent.cookiebot.com/uc.js';
+    cookiebotScript.setAttribute(
+      'data-cbid',
+      '3d7bc1e2-7d49-44a0-9a40-b52bc495fe7e'
+    );
+    cookiebotScript.setAttribute('data-blockingmode', 'auto');
+    cookiebotScript.type = 'text/javascript';
+    document.head.appendChild(cookiebotScript);
+
+    // ---------- Google Analytics (controlled by Cookiebot: statistics) ----------
+    const gaScript = document.createElement('script');
+    gaScript.setAttribute('type', 'text/plain');
+    gaScript.setAttribute('data-cookieconsent', 'statistics');
+    gaScript.async = true;
+    gaScript.src =
+      'https://www.googletagmanager.com/gtag/js?id=G-ZPLQ98NLES';
+    document.head.appendChild(gaScript);
+
+    const gaInline = document.createElement('script');
+    gaInline.setAttribute('type', 'text/plain');
+    gaInline.setAttribute('data-cookieconsent', 'statistics');
+    gaInline.innerHTML = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZPLQ98NLES');
+    `;
+    document.head.appendChild(gaInline);
+
+    return () => {
+      // Cleanup (safe)
+      document.getElementById('Cookiebot')?.remove();
+    };
   }, []);
 
   // Don't show footer on landing page (it has its own)
