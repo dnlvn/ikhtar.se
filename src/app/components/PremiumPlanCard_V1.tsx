@@ -40,6 +40,14 @@ export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'so
 const handleClick = () => {
   if (!plan.sourceUrl) return;
 
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'cta_click',
+    operator: plan.operator,
+    plan_name: plan.plan_name,
+    price: plan.current_price,
+  });
+
   window.open(plan.sourceUrl, '_blank', 'noopener,noreferrer');
 };
 
