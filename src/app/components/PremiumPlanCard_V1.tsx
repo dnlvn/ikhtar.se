@@ -172,7 +172,7 @@ const handleClick = () => {
                 cursor-pointer disabled:cursor-not-allowed relative overflow-hidden
                 ${isBestDeal 
                   ? 'text-white shadow-lg hover:brightness-110' 
-                  : 'bg-white border-2 border-green-800 text-green-800 hover:bg-green-50'
+                  : 'bg-green-700 text-white border-2 border-green-700 hover:bg-green-800'
                 }
               `}
               style={isBestDeal ? { 
