@@ -37,11 +37,21 @@ export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'so
     : dealRank === 3 ? { label: t('card.dealRankBadges.mostPopular') }
     : null;
 
-  const handleClick = () => {
-    if (plan.sourceUrl) {
-      window.open(plan.sourceUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
+const handleClick = () => {
+  if (!plan.sourceUrl) return;
+
+  // GA event: CTA + kort-klick
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'cta_click', {
+      operator: plan.operator,
+      plan_name: plan.plan_name,
+      price: plan.current_price,
+      page_path: window.location.pathname,
+    });
+  }
+
+  window.open(plan.sourceUrl, '_blank', 'noopener,noreferrer');
+};
 
   // Extract operator name from plan title (e.g., "Hallon 5GB" -> "hallon")
   const operatorName = plan.title.toLowerCase().split(' ')[0];
