@@ -1,44 +1,57 @@
 // src/lib/operatorLogos.ts
 
-export const operatorLogos: Record<string, string> = {
-  hallon: "/assets/operators/hallon.png",
-  vimla: "/assets/operators/vimla.png",
-  comviq: "/assets/operators/comviq.png",
-  fello: "/assets/operators/fello.png",
-  tele2: "/assets/operators/tele2.png",
-  telenor: "/assets/operators/telenor.png",
-  telia: "/assets/operators/telia.png",
-  tre: "/assets/operators/tre.png",
-  chili: "/assets/operators/chili.png",
+export type OperatorSlug =
+  | 'hallon'
+  | 'vimla'
+  | 'comviq'
+  | 'fello'
+  | 'tele2'
+  | 'telenor'
+  | 'telia'
+  | 'tre'
+  | 'chili';
+
+export const OPERATOR_LOGOS: Record<OperatorSlug, string> = {
+  hallon: '/assets/operators/hallon.png',
+  vimla: '/assets/operators/vimla.png',
+  comviq: '/assets/operators/comviq.png',
+  fello: '/assets/operators/fello.png',
+  tele2: '/assets/operators/tele2.png',
+  telenor: '/assets/operators/telenor.png',
+  telia: '/assets/operators/telia.png',
+  tre: '/assets/operators/tre.png',
+  chili: '/assets/operators/chili.png',
 };
 
-// Normalisera operatornamn till samma nycklar som filnamnen
-function normalizeOperatorKey(input?: string | null): string {
-  const s = (input ?? "").trim().toLowerCase();
-  if (!s) return "";
+function slugifyOperator(input?: string | null): OperatorSlug | null {
+  if (!input) return null;
 
-  // vanliga varianter
-  if (s === "3") return "tre";
-  if (s === "three") return "tre";
-  if (s.includes("telenor")) return "telenor";
-  if (s.includes("tele2")) return "tele2";
-  if (s.includes("telia")) return "telia";
-  if (s.includes("hallon")) return "hallon";
-  if (s.includes("vimla")) return "vimla";
-  if (s.includes("comviq")) return "comviq";
-  if (s.includes("fello")) return "fello";
-  if (s.includes("tre")) return "tre";
-  if (s.includes("chili")) return "chili";
+  const s = input.toLowerCase().trim();
 
-  return s.replace(/\s+/g, "");
+  if (s.includes('hallon')) return 'hallon';
+  if (s.includes('vimla')) return 'vimla';
+  if (s.includes('comviq')) return 'comviq';
+  if (s.includes('fello')) return 'fello';
+  if (s.includes('tele2')) return 'tele2';
+  if (s.includes('telenor')) return 'telenor';
+  if (s.includes('telia')) return 'telia';
+  if (s === '3' || s.includes('tre')) return 'tre';
+  if (s.includes('chili')) return 'chili';
+
+  return null;
 }
 
 /**
- * Returns a public URL under /assets/operators/... (served from /public).
- * Returns null if not found.
+ * Main helper used in components (PlanDetailsModal, cards, etc.)
+ * Returns a public/ path (served by Vite/Vercel).
  */
-export function getOperatorLogo(operator?: string | null): string | null {
-  const key = normalizeOperatorKey(operator);
-  if (!key) return null;
-  return operatorLogos[key] ?? null;
+export function getOperatorLogo(operatorNameOrSlug?: string | null): string | null {
+  const slug = slugifyOperator(operatorNameOrSlug);
+  if (!slug) return null;
+  return OPERATOR_LOGOS[slug] ?? null;
 }
+
+/**
+ * Backwards-compatible export if other files import operatorLogos
+ */
+export const operatorLogos = OPERATOR_LOGOS;
