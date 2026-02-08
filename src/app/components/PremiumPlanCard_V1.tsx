@@ -55,7 +55,7 @@ const handleClick = () => {
   const operatorName = plan.title.toLowerCase().split(' ')[0];
 
   // Check if this is a best deal (price <= 50 SEK)
-  const isBestDeal = plan.price <= 50;
+  const isBestDeal = plan.price <= 100;
 
   return (
     <div 
