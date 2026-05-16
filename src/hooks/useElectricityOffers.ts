@@ -42,6 +42,67 @@ const SUPPORTED_PROVIDERS = [
 
 export const SUPPORTED_ELECTRICITY_PROVIDERS_COUNT = SUPPORTED_PROVIDERS.length;
 
+const PROVIDER_ALIASES: Record<string, string[]> = {
+  'Skellefteå kraft': ['Skellefteå Kraft AB'],
+  Eon: ['E.ON', 'E.ON Energi', 'E.ON Energilösningar', 'E.ON Försäljning'],
+};
+
+const PROVIDER_NAME_KEYS = [
+  'ElLeverantorNamn',
+  'ElleverantorNamn',
+  'ElLeverantörNamn',
+  'ElleverantörNamn',
+  'ElLeverantor',
+  'Elleverantor',
+  'ElLeverantör',
+  'Elleverantör',
+  'Foretagsnamn',
+  'Företagsnamn',
+  'Foretag',
+  'Företag',
+  'Elhandlare',
+  'Elhandelsforetag',
+  'Elhandelsföretag',
+  'Leverantor',
+  'Leverantör',
+  'Bolag',
+  'Namn',
+];
+
+const AGREEMENT_NAME_KEYS = [
+  'Avtalsnamn',
+  'AvtalNamn',
+  'AvtalNamn',
+  'Produktnamn',
+  'Produkt',
+  'Avtalsform',
+  'AvtalTyp',
+  'Avtalstyp',
+];
+
+const COMPARISON_PRICE_KEYS = [
+  'AvtalJamforPris',
+  'AvtalJämförPris',
+  'AvtalJamforpris',
+  'AvtalJämförpris',
+  'AvtalJmfPris',
+  'JamforPris',
+  'JämförPris',
+  'Jamforpris',
+  'Jämförpris',
+  'JamforprisOreKwh',
+  'JämförprisÖreKwh',
+];
+
+const ENERGY_SOURCE_KEYS = [
+  'Energikallor',
+  'Energikällor',
+  'ElensUrsprung',
+  'Ursprung',
+  'Miljo',
+  'Miljö',
+];
+
 export const ELECTRICITY_USAGE_KWH: Record<HousingType, Record<UsageLevel, number>> = {
   apartment: {
     low: 1000,
@@ -55,10 +116,12 @@ export const ELECTRICITY_USAGE_KWH: Record<HousingType, Record<UsageLevel, numbe
   },
 };
 
-const providerMatchers = SUPPORTED_PROVIDERS.map((provider) => ({
-  provider,
-  normalized: normalizeName(provider),
-}));
+const providerMatchers = SUPPORTED_PROVIDERS.flatMap((provider) =>
+  [provider, ...(PROVIDER_ALIASES[provider] ?? [])].map((alias) => ({
+    provider,
+    normalized: normalizeName(alias),
+  }))
+);
 
 function normalizeName(value: string): string {
   return value
@@ -87,6 +150,13 @@ function getValue(row: Record<string, any>, keys: string[]): any {
     }
   }
 
+  for (const value of Object.values(row)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+
+    const nested = getValue(value as Record<string, any>, keys);
+    if (nested !== undefined && nested !== null) return nested;
+  }
+
   return undefined;
 }
 
@@ -98,18 +168,12 @@ function toNumber(value: any): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function getProviderName(row: Record<string, any>): string {
+  return String(getValue(row, PROVIDER_NAME_KEYS) ?? '');
+}
+
 function findProvider(row: Record<string, any>): string | null {
-  const candidate = String(
-    getValue(row, [
-      'Foretagsnamn',
-      'Företagsnamn',
-      'Elhandlare',
-      'Leverantor',
-      'Leverantör',
-      'Bolag',
-      'Namn',
-    ]) ?? ''
-  );
+  const candidate = getProviderName(row);
   const normalizedCandidate = normalizeName(candidate);
 
   return (
@@ -138,24 +202,41 @@ function getAffiliateUrl(provider: string): string {
   return `https://www.elpriskollen.se/sidor/sok-avtal.html?ikhtar_provider=${encodeURIComponent(slug)}`;
 }
 
+function getEnergySources(row: Record<string, any>): string {
+  const directValue = getValue(row, ENERGY_SOURCE_KEYS);
+  if (directValue) return String(directValue);
+
+  const sourceLabels = [
+    ['Sol', 'Sol'],
+    ['Vind', 'Vind'],
+    ['Vatten', 'Vatten'],
+    ['Karnkraft', 'Kärnkraft'],
+    ['Kärnkraft', 'Kärnkraft'],
+    ['Bio', 'Biobränsle'],
+    ['Biobransle', 'Biobränsle'],
+    ['Biobränsle', 'Biobränsle'],
+    ['Fossil', 'Fossilt'],
+  ];
+
+  const activeSources = sourceLabels
+    .filter(([key]) => {
+      const value = getValue(row, [key]);
+      return value === true || value === 'true' || value === 'Ja' || value === 'ja' || value === 1;
+    })
+    .map(([, label]) => label);
+
+  return activeSources.length > 0 ? activeSources.join(', ') : 'Elmix';
+}
+
 function transformOffer(row: Record<string, any>, annualUsage: number, index: number): ElectricityOffer | null {
   const provider = findProvider(row);
   if (!provider) return null;
 
-  const comparisonPriceOre = toNumber(
-    getValue(row, ['AvtalJamforPris', 'AvtalJämförPris', 'JamforPris', 'Jämförpris'])
-  );
+  const comparisonPriceOre = toNumber(getValue(row, COMPARISON_PRICE_KEYS));
   if (comparisonPriceOre === null) return null;
 
-  const agreementName = String(
-    getValue(row, ['Avtalsnamn', 'AvtalNamn', 'Produktnamn', 'Produkt', 'Avtalsform']) ??
-      'Elavtal'
-  );
-
-  const energySources = String(
-    getValue(row, ['Energikallor', 'Energikällor', 'ElensUrsprung', 'Ursprung']) ??
-      'Elmix'
-  );
+  const agreementName = String(getValue(row, AGREEMENT_NAME_KEYS) ?? 'Elavtal');
+  const energySources = getEnergySources(row);
 
   return {
     id: `${provider}-${agreementName}-${comparisonPriceOre}-${index}`,
@@ -205,6 +286,12 @@ export function useElectricityOffers({
           signal: controller.signal,
         });
 
+        console.info('[Ikhtar elavtal] Hämtar Elpriskollen-data', {
+          postNummer: cleanPostcode,
+          forbrukning: annualUsage,
+          url: `/api/elpriskollen?${params.toString()}`,
+        });
+
         if (!response.ok) {
           throw new Error('تعذّر تحميل عروض الكهرباء الآن.');
         }
@@ -212,13 +299,28 @@ export function useElectricityOffers({
         const payload = await response.json();
         const rows = flattenRows(payload);
         const unique = new Map<string, ElectricityOffer>();
+        const providerNames = rows
+          .map((row) => getProviderName(row))
+          .filter(Boolean);
+        const unmatchedProviders = new Set<string>();
 
         rows.forEach((row, index) => {
           const offer = transformOffer(row, annualUsage, index);
-          if (!offer) return;
+          if (!offer) {
+            const providerName = getProviderName(row);
+            if (providerName) unmatchedProviders.add(providerName);
+            return;
+          }
 
           const key = `${offer.provider}-${offer.agreementName}-${offer.comparisonPriceOre}`;
           if (!unique.has(key)) unique.set(key, offer);
+        });
+
+        console.info('[Ikhtar elavtal] Elpriskollen-resultat', {
+          totalRows: rows.length,
+          providerNames: Array.from(new Set(providerNames)).slice(0, 40),
+          matchedOffers: unique.size,
+          unmatchedProviders: Array.from(unmatchedProviders).slice(0, 40),
         });
 
         setOffers(
