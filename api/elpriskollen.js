@@ -14,10 +14,20 @@ export default async function handler(request, response) {
   });
 
   try {
+    console.info('[Ikhtar elavtal proxy] Fetching Elpriskollen', {
+      postNummer: cleanPostcode,
+      forbrukning: cleanUsage,
+    });
+
     const upstream = await fetch(
       `https://www1.ei.se/elinservices/api/json/SokAvtal?${params.toString()}`
     );
     const text = await upstream.text();
+
+    console.info('[Ikhtar elavtal proxy] Elpriskollen response', {
+      status: upstream.status,
+      bytes: text.length,
+    });
 
     response.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     response.setHeader(
@@ -26,6 +36,7 @@ export default async function handler(request, response) {
     );
     response.status(upstream.status).send(text);
   } catch (error) {
+    console.error('[Ikhtar elavtal proxy] Elpriskollen fetch failed', error);
     response.status(502).json({ error: 'Could not fetch electricity offers' });
   }
 }
