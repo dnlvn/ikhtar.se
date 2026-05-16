@@ -202,6 +202,10 @@ function getAffiliateUrl(provider: string): string {
   return `https://www.elpriskollen.se/sidor/sok-avtal.html?ikhtar_provider=${encodeURIComponent(slug)}`;
 }
 
+function getProviderSlug(provider: string): string {
+  return normalizeName(provider);
+}
+
 function getEnergySources(row: Record<string, any>): string {
   const directValue = getValue(row, ENERGY_SOURCE_KEYS);
   if (directValue) return String(directValue);
@@ -298,11 +302,12 @@ export function useElectricityOffers({
 
         const payload = await response.json();
         const rows = flattenRows(payload);
-        const unique = new Map<string, ElectricityOffer>();
+        const bestOfferByProvider = new Map<string, ElectricityOffer>();
         const providerNames = rows
           .map((row) => getProviderName(row))
           .filter(Boolean);
         const unmatchedProviders = new Set<string>();
+        let matchedOffers = 0;
 
         rows.forEach((row, index) => {
           const offer = transformOffer(row, annualUsage, index);
@@ -312,19 +317,32 @@ export function useElectricityOffers({
             return;
           }
 
-          const key = `${offer.provider}-${offer.agreementName}-${offer.comparisonPriceOre}`;
-          if (!unique.has(key)) unique.set(key, offer);
+          matchedOffers += 1;
+
+          const providerSlug = getProviderSlug(offer.provider);
+          const currentBest = bestOfferByProvider.get(providerSlug);
+          if (
+            !currentBest ||
+            offer.estimatedMonthlyCost < currentBest.estimatedMonthlyCost ||
+            (
+              offer.estimatedMonthlyCost === currentBest.estimatedMonthlyCost &&
+              offer.comparisonPriceOre < currentBest.comparisonPriceOre
+            )
+          ) {
+            bestOfferByProvider.set(providerSlug, offer);
+          }
         });
 
         console.info('[Ikhtar elavtal] Elpriskollen-resultat', {
           totalRows: rows.length,
           providerNames: Array.from(new Set(providerNames)).slice(0, 40),
-          matchedOffers: unique.size,
+          matchedOffers,
+          displayedProviders: bestOfferByProvider.size,
           unmatchedProviders: Array.from(unmatchedProviders).slice(0, 40),
         });
 
         setOffers(
-          Array.from(unique.values()).sort(
+          Array.from(bestOfferByProvider.values()).sort(
             (a, b) => a.estimatedMonthlyCost - b.estimatedMonthlyCost
           )
         );
