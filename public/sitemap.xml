@@ -16,6 +16,13 @@
   </url>
 
   <url>
+    <loc>https://ikhtar.se/elavtal</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://ikhtar.se/integritetspolicy</loc>
     <lastmod>2026-02-03</lastmod>
     <changefreq>yearly</changefreq>
