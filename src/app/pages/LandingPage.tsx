@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { Logo } from "@/app/components/Logo";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Zap } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 
 export function LandingPage() {
@@ -72,6 +72,32 @@ export function LandingPage() {
               <ArrowLeft className="w-5 h-5 rotate-180" />
             </div>
           </Link>
+
+          <div
+            className="group block p-8 bg-white border-2 border-blue-700 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+            aria-disabled="true"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Zap className="w-8 h-8 text-blue-700" />
+              </div>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+                قريبًا
+              </span>
+            </div>
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+              عقود الكهرباء
+            </h2>
+            <p className="text-slate-600 mb-6">
+              قارن عقود الكهرباء واعثر على أفضل عرض يناسبك.
+            </p>
+
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 text-white rounded-lg font-bold group-hover:bg-blue-800 transition-colors">
+              <span>قارن عقود الكهرباء</span>
+              <ArrowLeft className="w-5 h-5 rotate-180" />
+            </div>
+          </div>
         </div>
       </div>
 
