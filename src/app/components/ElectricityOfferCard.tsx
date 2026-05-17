@@ -33,14 +33,16 @@ export function ElectricityOfferCard({
   const handleClick = () => {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
-      event: 'cta_click',
+      event: 'electricity_cta_click',
       vertical: 'electricity',
       provider: offer.provider,
       plan_name: offer.agreementName,
+      agreement_type: offer.agreementTypeLabel,
       estimated_monthly_cost: offer.estimatedMonthlyCost,
       comparison_price_ore: offer.comparisonPriceOre,
       annual_usage_kwh: annualUsage,
       postcode: postcode.replace(/\D/g, ''),
+      rank,
     });
 
     window.open(offer.affiliateUrl, '_blank', 'noopener,noreferrer');
