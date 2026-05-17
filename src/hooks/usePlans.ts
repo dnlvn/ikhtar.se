@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { isMobileProviderDisabled } from '@/lib/mobileProviderConfig';
 
 // Database types - matches mobile_plans_public view EXACTLY (only columns that exist)
 export interface MobilePlanDB {
@@ -119,7 +120,9 @@ export function usePlans() {
 
         console.log('🔍 DEBUG: After dedupe by plan_key:', uniquePlans.length);
 
-        const transformedPlans = uniquePlans.map((plan) => transformPlan(plan));
+        const transformedPlans = uniquePlans
+          .map((plan) => transformPlan(plan))
+          .filter((plan) => !isMobileProviderDisabled(plan.title));
         
         console.log('🔍 DEBUG: After transformation:', transformedPlans.length);
         console.log('✅ Final plans to render:', transformedPlans.map(p => ({ 
