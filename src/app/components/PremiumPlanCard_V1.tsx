@@ -99,6 +99,14 @@ const handleClick = () => {
             </div>
           </div>
         )}
+
+        {activePromotion && (
+          <div className="absolute left-1/2 top-[72px] z-10 -translate-x-1/2 text-[10px] font-bold leading-none" dir="rtl">
+            <span className="inline-flex items-center whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-emerald-700 shadow-sm">
+              الآن: 100 GB إضافية
+            </span>
+          </div>
+        )}
         
         <div className="p-4 p-[14px]">
           {/* Top row: Logo + Operator name | Data | Price */}
@@ -139,14 +147,6 @@ const handleClick = () => {
               </div>
             </div>
           </div>
-
-          {activePromotion && (
-            <div className="mb-2 flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-bold leading-none" dir="rtl">
-              <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-emerald-700 shadow-sm">
-                الآن: 100 GB إضافية
-              </span>
-            </div>
-          )}
 
           {/* Bottom row: Features (left) | CTA button (right) */}
           <div className="flex items-start justify-between">
