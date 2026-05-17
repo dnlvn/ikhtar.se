@@ -113,7 +113,7 @@ const faqSchema = {
 };
 
 export function ElectricityComparison() {
-  const [postcode, setPostcode] = useState('12747');
+  const [postcode, setPostcode] = useState('');
   const [housingType, setHousingType] = useState<HousingType>('apartment');
   const [usageLevel, setUsageLevel] = useState<UsageLevel>('normal');
   const [agreementFilter, setAgreementFilter] = useState<AgreementFilter>('all');
@@ -209,7 +209,7 @@ export function ElectricityComparison() {
                     value={postcode}
                     onChange={(event) => setPostcode(event.target.value)}
                     maxLength={6}
-                    placeholder="12747"
+                    placeholder="12345"
                     className="w-full bg-transparent text-[22px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
