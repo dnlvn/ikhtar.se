@@ -111,9 +111,9 @@ export const ELECTRICITY_USAGE_KWH: Record<HousingType, Record<UsageLevel, numbe
     high: 3500,
   },
   house: {
-    low: 5000,
-    normal: 12000,
-    high: 20000,
+    low: 8000,
+    normal: 15000,
+    high: 25000,
   },
 };
 
