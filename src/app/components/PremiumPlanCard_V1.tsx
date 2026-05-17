@@ -102,7 +102,7 @@ const handleClick = () => {
 
         {activePromotion && (
           <div className="absolute left-1/2 top-[54px] z-10 flex -translate-x-1/2 flex-col items-center gap-0.5 text-[9px] font-bold leading-none" dir="rtl">
-            <span className="text-[9px] font-semibold text-emerald-700">
+            <span className="text-[9px] font-semibold text-slate-900">
               الآن
             </span>
             <span className="inline-flex items-center whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 shadow-sm">
