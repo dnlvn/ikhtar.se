@@ -14,10 +14,8 @@ export interface ElectricityOffer {
   agreementCategory: AgreementCategory;
   comparisonPriceOre: number;
   estimatedMonthlyCost: number;
-  energySources: string;
   cancellationPeriod?: string;
   newCustomersOnly: boolean;
-  hasBraMiljoval: boolean;
   affiliateUrl: string;
   raw: Record<string, any>;
 }
@@ -115,15 +113,6 @@ const COMPARISON_PRICE_KEYS = [
   'JämförprisÖreKwh',
 ];
 
-const ENERGY_SOURCE_KEYS = [
-  'Energikallor',
-  'Energikällor',
-  'ElensUrsprung',
-  'Ursprung',
-  'Miljo',
-  'Miljö',
-];
-
 const CANCELLATION_PERIOD_KEYS = [
   'Uppsagningstid',
   'Uppsägningstid',
@@ -141,13 +130,6 @@ const NEW_CUSTOMERS_ONLY_KEYS = [
   'NyKund',
   'GallerEndastNyaKunder',
   'GällerEndastNyaKunder',
-];
-
-const BRA_MILJOVAL_KEYS = [
-  'BraMiljoval',
-  'BraMiljöval',
-  'HarBraMiljoval',
-  'HarBraMiljöval',
 ];
 
 export const ELECTRICITY_USAGE_KWH: Record<HousingType, Record<UsageLevel, number>> = {
@@ -262,32 +244,6 @@ function getProviderSlug(provider: string): string {
   return normalizeName(provider);
 }
 
-function getEnergySources(row: Record<string, any>): string {
-  const directValue = getValue(row, ENERGY_SOURCE_KEYS);
-  if (directValue) return String(directValue);
-
-  const sourceLabels = [
-    ['Sol', 'Sol'],
-    ['Vind', 'Vind'],
-    ['Vatten', 'Vatten'],
-    ['Karnkraft', 'Kärnkraft'],
-    ['Kärnkraft', 'Kärnkraft'],
-    ['Bio', 'Biobränsle'],
-    ['Biobransle', 'Biobränsle'],
-    ['Biobränsle', 'Biobränsle'],
-    ['Fossil', 'Fossilt'],
-  ];
-
-  const activeSources = sourceLabels
-    .filter(([key]) => {
-      const value = getValue(row, [key]);
-      return value === true || value === 'true' || value === 'Ja' || value === 'ja' || value === 1;
-    })
-    .map(([, label]) => label);
-
-  return activeSources.length > 0 ? activeSources.join(', ') : 'Elmix';
-}
-
 function classifyAgreement(row: Record<string, any>, agreementName: string, agreementType?: string): AgreementCategory {
   const candidates = [
     agreementName,
@@ -353,7 +309,6 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
   const agreementType = agreementTypeValue ? String(agreementTypeValue) : undefined;
   const agreementCategory = classifyAgreement(row, agreementName, agreementType);
   const cancellationPeriod = getValue(row, CANCELLATION_PERIOD_KEYS);
-  const energySources = getEnergySources(row);
 
   return {
     id: `${provider}-${agreementName}-${comparisonPriceOre}-${index}`,
@@ -364,10 +319,8 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
     agreementCategory,
     comparisonPriceOre,
     estimatedMonthlyCost: Math.round((comparisonPriceOre / 100) * annualUsage / 12),
-    energySources,
     cancellationPeriod: cancellationPeriod ? String(cancellationPeriod) : undefined,
     newCustomersOnly: toBoolean(getValue(row, NEW_CUSTOMERS_ONLY_KEYS)),
-    hasBraMiljoval: toBoolean(getValue(row, BRA_MILJOVAL_KEYS)),
     affiliateUrl: getAffiliateUrl(provider),
     raw: row,
   };
