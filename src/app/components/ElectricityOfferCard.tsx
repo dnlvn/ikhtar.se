@@ -99,16 +99,16 @@ export function ElectricityOfferCard({
                   </span>
                 </div>
               )}
-              <div className="min-w-0">
+              <div className="flex min-w-0 flex-col items-start gap-1">
+                {hasSpecificAgreementType && (
+                  <span className="inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
+                    {offer.agreementTypeLabel}
+                  </span>
+                )}
                 {hasSpecificAgreementName && (
                   <p className="text-[11px] text-slate-500 truncate">
                     {offer.agreementName}
                   </p>
-                )}
-                {hasSpecificAgreementType && (
-                  <span className="mt-1 inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
-                    {offer.agreementTypeLabel}
-                  </span>
                 )}
               </div>
             </div>
