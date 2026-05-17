@@ -10,7 +10,6 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Zap,
-  type LucideIcon,
 } from 'lucide-react';
 import { Logo } from '@/app/components/Logo';
 import { PremiumPlanCardSkeleton } from '@/app/components/PremiumPlanCardSkeleton';
@@ -22,15 +21,15 @@ import {
   useElectricityOffers,
 } from '@/hooks/useElectricityOffers';
 
-const housingOptions: Array<{ value: HousingType; label: string; icon: LucideIcon }> = [
-  { value: 'apartment', label: 'شقة', icon: Home },
-  { value: 'house', label: 'فيلا', icon: Zap },
+const housingOptions: Array<{ value: HousingType; label: string; hint: string; icon: typeof Home }> = [
+  { value: 'apartment', label: 'شقة', hint: 'استهلاك أقل', icon: Home },
+  { value: 'house', label: 'فيلا', hint: 'استهلاك أعلى', icon: Zap },
 ];
 
-const usageOptions: Array<{ value: UsageLevel; label: string; icon: LucideIcon }> = [
-  { value: 'low', label: 'منخفض', icon: Zap },
-  { value: 'normal', label: 'عادي', icon: Gauge },
-  { value: 'high', label: 'مرتفع', icon: SlidersHorizontal },
+const usageOptions: Array<{ value: UsageLevel; label: string; hint: string }> = [
+  { value: 'low', label: 'منخفض', hint: 'اقتصادي' },
+  { value: 'normal', label: 'عادي', hint: 'الأكثر شيوعًا' },
+  { value: 'high', label: 'مرتفع', hint: 'كبير' },
 ];
 
 export function ElectricityComparison() {
@@ -99,9 +98,9 @@ export function ElectricityComparison() {
         </div>
       </div>
 
-      <section className="border-b border-slate-100 bg-gradient-to-b from-white to-slate-50 px-3 py-3">
+      <section className="border-b border-blue-100/70 bg-gradient-to-b from-white to-blue-50/60 px-3 py-3">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-xl border border-slate-200/70 bg-white p-3.5 shadow-[0_14px_38px_rgba(15,23,42,0.08)] sm:p-4">
+          <div className="rounded-[26px] border border-white/80 bg-white/95 p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.09)] ring-1 ring-blue-100/60 sm:p-4">
             <div className="grid grid-cols-1 gap-3">
               <label className="block">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
@@ -110,8 +109,8 @@ export function ElectricityComparison() {
                   </span>
                   <span className="text-[11px] font-bold text-blue-700">تحديث فوري</span>
                 </div>
-                <div className="group flex min-h-[66px] items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 shadow-inner shadow-slate-900/5 transition-all duration-200 focus-within:border-blue-600 focus-within:bg-white focus-within:shadow-[0_10px_30px_rgba(37,99,235,0.12)] focus-within:ring-4 focus-within:ring-blue-100">
-                  <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm transition-transform duration-200 group-focus-within:scale-105">
+                <div className="group flex min-h-[62px] items-center gap-3 rounded-[22px] border border-blue-100 bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:border-blue-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm transition-transform duration-200 group-focus-within:scale-105">
                     <MapPin className="h-5 w-5" />
                   </span>
                   <input
@@ -120,7 +119,7 @@ export function ElectricityComparison() {
                     onChange={(event) => setPostcode(event.target.value)}
                     maxLength={6}
                     placeholder="11239"
-                    className="w-full bg-transparent text-[24px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
+                    className="w-full bg-transparent text-[22px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
               </label>
@@ -138,18 +137,18 @@ export function ElectricityComparison() {
                       <button
                         key={option.value}
                         onClick={() => setHousingType(option.value)}
-                        className={`group min-h-[52px] rounded-xl border px-3 py-2.5 text-right transition-all duration-200 active:scale-[0.98] ${
+                        className={`group min-h-[56px] rounded-[20px] border px-3 py-2.5 text-right transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_8px_18px_rgba(29,78,216,0.20)]'
-                            : 'border-slate-200 bg-white text-slate-800 shadow-sm hover:border-blue-200 hover:bg-slate-50 hover:shadow-md'
+                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
+                            : 'border-slate-200 bg-white text-slate-800 shadow-sm hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
                           <span
-                            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all duration-200 ${
+                            className={`flex h-8 w-8 items-center justify-center rounded-2xl transition-all duration-200 ${
                               isSelected
                                 ? 'bg-white/15 text-white'
-                                : 'bg-slate-50 text-slate-600 group-hover:text-blue-700'
+                                : 'bg-blue-50 text-blue-700 group-hover:bg-white'
                             }`}
                           >
                             <Icon className="h-5 w-5" />
@@ -157,6 +156,13 @@ export function ElectricityComparison() {
                           <span className="min-w-0">
                             <span className="block text-[14px] font-black leading-tight">
                               {option.label}
+                            </span>
+                            <span
+                              className={`mt-0.5 block text-[10px] font-semibold leading-tight ${
+                                isSelected ? 'text-blue-100' : 'text-slate-500'
+                              }`}
+                            >
+                              {option.hint}
                             </span>
                           </span>
                         </div>
@@ -178,28 +184,26 @@ export function ElectricityComparison() {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {usageOptions.map((option) => {
-                    const Icon = option.icon;
                     const isSelected = usageLevel === option.value;
 
                     return (
                       <button
                         key={option.value}
                         onClick={() => setUsageLevel(option.value)}
-                        className={`min-h-[52px] rounded-xl border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
+                        className={`min-h-[56px] rounded-[20px] border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_8px_18px_rgba(29,78,216,0.20)]'
-                            : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:border-blue-200 hover:bg-slate-50 hover:shadow-md'
+                            ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
+                            : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
-                        <span
-                          className={`mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-xl ${
-                            isSelected ? 'bg-white/15 text-white' : 'bg-slate-50 text-slate-600'
-                          }`}
-                        >
-                          <Icon className="h-3.5 w-3.5" />
+                        <span className="mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                          <Zap className="h-3.5 w-3.5" />
                         </span>
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
+                        </span>
+                        <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
+                          {option.hint}
                         </span>
                       </button>
                     );
@@ -207,7 +211,7 @@ export function ElectricityComparison() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
+              <div className="flex items-center justify-between rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
                 <span className="inline-flex items-center gap-1.5">
                   <SlidersHorizontal className="h-3.5 w-3.5 text-blue-700" />
                   الأرخص أولًا
