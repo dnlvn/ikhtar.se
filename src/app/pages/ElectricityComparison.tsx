@@ -27,10 +27,30 @@ const housingOptions: Array<{ value: HousingType; label: string; hint: string; i
   { value: 'house', label: 'فيلا', hint: 'استهلاك أعلى', icon: House },
 ];
 
-const usageOptions: Array<{ value: UsageLevel; label: string; hint: string; icon: LucideIcon }> = [
-  { value: 'low', label: 'منخفض', hint: 'اقتصادي', icon: Gauge },
-  { value: 'normal', label: 'عادي', hint: 'الأكثر شيوعًا', icon: Gauge },
-  { value: 'high', label: 'مرتفع', hint: 'كبير', icon: Gauge },
+const usageOptions: Array<{
+  value: UsageLevel;
+  label: string;
+  hints: Record<HousingType, string>;
+  icon: LucideIcon;
+}> = [
+  {
+    value: 'low',
+    label: 'منخفض',
+    hints: { apartment: 'شقة صغيرة', house: 'فيلا بدون تدفئة كهربائية' },
+    icon: Gauge,
+  },
+  {
+    value: 'normal',
+    label: 'عادي',
+    hints: { apartment: 'عائلة عادية', house: 'فيلا عادية' },
+    icon: Gauge,
+  },
+  {
+    value: 'high',
+    label: 'مرتفع',
+    hints: { apartment: 'سكن كبير', house: 'فيلا كبيرة / تدفئة كهربائية' },
+    icon: Gauge,
+  },
 ];
 
 const usageIconClasses: Record<UsageLevel, string> = {
@@ -40,7 +60,7 @@ const usageIconClasses: Record<UsageLevel, string> = {
 };
 
 export function ElectricityComparison() {
-  const [postcode, setPostcode] = useState('');
+  const [postcode, setPostcode] = useState('12747');
   const [housingType, setHousingType] = useState<HousingType>('apartment');
   const [usageLevel, setUsageLevel] = useState<UsageLevel>('normal');
   const [showCustomUsage, setShowCustomUsage] = useState(false);
@@ -133,7 +153,7 @@ export function ElectricityComparison() {
                     value={postcode}
                     onChange={(event) => setPostcode(event.target.value)}
                     maxLength={6}
-                    placeholder="أدخل رمزك البريدي هنا"
+                    placeholder="12747"
                     className="w-full bg-transparent text-[22px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
@@ -218,13 +238,13 @@ export function ElectricityComparison() {
                           {option.label}
                         </span>
                         <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
-                          {option.hint}
+                          {option.hints[housingType]}
                         </span>
                       </button>
                     );
                   })}
                 </div>
-                <div className="mt-2 flex justify-end">
+                <div className="mt-2 flex justify-start">
                   <span className="inline-flex items-center justify-center gap-1.5 rounded-full border border-blue-100 bg-slate-100 px-4 py-1.5 text-[14px] font-black text-slate-700">
                     <Gauge className="h-3.5 w-3.5 text-blue-700" />
                     {annualUsage.toLocaleString('sv-SE')} kWh / سنة
@@ -233,9 +253,9 @@ export function ElectricityComparison() {
                 <button
                   type="button"
                   onClick={() => setShowCustomUsage((current) => !current)}
-                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[13px] font-bold text-slate-400 transition-colors duration-200 hover:text-slate-600"
+                  className="mt-2 w-full bg-transparent px-2 py-1 text-right text-[13px] font-bold text-slate-400 transition-colors duration-200 hover:text-slate-600"
                 >
-                  أدخل استهلاكك السنوي بنفسك
+                  أو اضغط هنا لإدخال استهلاكك السنوي بنفسك
                 </button>
                 {showCustomUsage && (
                   <div className="mt-2 flex min-h-[54px] items-center gap-3 rounded-[18px] border border-blue-600 bg-white px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:ring-4 focus-within:ring-blue-100">
