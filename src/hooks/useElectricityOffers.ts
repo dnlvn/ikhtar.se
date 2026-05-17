@@ -7,9 +7,13 @@ export interface ElectricityOffer {
   id: string;
   provider: string;
   agreementName: string;
+  agreementType?: string;
   comparisonPriceOre: number;
   estimatedMonthlyCost: number;
   energySources: string;
+  cancellationPeriod?: string;
+  newCustomersOnly: boolean;
+  hasBraMiljoval: boolean;
   affiliateUrl: string;
   raw: Record<string, any>;
 }
@@ -76,9 +80,14 @@ const AGREEMENT_NAME_KEYS = [
   'AvtalNamn',
   'Produktnamn',
   'Produkt',
+];
+
+const AGREEMENT_TYPE_KEYS = [
   'Avtalsform',
   'AvtalTyp',
   'Avtalstyp',
+  'Prisavtal',
+  'Pristyp',
 ];
 
 const COMPARISON_PRICE_KEYS = [
@@ -102,6 +111,32 @@ const ENERGY_SOURCE_KEYS = [
   'Ursprung',
   'Miljo',
   'Miljö',
+];
+
+const CANCELLATION_PERIOD_KEYS = [
+  'Uppsagningstid',
+  'Uppsägningstid',
+  'UppsagningstidManader',
+  'UppsägningstidMånader',
+  'UppsagningstidManad',
+  'UppsägningstidMånad',
+];
+
+const NEW_CUSTOMERS_ONLY_KEYS = [
+  'EndastNyaKunder',
+  'EndastNyKund',
+  'BaraNyaKunder',
+  'Nykund',
+  'NyKund',
+  'GallerEndastNyaKunder',
+  'GällerEndastNyaKunder',
+];
+
+const BRA_MILJOVAL_KEYS = [
+  'BraMiljoval',
+  'BraMiljöval',
+  'HarBraMiljoval',
+  'HarBraMiljöval',
 ];
 
 export const ELECTRICITY_USAGE_KWH: Record<HousingType, Record<UsageLevel, number>> = {
@@ -167,6 +202,15 @@ function toNumber(value: any): number | null {
 
   const parsed = Number(value.replace(',', '.').replace(/[^\d.-]/g, ''));
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toBoolean(value: any): boolean {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  if (typeof value !== 'string') return false;
+
+  const normalized = normalizeName(value);
+  return ['true', 'ja', 'yes', '1'].includes(normalized);
 }
 
 function getProviderName(row: Record<string, any>): string {
@@ -241,15 +285,21 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
   if (comparisonPriceOre === null) return null;
 
   const agreementName = String(getValue(row, AGREEMENT_NAME_KEYS) ?? 'Elavtal');
+  const agreementType = getValue(row, AGREEMENT_TYPE_KEYS);
+  const cancellationPeriod = getValue(row, CANCELLATION_PERIOD_KEYS);
   const energySources = getEnergySources(row);
 
   return {
     id: `${provider}-${agreementName}-${comparisonPriceOre}-${index}`,
     provider,
     agreementName,
+    agreementType: agreementType ? String(agreementType) : undefined,
     comparisonPriceOre,
     estimatedMonthlyCost: Math.round((comparisonPriceOre / 100) * annualUsage / 12),
     energySources,
+    cancellationPeriod: cancellationPeriod ? String(cancellationPeriod) : undefined,
+    newCustomersOnly: toBoolean(getValue(row, NEW_CUSTOMERS_ONLY_KEYS)),
+    hasBraMiljoval: toBoolean(getValue(row, BRA_MILJOVAL_KEYS)),
     affiliateUrl: getAffiliateUrl(provider),
     raw: row,
   };
