@@ -58,7 +58,7 @@ export function ElectricityOfferCard({
       <div
         onClick={handleClick}
         className={`
-          relative rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer
+          relative overflow-visible rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer
           ${isBestDeal
             ? 'bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/60 border-2 border-amber-400 shadow-amber-200/40 shadow-lg hover:shadow-xl hover:shadow-amber-300/50'
             : 'bg-white border border-slate-200/60'
@@ -85,11 +85,13 @@ export function ElectricityOfferCard({
           <div className="flex items-center justify-between mb-[6px]">
             <div className="flex min-w-0 flex-col items-end gap-1.5 text-right">
               {providerLogo ? (
-                <img
-                  src={providerLogo}
-                  alt={offer.provider}
-                  className="h-[35px] max-w-[160px] object-contain"
-                />
+                <div className="flex min-h-[42px] w-[160px] items-center justify-end overflow-visible">
+                  <img
+                    src={providerLogo}
+                    alt={offer.provider}
+                    className="h-auto max-h-[38px] max-w-[160px] object-contain"
+                  />
+                </div>
               ) : (
                 <div className="w-7 h-7 flex shrink-0 items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
                   <span className="text-xs font-bold text-slate-700">
