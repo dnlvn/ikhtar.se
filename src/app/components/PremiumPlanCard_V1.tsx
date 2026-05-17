@@ -121,15 +121,10 @@ const handleClick = () => {
             </div>
 
             {/* CENTER-LEFT: Data amount */}
-            <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
+            <div className="flex-shrink-0">
               <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} font-extrabold text-slate-900 leading-none not-italic p-[0px] m-[0px]`}>
                 {plan.dataLabel || t('card.unlimitedData')}
               </span>
-              {activePromotion && (
-                <span className="text-[11px] font-semibold leading-none text-emerald-700">
-                  + 100 GB extra
-                </span>
-              )}
             </div>
 
             {/* RIGHT: Price */}
@@ -144,6 +139,20 @@ const handleClick = () => {
               </div>
             </div>
           </div>
+
+          {activePromotion && (
+            <div className="mb-2 flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-bold leading-none" dir="rtl">
+              <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-emerald-700 shadow-sm">
+                هدية: ١٠٠ GB إضافية
+              </span>
+              <span className="inline-flex items-center rounded-full border border-amber-200 bg-gradient-to-l from-amber-50 to-orange-50 px-2.5 py-1.5 text-amber-700 shadow-sm">
+                عرض محدود +١٠٠ GB
+              </span>
+              <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1.5 text-sky-700 shadow-sm">
+                إنترنت إضافي حتى ٣١ مايو
+              </span>
+            </div>
+          )}
 
           {/* Bottom row: Features (left) | CTA button (right) */}
           <div className="flex items-start justify-between">
