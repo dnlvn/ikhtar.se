@@ -83,15 +83,13 @@ export function ElectricityOfferCard({
 
         <div className="p-[14px]">
           <div className="flex items-center justify-between mb-[6px]">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex min-w-0 flex-col items-end gap-1.5">
               {providerLogo ? (
-                <div className="flex h-[35px] w-[120px] shrink-0 items-center justify-end overflow-hidden">
-                  <img
-                    src={providerLogo}
-                    alt={offer.provider}
-                    className="max-h-[35px] max-w-[120px] object-contain"
-                  />
-                </div>
+                <img
+                  src={providerLogo}
+                  alt={offer.provider}
+                  className="h-[35px] w-auto object-contain"
+                />
               ) : (
                 <div className="w-7 h-7 flex shrink-0 items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
                   <span className="text-xs font-bold text-slate-700">
@@ -99,18 +97,16 @@ export function ElectricityOfferCard({
                   </span>
                 </div>
               )}
-              <div className="flex min-w-0 flex-col items-start gap-1">
-                {hasSpecificAgreementType && (
-                  <span className="inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
-                    {offer.agreementTypeLabel}
-                  </span>
-                )}
-                {hasSpecificAgreementName && (
-                  <p className="text-[11px] text-slate-500 truncate">
-                    {offer.agreementName}
-                  </p>
-                )}
-              </div>
+              {hasSpecificAgreementType && (
+                <span className="inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
+                  {offer.agreementTypeLabel}
+                </span>
+              )}
+              {hasSpecificAgreementName && (
+                <p className="max-w-[140px] truncate text-[11px] text-slate-500">
+                  {offer.agreementName}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col items-end text-right">
