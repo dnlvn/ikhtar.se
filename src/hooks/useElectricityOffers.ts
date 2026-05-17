@@ -36,7 +36,6 @@ const SUPPORTED_PROVIDERS = [
   'Greenely',
   'Eon',
   'Bixia',
-  'HemSol',
   'Tibber',
   'Dalakraft',
   'Enkla Elbolaget',
