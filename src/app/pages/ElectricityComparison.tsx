@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
@@ -68,6 +68,50 @@ const agreementFilterOptions: Array<{ value: AgreementFilter; label: string }> =
   { value: 'hourly', label: 'بالساعة/الربع' },
 ];
 
+const electricityFaqItems = [
+  {
+    question: 'كيف يمكن العثور على أرخص عقد كهرباء؟',
+    answer: 'من خلال مقارنة أسعار الكهرباء، والرسوم الثابتة، والشروط بين شركات الكهرباء المختلفة.',
+  },
+  {
+    question: 'هل تغيير عقد الكهرباء مجاني؟',
+    answer: 'نعم، في معظم الحالات يكون تغيير عقد الكهرباء مجانياً بالكامل.',
+  },
+  {
+    question: 'هل يمكن تغيير شركة الكهرباء في أي وقت؟',
+    answer: 'يعتمد ذلك على ما إذا كان لديك مدة التزام في عقد الكهرباء الحالي.',
+  },
+  {
+    question: 'هل يحدث انقطاع للكهرباء عند تغيير العقد؟',
+    answer: 'كلا. تستمر الكهرباء بالعمل بشكل طبيعي حتى عند تغيير شركة الكهرباء أو عقد الكهرباء.',
+  },
+  {
+    question: 'كم يمكن توفيره عند تغيير عقد الكهرباء؟',
+    answer: 'يختلف ذلك بحسب الاستهلاك والعقد الحالي، لكن كثيراً من الأسر يمكنها توفير مئات أو آلاف الكرونات سنوياً.',
+  },
+  {
+    question: 'هل السعر المتغير أم الثابت أرخص؟',
+    answer: 'تاريخياً، كان السعر المتغير غالباً الأرخص على المدى الطويل، لكن أسعار الكهرباء قد تختلف بين الأشهر.',
+  },
+  {
+    question: 'ما هو العقد المفتوح (tillsvidareavtal)؟',
+    answer: 'العقد المفتوح هو غالباً أغلى عقد قياسي لدى شركات الكهرباء، ويتم تطبيقه إذا لم تقم باختيار عقد كهرباء بشكل فعّال.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: electricityFaqItems.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+
 export function ElectricityComparison() {
   const [postcode, setPostcode] = useState('12747');
   const [housingType, setHousingType] = useState<HousingType>('apartment');
@@ -101,6 +145,7 @@ export function ElectricityComparison() {
           content="قارن عقود الكهرباء في السويد حسب الرمز البريدي والاستهلاك واعثر بسرعة على عرض مناسب من شركات الكهرباء السويدية."
         />
         <link rel="canonical" href="https://ikhtar.se/elavtal" />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/40">
@@ -144,7 +189,7 @@ export function ElectricityComparison() {
         </div>
       </div>
 
-      <section className="border-b border-blue-100/70 bg-gradient-to-b from-white to-blue-50/60 px-3 py-3">
+      <section id="electricity-search" className="border-b border-blue-100/70 bg-gradient-to-b from-white to-blue-50/60 px-3 py-3">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-[26px] border border-white/80 bg-white/95 p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.09)] ring-1 ring-blue-100/60 sm:p-4">
             <div className="grid grid-cols-1 gap-3">
@@ -383,7 +428,170 @@ export function ElectricityComparison() {
             </div>
           </>
         )}
+
+        <ElectricitySeoSection />
       </main>
     </>
+  );
+}
+
+function ElectricitySeoSection() {
+  const agreementTypeCards = [
+    {
+      title: 'عقود الكهرباء ذات السعر المتغير',
+      text: 'يتبع سعر الكهرباء المتغير سوق الكهرباء ويمكن أن يتغير من شهر إلى آخر. تاريخياً، كان السعر المتغير غالباً الخيار الأرخص على المدى الطويل.',
+    },
+    {
+      title: 'عقود الكهرباء ذات السعر الثابت',
+      text: 'مع عقد الكهرباء ذي السعر الثابت، تدفع السعر نفسه طوال مدة العقد. وقد يكون هذا خياراً جيداً لمن يريد تكاليف كهرباء أكثر استقراراً ويمكن التنبؤ بها بسهولة.',
+    },
+    {
+      title: 'عقود الكهرباء بالتسعير بالساعة',
+      text: 'مع التسعير بالساعة، يتغير سعر الكهرباء من ساعة إلى أخرى بناءً على أسعار سوق الكهرباء. يناسب هذا الخيار من يستطيع تنظيم استهلاكه خلال الساعات الأرخص من اليوم.',
+    },
+  ];
+
+  const cheapElectricityCards = [
+    ['عقود الكهرباء الرخيصة', 'نساعدك على العثور على عقود كهرباء أرخص من شركات مختلفة في السويد.'],
+    ['الكهرباء الرخيصة في السويد', 'قارن الأسعار الحالية واعثر على كهرباء رخيصة تناسب منزلك واستهلاكك.'],
+    ['سعر الكهرباء المتغير', 'قارن عقود الكهرباء ذات السعر المتغير واعرف أي الشركات تقدم أفضل العروض.'],
+    ['سعر الكهرباء الثابت', 'اختر عقد كهرباء بسعر ثابت إذا كنت تريد تكلفة أكثر استقراراً وتوقعاً.'],
+    ['عقود الكهرباء للشقق', 'قارن عقود الكهرباء المناسبة للشقق حيث تكون الرسوم الثابتة مهمة جداً.'],
+    ['عقود الكهرباء للمنازل المستقلة', 'قارن عقود الكهرباء المناسبة للفيلات والمنازل ذات الاستهلاك الأعلى.'],
+  ];
+
+  const scrollToSearch = () => {
+    document.getElementById('electricity-search')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <section className="mt-10 border-t border-blue-100 bg-gradient-to-b from-white via-blue-50/30 to-white px-1 py-10">
+      <div className="mx-auto max-w-4xl space-y-8">
+        <div className="flex flex-wrap gap-2">
+          {['أسعار محدثة', 'مقارنة مجانية', 'روابط واضحة'].map((badge) => (
+            <span key={badge} className="rounded-full bg-blue-50 px-3 py-1.5 text-[11px] font-bold text-blue-800 ring-1 ring-blue-100">
+              {badge}
+            </span>
+          ))}
+        </div>
+
+        <div className="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-blue-100">
+          <h2 className="mb-3 text-2xl font-black leading-tight text-slate-950">
+            قارن عقود الكهرباء وخفّض تكلفة الكهرباء
+          </h2>
+          <div className="space-y-3 text-[14px] leading-7 text-slate-700">
+            <p>هنا يمكنك مقارنة عقود الكهرباء من شركات كهرباء مختلفة في السويد في مكان واحد. نعرض أسعار الكهرباء الحالية، والرسوم الثابتة، والتكلفة التقديرية لعقد الكهرباء بناءً على الرمز البريدي واستهلاكك للكهرباء.</p>
+            <p>يدفع كثير من الأشخاص مبالغ أعلى من اللازم مقابل الكهرباء كل شهر من دون أن يدركوا ذلك. ومن خلال مقارنة عقود الكهرباء بانتظام، يمكنك غالباً العثور على كهرباء أرخص وتقليل تكاليف الكهرباء بشكل ملحوظ.</p>
+            <p>يتم تحديث الأسعار والشروط باستمرار لعرض أحدث عروض الكهرباء من شركات الكهرباء السويدية.</p>
+          </div>
+        </div>
+
+        <div className="rounded-[24px] bg-blue-950 p-5 text-white shadow-lg shadow-blue-950/10">
+          <h2 className="mb-4 text-xl font-black">كيف تعمل مقارنة عقود الكهرباء؟</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              ['1', 'أدخل الرمز البريدي والاستهلاك', 'أدخل الرمز البريدي وحدد كمية الكهرباء التي تستخدمها تقريباً سنوياً.'],
+              ['2', 'قارن عقود الكهرباء الحالية', 'شاهد أسعار الكهرباء الحالية، والرسوم الثابتة، والعقود المختلفة من شركات الكهرباء في السويد.'],
+              ['3', 'انتقل إلى عقد كهرباء أرخص', 'عندما تجد عقد كهرباء مناسباً، يمكنك الانتقال مباشرة إلى شركة الكهرباء وإكمال عملية التبديل لدى المزود نفسه.'],
+            ].map(([number, title, text]) => (
+              <div key={number} className="rounded-[18px] bg-white/10 p-4 ring-1 ring-white/10">
+                <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-400 text-sm font-black text-blue-950">
+                  {number}
+                </div>
+                <h3 className="mb-1 text-sm font-black">{title}</h3>
+                <p className="text-[12px] leading-6 text-blue-50">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <SeoTextBlock title="لماذا يدفع كثيرون مبالغ مرتفعة للكهرباء؟">
+          <p>يمتلك كثير من الأشخاص عقود كهرباء قديمة أو ما يُعرف بالعقود المفتوحة (tillsvidareavtal)، والتي تكون غالباً أغلى بكثير من عروض الكهرباء الجديدة والأسعار الترويجية.</p>
+          <p>وفي بعض الحالات قد يصل الفرق إلى عدة آلاف من الكرونات سنوياً. لذلك من الذكاء مقارنة عقود الكهرباء بشكل منتظم بدلاً من البقاء على العقد نفسه عاماً بعد عام.</p>
+          <p>عند مقارنة أسعار الكهرباء، من المهم النظر إلى السعر لكل كيلوواط ساعة، الرسوم الشهرية الثابتة، مدة الالتزام، الخصومات المحتملة، والسعر بعد انتهاء العرض الترويجي.</p>
+          <p>أرخص عقد كهرباء ليس دائماً العقد الذي يملك أقل سعر لكل كيلوواط ساعة. بالنسبة لبعض الأسر، قد تكون الرسوم الثابتة أكثر أهمية من سعر الكهرباء نفسه.</p>
+        </SeoTextBlock>
+
+        <SeoTextBlock title="ما الذي يؤثر على تكلفة الكهرباء؟">
+          <p>تتأثر تكلفة الكهرباء بعدة عوامل، منها كمية الكهرباء التي تستخدمها، ما إذا كنت تعيش في شقة أو منزل مستقل، منطقة الكهرباء التي تقيم فيها، نوع السعر، والرسوم الثابتة والإضافية.</p>
+          <p>إذا كنت تعيش في شقة، فإن الرسوم الشهرية الثابتة تكون غالباً العامل الأهم لأن استهلاك الكهرباء يكون أقل عادةً.</p>
+          <p>أما بالنسبة للمنازل المستقلة والأسر ذات الاستهلاك المرتفع للكهرباء، فإن سعر الكهرباء لكل كيلوواط ساعة يكون غالباً الأكثر أهمية.</p>
+        </SeoTextBlock>
+
+        <div>
+          <h2 className="mb-3 text-2xl font-black text-slate-950">أنواع عقود الكهرباء</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            {agreementTypeCards.map((card) => (
+              <div key={card.title} className="rounded-[22px] bg-white p-4 shadow-sm ring-1 ring-blue-100">
+                <h3 className="mb-2 text-[15px] font-black text-slate-950">{card.title}</h3>
+                <p className="text-[13px] leading-6 text-slate-600">{card.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <SeoTextBlock title="تبديل شركة الكهرباء سهل">
+          <p>يعتقد كثير من الأشخاص أن تغيير شركة الكهرباء أمر معقد، لكنه في معظم الحالات لا يستغرق سوى بضع دقائق.</p>
+          <p>ستستمر بالحصول على الكهرباء عبر شبكة الكهرباء نفسها، ولن يحدث أي انقطاع للكهرباء عند تغيير العقد.</p>
+          <p>وغالباً ما تساعدك شركة الكهرباء الجديدة في تنفيذ عملية التبديل بالكامل.</p>
+        </SeoTextBlock>
+
+        <div>
+          <h2 className="mb-3 text-2xl font-black text-slate-950">قارن عقود الكهرباء الرخيصة في السويد</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {cheapElectricityCards.map(([title, text]) => (
+              <div key={title} className="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-blue-100">
+                <h3 className="mb-1 text-[14px] font-black text-blue-900">{title}</h3>
+                <p className="text-[12px] leading-6 text-slate-600">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-2xl font-black text-slate-950">أسئلة شائعة حول عقود الكهرباء</h2>
+          <div className="space-y-2">
+            {electricityFaqItems.map((item) => (
+              <details key={item.question} className="group rounded-[18px] bg-white p-4 shadow-sm ring-1 ring-blue-100">
+                <summary className="cursor-pointer list-none text-[14px] font-black text-slate-950">
+                  {item.question}
+                </summary>
+                <p className="mt-3 text-[13px] leading-6 text-slate-600">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[22px] bg-blue-50 p-5 ring-1 ring-blue-100">
+          <h2 className="mb-2 text-lg font-black text-blue-950">حول روابطنا</h2>
+          <p className="text-[13px] leading-6 text-blue-900">
+            قد نحصل على تعويض من بعض شركات الكهرباء إذا انتقلت عبر روابطنا وقمت بتبديل عقد الكهرباء. هذا لا يؤثر على السعر الذي تدفعه لدى شركة الكهرباء.
+          </p>
+        </div>
+
+        <div className="rounded-[26px] bg-gradient-to-br from-blue-700 to-blue-950 p-6 text-center text-white shadow-xl shadow-blue-900/20">
+          <h2 className="mb-2 text-2xl font-black">اعثر على عقد كهرباء أرخص اليوم</h2>
+          <p className="mx-auto mb-5 max-w-2xl text-[14px] leading-7 text-blue-50">
+            قارن عروض الكهرباء الحالية من شركات الكهرباء السويدية وشاهد كم يمكنك أن توفر عند تغيير عقد الكهرباء.
+          </p>
+          <button
+            type="button"
+            onClick={scrollToSearch}
+            className="rounded-2xl bg-white px-5 py-3 text-[14px] font-black text-blue-800 shadow-lg transition hover:bg-blue-50"
+          >
+            شاهد أرخص عقود الكهرباء
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SeoTextBlock({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-blue-100">
+      <h2 className="mb-3 text-2xl font-black leading-tight text-slate-950">{title}</h2>
+      <div className="space-y-3 text-[14px] leading-7 text-slate-700">{children}</div>
+    </div>
   );
 }
