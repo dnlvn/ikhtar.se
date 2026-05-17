@@ -239,10 +239,10 @@ export function ElectricityComparison() {
                           {option.label}
                         </span>
                         <span className="mt-0.5 block text-[11px] font-medium leading-tight text-blue-800">
-                          {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh / سنة
+                          {option.hints[housingType]}
                         </span>
                         <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
-                          {option.hints[housingType]}
+                          {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh / سنة
                         </span>
                       </button>
                     );
