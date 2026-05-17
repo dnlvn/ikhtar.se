@@ -20,7 +20,6 @@ export function ElectricityOfferCard({
   const detailItems = [
     offer.cancellationPeriod ? `إلغاء: ${offer.cancellationPeriod}` : null,
     offer.newCustomersOnly ? 'للعملاء الجدد' : null,
-    offer.hasBraMiljoval ? 'Bra Miljöval' : null,
   ].filter(Boolean);
 
   const handleClick = () => {
@@ -107,15 +106,12 @@ export function ElectricityOfferCard({
           </div>
 
           <div className="flex items-start justify-between gap-3">
-            <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="flex min-w-0 flex-col justify-center gap-1">
               <div className="flex items-center gap-1.5">
                 <Bolt className="w-3.5 h-3.5 text-slate-900" strokeWidth={2.5} />
                 <span className="text-[12px] leading-tight text-slate-900">
                   {offer.comparisonPriceOre.toFixed(2).replace('.', ',')} öre/kWh
                 </span>
-              </div>
-              <div className="text-[12px] leading-tight text-slate-900 truncate">
-                {offer.energySources}
               </div>
               {detailItems.length > 0 && (
                 <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium leading-tight text-slate-500">
