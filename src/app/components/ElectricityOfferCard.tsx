@@ -148,7 +148,7 @@ export function ElectricityOfferCard({
                 borderRadius: '0.75rem',
               }}
             >
-              شاهد العرض
+              احصل على العرض
             </button>
           </div>
         </div>
