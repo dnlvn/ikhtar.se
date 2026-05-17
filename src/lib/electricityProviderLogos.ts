@@ -17,7 +17,7 @@ export type ElectricityProviderSlug =
   | 'svekraft';
 
 export const ELECTRICITY_PROVIDER_LOGOS: Record<ElectricityProviderSlug, string> = {
-  'skelleftea-kraft': '/assets/electricity-providers/skelleftea-kraft.png',
+  'skelleftea-kraft': '/assets/electricity-providers/skelleftea-kraft.png?v=2',
   vattenfall: '/assets/electricity-providers/vattenfall.svg',
   'telinet-energi': '/assets/electricity-providers/telinet-energi.png',
   fortum: '/assets/electricity-providers/fortum.svg',
@@ -26,8 +26,8 @@ export const ELECTRICITY_PROVIDER_LOGOS: Record<ElectricityProviderSlug, string>
   bixia: '/assets/electricity-providers/bixia.png',
   tibber: '/assets/electricity-providers/tibber.png',
   dalakraft: '/assets/electricity-providers/dalakraft.webp',
-  'enkla-elbolaget': '/assets/electricity-providers/enkla-elbolaget.png',
-  'cheap-energy': '/assets/electricity-providers/cheap-energy.png',
+  'enkla-elbolaget': '/assets/electricity-providers/enkla-elbolaget.png?v=2',
+  'cheap-energy': '/assets/electricity-providers/cheap-energy.png?v=2',
   'karnfull-energi': '/assets/electricity-providers/karnfull-energi.svg',
   'motala-energi': '/assets/electricity-providers/motala-energi.svg',
   'stockholms-elbolag': '/assets/electricity-providers/stockholms-elbolag.svg',
