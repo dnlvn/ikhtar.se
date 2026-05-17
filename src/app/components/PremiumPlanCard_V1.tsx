@@ -2,6 +2,7 @@ import { ArrowRight, Sparkles, Unlock, Lock, Phone, Crown } from 'lucide-react';
 import { useState } from 'react';
 import type { Plan } from '@/hooks/usePlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
+import { getActiveMobileProviderPromotion } from '@/lib/mobileProviderConfig';
 import { PlanDetailsModal } from './PlanDetailsModal';
 import { t } from '@/i18n';
 
@@ -22,6 +23,8 @@ interface PremiumPlanCardProps {
  */
 export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'soft-highlight' }: PremiumPlanCardProps) {
   const operatorLogo = getOperatorLogo(plan.title);
+  const activePromotion = getActiveMobileProviderPromotion(plan.title);
+  const ctaUrl = activePromotion?.promotionUrl || plan.sourceUrl;
   
   const hasCampaign = plan.campaign !== null;
   const savings = hasCampaign ? plan.regularPrice - plan.price : 0;
@@ -38,7 +41,7 @@ export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'so
     : null;
 
 const handleClick = () => {
-  if (!plan.sourceUrl) return;
+  if (!ctaUrl) return;
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
@@ -48,7 +51,7 @@ const handleClick = () => {
     price: plan.current_price,
   });
 
-  window.open(plan.sourceUrl, '_blank', 'noopener,noreferrer');
+  window.open(ctaUrl, '_blank', 'noopener,noreferrer');
 };
 
   // Extract operator name from plan title (e.g., "Hallon 5GB" -> "hallon")
@@ -74,7 +77,7 @@ const handleClick = () => {
         onClick={handleClick}
         className={`
           relative rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg
-          ${plan.sourceUrl ? 'cursor-pointer' : 'cursor-not-allowed'}
+          ${ctaUrl ? 'cursor-pointer' : 'cursor-not-allowed'}
           ${isBestDeal 
             ? 'bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/60 border-2 border-amber-400 shadow-amber-200/40 shadow-lg hover:shadow-xl hover:shadow-amber-300/50' 
             : 'bg-white border border-slate-200/60'
@@ -83,9 +86,18 @@ const handleClick = () => {
         style={{ borderRadius: '0.75rem' }}
       >
         {/* Regular price badge - top left corner (was right) */}
-        <span className={`absolute top-0 -translate-y-1/2 left-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-slate-200 shadow-sm line-through ${isBestDeal ? 'text-red-700' : 'text-slate-600'}`}>
-          {plan.regularPrice} {t('card.pricePerMonth')}
-        </span>
+        {activePromotion ? (
+          <span className="absolute top-0 -translate-y-1/2 left-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-emerald-200 shadow-sm text-emerald-700">
+            {activePromotion.promotionBadge}
+            <span className="mr-1 text-[10px] font-medium text-slate-500">
+              {activePromotion.promotionText}
+            </span>
+          </span>
+        ) : (
+          <span className={`absolute top-0 -translate-y-1/2 left-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-slate-200 shadow-sm line-through ${isBestDeal ? 'text-red-700' : 'text-slate-600'}`}>
+            {plan.regularPrice} {t('card.pricePerMonth')}
+          </span>
+        )}
 
         {/* Top Deal badge - right corner (was left) */}
         {isBestDeal && (
@@ -165,7 +177,7 @@ const handleClick = () => {
                 e.stopPropagation(); // Prevent card click when button is clicked
                 handleClick();
               }}
-              disabled={!plan.sourceUrl}
+              disabled={!ctaUrl}
               className={`
                 px-5 py-2.5 rounded-xl text-[13px] font-bold uppercase
                 transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
