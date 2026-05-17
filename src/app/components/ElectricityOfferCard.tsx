@@ -16,9 +16,6 @@ export function ElectricityOfferCard({
 }: ElectricityOfferCardProps) {
   const isBestDeal = rank <= 3;
   const detailItems = [
-    offer.agreementType && offer.agreementType !== offer.agreementName
-      ? `نوع: ${offer.agreementType}`
-      : null,
     offer.cancellationPeriod ? `إلغاء: ${offer.cancellationPeriod}` : null,
     offer.newCustomersOnly ? 'للعملاء الجدد' : null,
     offer.hasBraMiljoval ? 'Bra Miljöval' : null,
@@ -82,6 +79,9 @@ export function ElectricityOfferCard({
                 <p className="text-[11px] text-slate-500 truncate">
                   {offer.agreementName}
                 </p>
+                <span className="mt-1 inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
+                  {offer.agreementTypeLabel}
+                </span>
               </div>
             </div>
 
