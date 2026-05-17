@@ -90,8 +90,8 @@ export function ElectricityOfferCard({
               </div>
             </div>
 
-            <div className="flex flex-col items-end">
-              <span className="mb-0.5 text-[10px] font-bold text-slate-500">
+            <div className="flex flex-col items-end text-right">
+              <span className="mb-0.5 block w-full text-right text-[10px] font-bold text-slate-500">
                 تقدير من
               </span>
               <div className="flex items-baseline gap-1">
