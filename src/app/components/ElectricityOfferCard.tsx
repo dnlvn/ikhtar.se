@@ -1,5 +1,6 @@
-import { Bolt, Sparkles, Zap } from 'lucide-react';
+import { Bolt, Sparkles } from 'lucide-react';
 import type { ElectricityOffer } from '@/hooks/useElectricityOffers';
+import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
 interface ElectricityOfferCardProps {
   offer: ElectricityOffer;
@@ -15,6 +16,7 @@ export function ElectricityOfferCard({
   postcode,
 }: ElectricityOfferCardProps) {
   const isBestDeal = rank <= 3;
+  const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
     1: 'الأرخص الآن',
     2: 'سعر ممتاز',
@@ -82,9 +84,19 @@ export function ElectricityOfferCard({
         <div className="p-[14px]">
           <div className="flex items-center justify-between mb-[6px]">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-9 h-9 flex items-center justify-center bg-blue-100 rounded-lg">
-                <Zap className="w-5 h-5 text-blue-700" />
-              </div>
+              {providerLogo ? (
+                <img
+                  src={providerLogo}
+                  alt={offer.provider}
+                  className="h-[35px] w-auto object-contain"
+                />
+              ) : (
+                <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
+                  <span className="text-xs font-bold text-slate-700">
+                    {offer.provider.charAt(0)}
+                  </span>
+                </div>
+              )}
               <div className="min-w-0">
                 <h3 className="text-[18px] font-extrabold text-slate-900 leading-tight truncate">
                   {offer.provider}
