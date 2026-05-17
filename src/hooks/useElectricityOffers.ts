@@ -2,12 +2,16 @@ import { useEffect, useMemo, useState } from 'react';
 
 export type HousingType = 'apartment' | 'house';
 export type UsageLevel = 'low' | 'normal' | 'high';
+export type AgreementFilter = 'all' | 'variable' | 'fixed' | 'hourly';
+export type AgreementCategory = Exclude<AgreementFilter, 'all'> | 'unknown';
 
 export interface ElectricityOffer {
   id: string;
   provider: string;
   agreementName: string;
   agreementType?: string;
+  agreementTypeLabel: string;
+  agreementCategory: AgreementCategory;
   comparisonPriceOre: number;
   estimatedMonthlyCost: number;
   energySources: string;
@@ -23,6 +27,7 @@ interface UseElectricityOffersParams {
   housingType: HousingType;
   usageLevel: UsageLevel;
   customAnnualUsage?: number;
+  agreementFilter?: AgreementFilter;
 }
 
 const SUPPORTED_PROVIDERS = [
@@ -86,6 +91,12 @@ const AGREEMENT_TYPE_KEYS = [
   'Avtalsform',
   'AvtalTyp',
   'Avtalstyp',
+  'AvtalTypId',
+  'TypId',
+  'AvtalBenamning',
+  'AvtalBenämning',
+  'Benamning',
+  'Benämning',
   'Prisavtal',
   'Pristyp',
 ];
@@ -277,6 +288,59 @@ function getEnergySources(row: Record<string, any>): string {
   return activeSources.length > 0 ? activeSources.join(', ') : 'Elmix';
 }
 
+function classifyAgreement(row: Record<string, any>, agreementName: string, agreementType?: string): AgreementCategory {
+  const candidates = [
+    agreementName,
+    agreementType,
+    getValue(row, ['AvtalBenamning', 'AvtalBenämning', 'Benamning', 'Benämning']),
+    getValue(row, ['AvtalTypId', 'TypId']),
+  ]
+    .filter(Boolean)
+    .map(String)
+    .join(' ');
+  const normalized = normalizeName(candidates);
+
+  if (
+    normalized.includes('timpris') ||
+    normalized.includes('kvartspris') ||
+    normalized.includes('spotpris') ||
+    normalized.includes('timavtal') ||
+    normalized.includes('kvart')
+  ) {
+    return 'hourly';
+  }
+
+  if (
+    normalized.includes('fastpris') ||
+    normalized.includes('fastavtal') ||
+    normalized.includes('fastprisavtal') ||
+    normalized.includes('fast')
+  ) {
+    return 'fixed';
+  }
+
+  if (
+    normalized.includes('rorligt') ||
+    normalized.includes('rorlig') ||
+    normalized.includes('manadspris') ||
+    normalized.includes('manadsbaserat')
+  ) {
+    return 'variable';
+  }
+
+  return 'unknown';
+}
+
+function getAgreementTypeLabel(category: AgreementCategory, agreementName: string, agreementType?: string): string {
+  const source = agreementType || agreementName;
+
+  if (category === 'fixed') return source && normalizeName(source).includes('fast') ? source : 'Fast pris';
+  if (category === 'hourly') return source && /(tim|kvart|spot)/i.test(source) ? source : 'Timpris/kvartspris';
+  if (category === 'variable') return source && /rör|ror|mån|man/i.test(source) ? source : 'Rörligt pris';
+
+  return source || 'Elavtal';
+}
+
 function transformOffer(row: Record<string, any>, annualUsage: number, index: number): ElectricityOffer | null {
   const provider = findProvider(row);
   if (!provider) return null;
@@ -285,7 +349,9 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
   if (comparisonPriceOre === null) return null;
 
   const agreementName = String(getValue(row, AGREEMENT_NAME_KEYS) ?? 'Elavtal');
-  const agreementType = getValue(row, AGREEMENT_TYPE_KEYS);
+  const agreementTypeValue = getValue(row, AGREEMENT_TYPE_KEYS);
+  const agreementType = agreementTypeValue ? String(agreementTypeValue) : undefined;
+  const agreementCategory = classifyAgreement(row, agreementName, agreementType);
   const cancellationPeriod = getValue(row, CANCELLATION_PERIOD_KEYS);
   const energySources = getEnergySources(row);
 
@@ -293,7 +359,9 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
     id: `${provider}-${agreementName}-${comparisonPriceOre}-${index}`,
     provider,
     agreementName,
-    agreementType: agreementType ? String(agreementType) : undefined,
+    agreementType,
+    agreementTypeLabel: getAgreementTypeLabel(agreementCategory, agreementName, agreementType),
+    agreementCategory,
     comparisonPriceOre,
     estimatedMonthlyCost: Math.round((comparisonPriceOre / 100) * annualUsage / 12),
     energySources,
@@ -310,6 +378,7 @@ export function useElectricityOffers({
   housingType,
   usageLevel,
   customAnnualUsage,
+  agreementFilter = 'all',
 }: UseElectricityOffersParams) {
   const [offers, setOffers] = useState<ElectricityOffer[]>([]);
   const [loading, setLoading] = useState(false);
@@ -371,6 +440,10 @@ export function useElectricityOffers({
             return;
           }
 
+          if (agreementFilter !== 'all' && offer.agreementCategory !== agreementFilter) {
+            return;
+          }
+
           matchedOffers += 1;
 
           const providerSlug = getProviderSlug(offer.provider);
@@ -391,6 +464,7 @@ export function useElectricityOffers({
           totalRows: rows.length,
           providerNames: Array.from(new Set(providerNames)).slice(0, 40),
           matchedOffers,
+          agreementFilter,
           displayedProviders: bestOfferByProvider.size,
           unmatchedProviders: Array.from(unmatchedProviders).slice(0, 40),
         });
@@ -412,7 +486,7 @@ export function useElectricityOffers({
     fetchOffers();
 
     return () => controller.abort();
-  }, [annualUsage, canSearch, cleanPostcode]);
+  }, [agreementFilter, annualUsage, canSearch, cleanPostcode]);
 
   return useMemo(
     () => ({
