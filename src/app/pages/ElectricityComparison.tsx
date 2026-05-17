@@ -2,40 +2,47 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
+  BatteryFull,
+  BatteryLow,
+  BatteryMedium,
+  Building2,
   Check,
   Clock,
   Gauge,
-  Home,
+  House,
   MapPin,
   RefreshCw,
   SlidersHorizontal,
   Zap,
+  type LucideIcon,
 } from 'lucide-react';
 import { Logo } from '@/app/components/Logo';
 import { PremiumPlanCardSkeleton } from '@/app/components/PremiumPlanCardSkeleton';
 import { ElectricityOfferCard } from '@/app/components/ElectricityOfferCard';
 import {
-  ELECTRICITY_USAGE_KWH,
   type HousingType,
   type UsageLevel,
   useElectricityOffers,
 } from '@/hooks/useElectricityOffers';
 
-const housingOptions: Array<{ value: HousingType; label: string; hint: string; icon: typeof Home }> = [
-  { value: 'apartment', label: 'شقة', hint: 'استهلاك أقل', icon: Home },
-  { value: 'house', label: 'فيلا', hint: 'استهلاك أعلى', icon: Zap },
+const housingOptions: Array<{ value: HousingType; label: string; hint: string; icon: LucideIcon }> = [
+  { value: 'apartment', label: 'شقة', hint: 'استهلاك أقل', icon: Building2 },
+  { value: 'house', label: 'فيلا', hint: 'استهلاك أعلى', icon: House },
 ];
 
-const usageOptions: Array<{ value: UsageLevel; label: string; hint: string }> = [
-  { value: 'low', label: 'منخفض', hint: 'اقتصادي' },
-  { value: 'normal', label: 'عادي', hint: 'الأكثر شيوعًا' },
-  { value: 'high', label: 'مرتفع', hint: 'كبير' },
+const usageOptions: Array<{ value: UsageLevel; label: string; hint: string; icon: LucideIcon }> = [
+  { value: 'low', label: 'منخفض', hint: 'اقتصادي', icon: BatteryLow },
+  { value: 'normal', label: 'عادي', hint: 'الأكثر شيوعًا', icon: BatteryMedium },
+  { value: 'high', label: 'مرتفع', hint: 'كبير', icon: BatteryFull },
 ];
 
 export function ElectricityComparison() {
   const [postcode, setPostcode] = useState('');
   const [housingType, setHousingType] = useState<HousingType>('apartment');
   const [usageLevel, setUsageLevel] = useState<UsageLevel>('normal');
+  const [showCustomUsage, setShowCustomUsage] = useState(false);
+  const [customUsage, setCustomUsage] = useState('');
+  const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
 
   const {
     offers,
@@ -44,7 +51,12 @@ export function ElectricityComparison() {
     annualUsage,
     canSearch,
     supportedProvidersCount,
-  } = useElectricityOffers({ postcode, housingType, usageLevel });
+  } = useElectricityOffers({
+    postcode,
+    housingType,
+    usageLevel,
+    customAnnualUsage: customAnnualUsage > 0 ? customAnnualUsage : undefined,
+  });
 
   return (
     <>
@@ -84,7 +96,7 @@ export function ElectricityComparison() {
               <div className="w-px h-4 bg-slate-200" />
               <div className="inline-flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-[12px]">أسعار من Elpriskollen</span>
+                <span className="font-medium text-[12px]">أسعار مباشرة من الجهات السويدية الرسمية</span>
               </div>
               <div className="w-px h-4 bg-slate-200" />
               <div className="inline-flex items-center gap-1.5">
@@ -103,13 +115,13 @@ export function ElectricityComparison() {
           <div className="rounded-[26px] border border-white/80 bg-white/95 p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.09)] ring-1 ring-blue-100/60 sm:p-4">
             <div className="grid grid-cols-1 gap-3">
               <label className="block">
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-extrabold text-slate-900">
+                <div className="mb-2 grid grid-cols-1 gap-1 text-center">
+                  <span className="text-[16px] font-extrabold text-slate-900">
                     الرمز البريدي
                   </span>
-                  <span className="text-[11px] font-bold text-blue-700">تحديث فوري</span>
+                  <span className="text-[13px] font-extrabold text-blue-700">نتائج بسرعة البرق</span>
                 </div>
-                <div className="group flex min-h-[62px] items-center gap-3 rounded-[22px] border border-blue-100 bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:border-blue-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
+                <div className="group flex min-h-[62px] items-center gap-3 rounded-[22px] border border-blue-600 bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
                   <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm transition-transform duration-200 group-focus-within:scale-105">
                     <MapPin className="h-5 w-5" />
                   </span>
@@ -118,7 +130,7 @@ export function ElectricityComparison() {
                     value={postcode}
                     onChange={(event) => setPostcode(event.target.value)}
                     maxLength={6}
-                    placeholder="11239"
+                    placeholder="أدخل رمزك البريدي هنا"
                     className="w-full bg-transparent text-[22px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
@@ -126,7 +138,7 @@ export function ElectricityComparison() {
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-extrabold text-slate-800">نوع السكن</span>
+                  <span className="text-[16px] font-extrabold text-slate-900">نوع السكن</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {housingOptions.map((option) => {
@@ -140,7 +152,7 @@ export function ElectricityComparison() {
                         className={`group min-h-[56px] rounded-[20px] border px-3 py-2.5 text-right transition-all duration-200 active:scale-[0.98] ${
                           isSelected
                             ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
-                            : 'border-slate-200 bg-white text-slate-800 shadow-sm hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md'
+                            : 'border-blue-600 bg-white text-slate-800 shadow-sm hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
@@ -174,30 +186,36 @@ export function ElectricityComparison() {
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-extrabold text-slate-800">
+                  <span className="text-[16px] font-extrabold text-slate-900">
                     الاستهلاك
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">
+                </div>
+                <div className="mb-2 flex justify-center">
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-full border border-blue-100 bg-slate-100 px-4 py-1.5 text-[14px] font-black text-slate-700">
                     <Gauge className="h-3.5 w-3.5 text-blue-700" />
                     {annualUsage.toLocaleString('sv-SE')} kWh / سنة
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {usageOptions.map((option) => {
+                    const Icon = option.icon;
                     const isSelected = usageLevel === option.value;
 
                     return (
                       <button
                         key={option.value}
-                        onClick={() => setUsageLevel(option.value)}
+                        onClick={() => {
+                          setUsageLevel(option.value);
+                          setCustomUsage('');
+                        }}
                         className={`min-h-[56px] rounded-[20px] border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
                           isSelected
                             ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
-                            : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md'
+                            : 'border-blue-600 bg-white text-slate-700 shadow-sm hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
                         <span className="mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                          <Zap className="h-3.5 w-3.5" />
+                          <Icon className="h-3.5 w-3.5" />
                         </span>
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
@@ -209,6 +227,25 @@ export function ElectricityComparison() {
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCustomUsage((current) => !current)}
+                  className="mt-2 w-full rounded-[18px] border border-blue-600 bg-white px-3 py-2 text-center text-[13px] font-extrabold text-blue-700 transition-all duration-200 hover:bg-blue-50"
+                >
+                  أدخل استهلاكك السنوي بنفسك
+                </button>
+                {showCustomUsage && (
+                  <div className="mt-2 flex min-h-[54px] items-center gap-3 rounded-[18px] border border-blue-600 bg-white px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:ring-4 focus-within:ring-blue-100">
+                    <Gauge className="h-5 w-5 flex-shrink-0 text-blue-700" />
+                    <input
+                      inputMode="numeric"
+                      value={customUsage}
+                      onChange={(event) => setCustomUsage(event.target.value)}
+                      placeholder="مثال: 4500 kWh / سنة"
+                      className="w-full bg-transparent text-[18px] font-black text-slate-950 outline-none placeholder:text-slate-400"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
