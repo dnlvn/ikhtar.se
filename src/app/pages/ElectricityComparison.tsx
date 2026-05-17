@@ -9,7 +9,6 @@ import {
   MapPin,
   RefreshCw,
   SlidersHorizontal,
-  Sparkles,
   Zap,
 } from 'lucide-react';
 import { Logo } from '@/app/components/Logo';
@@ -99,45 +98,37 @@ export function ElectricityComparison() {
         </div>
       </div>
 
-      <section className="sticky top-0 z-30 border-b border-blue-100/70 bg-gradient-to-b from-white/95 to-blue-50/80 px-3 py-4 backdrop-blur-xl">
+      <section className="border-b border-blue-100/70 bg-gradient-to-b from-white to-blue-50/60 px-3 py-3">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-[28px] border border-white/80 bg-white/95 p-4 shadow-[0_18px_55px_rgba(15,23,42,0.10)] ring-1 ring-blue-100/60 sm:p-5">
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[12px] font-bold text-blue-700">بحث سريع</p>
-                <h2 className="text-[18px] font-black leading-tight text-slate-950">
-                  خصّص المقارنة
-                </h2>
-              </div>
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 shadow-inner">
-                <Sparkles className="h-5 w-5" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
+          <div className="rounded-[26px] border border-white/80 bg-white/95 p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.09)] ring-1 ring-blue-100/60 sm:p-4">
+            <div className="grid grid-cols-1 gap-3">
               <label className="block">
-                <span className="mb-2 block text-[13px] font-extrabold text-slate-800">
-                  الرمز البريدي
-                </span>
-                <div className="group flex min-h-[58px] items-center gap-3 rounded-[22px] border border-slate-200 bg-slate-50/80 px-4 shadow-inner transition-all duration-200 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-                  <MapPin className="h-5 w-5 flex-shrink-0 text-blue-700 transition-transform duration-200 group-focus-within:scale-110" />
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <span className="text-[13px] font-extrabold text-slate-900">
+                    الرمز البريدي
+                  </span>
+                  <span className="text-[11px] font-bold text-blue-700">تحديث فوري</span>
+                </div>
+                <div className="group flex min-h-[62px] items-center gap-3 rounded-[22px] border border-blue-100 bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:border-blue-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm transition-transform duration-200 group-focus-within:scale-105">
+                    <MapPin className="h-5 w-5" />
+                  </span>
                   <input
                     inputMode="numeric"
                     value={postcode}
                     onChange={(event) => setPostcode(event.target.value)}
                     maxLength={6}
                     placeholder="11239"
-                    className="w-full bg-transparent text-[19px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
+                    className="w-full bg-transparent text-[22px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
               </label>
 
               <div>
-                <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
                   <span className="text-[13px] font-extrabold text-slate-800">نوع السكن</span>
-                  <span className="text-[11px] font-semibold text-slate-500">اختر الأقرب لك</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-2">
                   {housingOptions.map((option) => {
                     const Icon = option.icon;
                     const isSelected = housingType === option.value;
@@ -146,15 +137,15 @@ export function ElectricityComparison() {
                       <button
                         key={option.value}
                         onClick={() => setHousingType(option.value)}
-                        className={`group min-h-[72px] rounded-[22px] border px-4 py-3 text-right transition-all duration-200 active:scale-[0.98] ${
+                        className={`group min-h-[56px] rounded-[20px] border px-3 py-2.5 text-right transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_14px_30px_rgba(29,78,216,0.28)]'
+                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
                             : 'border-slate-200 bg-white text-slate-800 shadow-sm hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2.5">
                           <span
-                            className={`flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-200 ${
+                            className={`flex h-8 w-8 items-center justify-center rounded-2xl transition-all duration-200 ${
                               isSelected
                                 ? 'bg-white/15 text-white'
                                 : 'bg-blue-50 text-blue-700 group-hover:bg-white'
@@ -163,11 +154,11 @@ export function ElectricityComparison() {
                             <Icon className="h-5 w-5" />
                           </span>
                           <span className="min-w-0">
-                            <span className="block text-[15px] font-black leading-tight">
+                            <span className="block text-[14px] font-black leading-tight">
                               {option.label}
                             </span>
                             <span
-                              className={`mt-1 block text-[11px] font-semibold leading-tight ${
+                              className={`mt-0.5 block text-[10px] font-semibold leading-tight ${
                                 isSelected ? 'text-blue-100' : 'text-slate-500'
                               }`}
                             >
@@ -182,16 +173,16 @@ export function ElectricityComparison() {
               </div>
 
               <div>
-                <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
                   <span className="text-[13px] font-extrabold text-slate-800">
                     الاستهلاك
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">
                     <Gauge className="h-3.5 w-3.5 text-blue-700" />
                     {annualUsage.toLocaleString('sv-SE')} kWh / سنة
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-3 gap-2">
                   {usageOptions.map((option) => {
                     const isSelected = usageLevel === option.value;
 
@@ -199,19 +190,19 @@ export function ElectricityComparison() {
                       <button
                         key={option.value}
                         onClick={() => setUsageLevel(option.value)}
-                        className={`min-h-[70px] rounded-[22px] border px-3 py-3 text-center transition-all duration-200 active:scale-[0.98] ${
+                        className={`min-h-[56px] rounded-[20px] border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_10px_26px_rgba(37,99,235,0.16)] ring-2 ring-blue-600/15'
+                            ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
                             : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
-                        <span className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                          <Zap className="h-4 w-4" />
+                        <span className="mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                          <Zap className="h-3.5 w-3.5" />
                         </span>
-                        <span className="block text-[14px] font-black leading-tight">
+                        <span className="block text-[13px] font-black leading-tight">
                           {option.label}
                         </span>
-                        <span className="mt-1 block text-[10px] font-semibold leading-tight text-slate-500">
+                        <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
                           {option.hint}
                         </span>
                       </button>
@@ -220,7 +211,7 @@ export function ElectricityComparison() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-[18px] bg-slate-50 px-3 py-2.5 text-[12px] font-bold text-slate-500">
+              <div className="flex items-center justify-between rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
                 <span className="inline-flex items-center gap-1.5">
                   <SlidersHorizontal className="h-3.5 w-3.5 text-blue-700" />
                   الأرخص أولًا
@@ -232,7 +223,7 @@ export function ElectricityComparison() {
         </div>
       </section>
 
-      <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-[14px]">
+      <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-2">
         {!canSearch && (
           <div className="text-center py-12 px-4">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
