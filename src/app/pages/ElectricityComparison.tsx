@@ -319,7 +319,7 @@ export function ElectricityComparison() {
 
         {canSearch && !error && (
           <div className="mb-3 overflow-x-auto">
-            <div className="flex min-w-max items-center gap-2 rounded-2xl bg-white/80 p-1 shadow-sm ring-1 ring-blue-100/70">
+            <div className="flex min-w-max items-center gap-2 rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-blue-100/70">
               {agreementFilterOptions.map((option) => {
                 const isSelected = agreementFilter === option.value;
 
@@ -328,9 +328,9 @@ export function ElectricityComparison() {
                     key={option.value}
                     type="button"
                     onClick={() => setAgreementFilter(option.value)}
-                    className={`rounded-xl px-3.5 py-2 text-[12px] font-bold transition-all duration-200 active:scale-[0.98] ${
+                    className={`rounded-[14px] px-3.5 py-2 text-[12px] font-bold transition-all duration-200 active:scale-[0.98] ${
                       isSelected
-                        ? 'bg-blue-700 text-white shadow-sm'
+                        ? 'bg-blue-50 text-blue-800 shadow-sm ring-1 ring-blue-200'
                         : 'text-slate-600 hover:bg-blue-50 hover:text-blue-800'
                     }`}
                   >
