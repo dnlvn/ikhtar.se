@@ -81,15 +81,17 @@ export function ElectricityOfferCard({
           </div>
         )}
 
-        <div className={`p-[14px] ${badgeLabel ? 'pt-[24px]' : ''}`}>
+        <div className={`p-[14px] ${badgeLabel ? 'pt-[32px]' : ''}`}>
           <div className="flex items-center justify-between mb-[6px]">
-            <div className="flex w-[140px] min-w-0 flex-col items-end gap-1.5 text-right">
+            <div className="flex w-[160px] min-w-0 flex-col items-end gap-1.5 text-right">
               {providerLogo ? (
-                <img
-                  src={providerLogo}
-                  alt={offer.provider}
-                  className="h-[35px] max-w-full object-contain"
-                />
+                <div className="flex h-10 w-full items-center justify-end">
+                  <img
+                    src={providerLogo}
+                    alt={offer.provider}
+                    className="h-full w-full object-contain object-right"
+                  />
+                </div>
               ) : (
                 <div className="w-7 h-7 flex shrink-0 items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
                   <span className="text-xs font-bold text-slate-700">
@@ -103,7 +105,7 @@ export function ElectricityOfferCard({
                 </span>
               )}
               {hasSpecificAgreementName && (
-                <p className="max-w-[140px] truncate text-[11px] text-slate-500">
+                <p className="max-w-[160px] truncate text-[11px] text-slate-500">
                   {offer.agreementName}
                 </p>
               )}
