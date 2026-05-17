@@ -85,22 +85,21 @@ export function ElectricityOfferCard({
           <div className="flex items-center justify-between mb-[6px]">
             <div className="flex items-center gap-2.5 min-w-0">
               {providerLogo ? (
-                <img
-                  src={providerLogo}
-                  alt={offer.provider}
-                  className="h-[35px] w-auto object-contain"
-                />
+                <div className="flex h-[35px] w-[120px] shrink-0 items-center justify-end overflow-hidden">
+                  <img
+                    src={providerLogo}
+                    alt={offer.provider}
+                    className="max-h-[35px] max-w-[120px] object-contain"
+                  />
+                </div>
               ) : (
-                <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
+                <div className="w-7 h-7 flex shrink-0 items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
                   <span className="text-xs font-bold text-slate-700">
                     {offer.provider.charAt(0)}
                   </span>
                 </div>
               )}
               <div className="min-w-0">
-                <h3 className="text-[18px] font-extrabold text-slate-900 leading-tight truncate">
-                  {offer.provider}
-                </h3>
                 {hasSpecificAgreementName && (
                   <p className="text-[11px] text-slate-500 truncate">
                     {offer.agreementName}
