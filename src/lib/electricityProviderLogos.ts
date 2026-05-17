@@ -27,7 +27,7 @@ export const ELECTRICITY_PROVIDER_LOGOS: Record<ElectricityProviderSlug, string>
   tibber: '/assets/electricity-providers/tibber.png',
   dalakraft: '/assets/electricity-providers/dalakraft.webp',
   'enkla-elbolaget': '/assets/electricity-providers/enkla-elbolaget.png',
-  'cheap-energy': '/assets/electricity-providers/cheap-energy.svg',
+  'cheap-energy': '/assets/electricity-providers/cheap-energy.webp',
   'karnfull-energi': '/assets/electricity-providers/karnfull-energi.svg',
   'motala-energi': '/assets/electricity-providers/motala-energi.svg',
   'stockholms-elbolag': '/assets/electricity-providers/stockholms-elbolag.svg',
