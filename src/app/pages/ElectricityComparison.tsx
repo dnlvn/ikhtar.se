@@ -279,13 +279,6 @@ export function ElectricityComparison() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
-                <span className="inline-flex items-center gap-1.5">
-                  <SlidersHorizontal className="h-3.5 w-3.5 text-blue-700" />
-                  الأرخص أولًا
-                </span>
-                <span>تتحدث النتائج مباشرة</span>
-              </div>
             </div>
           </div>
         </div>
@@ -339,6 +332,13 @@ export function ElectricityComparison() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {canSearch && !error && (
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-blue-700" />
+            الأرخص أولًا
           </div>
         )}
 
