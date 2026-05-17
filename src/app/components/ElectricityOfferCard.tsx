@@ -15,6 +15,14 @@ export function ElectricityOfferCard({
   postcode,
 }: ElectricityOfferCardProps) {
   const isBestDeal = rank <= 3;
+  const detailItems = [
+    offer.agreementType && offer.agreementType !== offer.agreementName
+      ? `نوع: ${offer.agreementType}`
+      : null,
+    offer.cancellationPeriod ? `إلغاء: ${offer.cancellationPeriod}` : null,
+    offer.newCustomersOnly ? 'للعملاء الجدد' : null,
+    offer.hasBraMiljoval ? 'Bra Miljöval' : null,
+  ].filter(Boolean);
 
   const handleClick = () => {
     window.dataLayer = window.dataLayer || [];
@@ -78,12 +86,15 @@ export function ElectricityOfferCard({
             </div>
 
             <div className="flex flex-col items-end">
+              <span className="mb-0.5 text-[10px] font-bold text-slate-500">
+                تقدير من
+              </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-[40px] font-black text-slate-900 leading-none">
                   {offer.estimatedMonthlyCost}
                 </span>
                 <span className="text-[12px] font-medium text-slate-700 leading-tight">
-                  كرونة/شهريًا
+                  كرونة/شهر
                 </span>
               </div>
             </div>
@@ -100,6 +111,16 @@ export function ElectricityOfferCard({
               <div className="text-[12px] leading-tight text-slate-900 truncate">
                 {offer.energySources}
               </div>
+              {detailItems.length > 0 && (
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium leading-tight text-slate-500">
+                  {detailItems.map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
+                </div>
+              )}
+              <p className="mt-1 max-w-[220px] text-[10px] leading-snug text-slate-500">
+                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف.
+              </p>
             </div>
 
             <button
