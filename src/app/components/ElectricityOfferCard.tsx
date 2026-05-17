@@ -15,6 +15,8 @@ export function ElectricityOfferCard({
   postcode,
 }: ElectricityOfferCardProps) {
   const isBestDeal = rank <= 3;
+  const hasSpecificAgreementName = offer.agreementName.trim().toLowerCase() !== 'elavtal';
+  const hasSpecificAgreementType = offer.agreementTypeLabel.trim().toLowerCase() !== 'elavtal';
   const detailItems = [
     offer.cancellationPeriod ? `إلغاء: ${offer.cancellationPeriod}` : null,
     offer.newCustomersOnly ? 'للعملاء الجدد' : null,
@@ -76,12 +78,16 @@ export function ElectricityOfferCard({
                 <h3 className="text-[18px] font-extrabold text-slate-900 leading-tight truncate">
                   {offer.provider}
                 </h3>
-                <p className="text-[11px] text-slate-500 truncate">
-                  {offer.agreementName}
-                </p>
-                <span className="mt-1 inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
-                  {offer.agreementTypeLabel}
-                </span>
+                {hasSpecificAgreementName && (
+                  <p className="text-[11px] text-slate-500 truncate">
+                    {offer.agreementName}
+                  </p>
+                )}
+                {hasSpecificAgreementType && (
+                  <span className="mt-1 inline-flex w-fit rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
+                    {offer.agreementTypeLabel}
+                  </span>
+                )}
               </div>
             </div>
 
