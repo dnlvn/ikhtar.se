@@ -120,7 +120,7 @@ export function ElectricityOfferCard({
                   ))}
                 </div>
               )}
-              <p className="mt-1 max-w-[220px] text-[10px] leading-snug text-slate-500">
+              <p className="mt-1 max-w-[220px] text-[9px] leading-snug text-slate-500">
                 بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف.
               </p>
             </div>
@@ -131,7 +131,7 @@ export function ElectricityOfferCard({
                 handleClick();
               }}
               className={`
-                px-5 py-2.5 rounded-xl text-[13px] font-bold uppercase
+                whitespace-nowrap px-4 py-2.5 rounded-xl text-[11px] font-bold uppercase sm:px-5 sm:text-[13px]
                 transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
                 cursor-pointer relative overflow-hidden
                 ${isBestDeal
