@@ -101,7 +101,7 @@ const handleClick = () => {
         )}
 
         {activePromotion && (
-          <div className="absolute left-1/2 top-[72px] z-10 -translate-x-1/2 text-[10px] font-bold leading-none" dir="rtl">
+          <div className="absolute left-1/2 top-[64px] z-10 -translate-x-1/2 text-[10px] font-bold leading-none" dir="rtl">
             <span className="inline-flex items-center whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-emerald-700 shadow-sm">
               الآن: 100 GB إضافية
             </span>
