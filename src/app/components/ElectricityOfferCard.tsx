@@ -81,17 +81,15 @@ export function ElectricityOfferCard({
           </div>
         )}
 
-        <div className={`p-[14px] ${badgeLabel ? 'pt-[32px]' : ''}`}>
+        <div className="p-[14px]">
           <div className="flex items-center justify-between mb-[6px]">
-            <div className="flex w-[160px] min-w-0 flex-col items-end gap-1.5 text-right">
+            <div className="flex min-w-0 flex-col items-end gap-1.5 text-right">
               {providerLogo ? (
-                <div className="flex h-10 w-full items-center justify-end">
-                  <img
-                    src={providerLogo}
-                    alt={offer.provider}
-                    className="h-full w-full object-contain object-right"
-                  />
-                </div>
+                <img
+                  src={providerLogo}
+                  alt={offer.provider}
+                  className="h-[35px] max-w-[160px] object-contain"
+                />
               ) : (
                 <div className="w-7 h-7 flex shrink-0 items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
                   <span className="text-xs font-bold text-slate-700">
