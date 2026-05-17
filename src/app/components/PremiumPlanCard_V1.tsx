@@ -143,13 +143,7 @@ const handleClick = () => {
           {activePromotion && (
             <div className="mb-2 flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-bold leading-none" dir="rtl">
               <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-emerald-700 shadow-sm">
-                هدية: ١٠٠ GB إضافية
-              </span>
-              <span className="inline-flex items-center rounded-full border border-amber-200 bg-gradient-to-l from-amber-50 to-orange-50 px-2.5 py-1.5 text-amber-700 shadow-sm">
-                عرض محدود +١٠٠ GB
-              </span>
-              <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1.5 text-sky-700 shadow-sm">
-                إنترنت إضافي حتى ٣١ مايو
+                الآن: 100 GB إضافية
               </span>
             </div>
           )}
