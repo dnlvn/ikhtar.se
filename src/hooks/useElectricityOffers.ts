@@ -18,6 +18,7 @@ interface UseElectricityOffersParams {
   postcode: string;
   housingType: HousingType;
   usageLevel: UsageLevel;
+  customAnnualUsage?: number;
 }
 
 const SUPPORTED_PROVIDERS = [
@@ -258,12 +259,15 @@ export function useElectricityOffers({
   postcode,
   housingType,
   usageLevel,
+  customAnnualUsage,
 }: UseElectricityOffersParams) {
   const [offers, setOffers] = useState<ElectricityOffer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const annualUsage = ELECTRICITY_USAGE_KWH[housingType][usageLevel];
+  const annualUsage = customAnnualUsage && customAnnualUsage > 0
+    ? customAnnualUsage
+    : ELECTRICITY_USAGE_KWH[housingType][usageLevel];
   const cleanPostcode = postcode.replace(/\D/g, '');
   const canSearch = cleanPostcode.length === 5;
 
