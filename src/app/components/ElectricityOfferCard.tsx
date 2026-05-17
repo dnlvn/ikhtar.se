@@ -15,6 +15,12 @@ export function ElectricityOfferCard({
   postcode,
 }: ElectricityOfferCardProps) {
   const isBestDeal = rank <= 3;
+  const badgeLabelByRank: Record<number, string> = {
+    1: 'الأرخص الآن',
+    2: 'سعر ممتاز',
+    3: 'عرض اقتصادي',
+  };
+  const badgeLabel = badgeLabelByRank[rank];
   const hasSpecificAgreementName = offer.agreementName.trim().toLowerCase() !== 'elavtal';
   const hasSpecificAgreementType = offer.agreementTypeLabel.trim().toLowerCase() !== 'elavtal';
   const detailItems = [
@@ -58,11 +64,17 @@ export function ElectricityOfferCard({
         `}
         style={{ borderRadius: '0.75rem' }}
       >
-        {isBestDeal && (
+        {badgeLabel && (
           <div className="absolute -top-3 right-4 z-20">
-            <div className="bg-amber-50 border border-amber-300/50 text-amber-700 px-3 py-1 rounded-full text-[10px] font-semibold shadow-sm flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5" />
-              من أرخص العروض
+            <div
+              className={`rounded-full flex items-center gap-1 ${
+                rank === 1
+                  ? 'bg-gradient-to-r from-orange-100 via-amber-50 to-yellow-100 border-2 border-amber-400 px-4 py-1.5 text-[12px] font-black text-orange-700 shadow-[0_0_18px_rgba(245,158,11,0.28)]'
+                  : 'bg-amber-50 border border-amber-300/50 px-3 py-1 text-[10px] font-semibold text-amber-700 shadow-sm'
+              }`}
+            >
+              <Sparkles className={rank === 1 ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'} />
+              {badgeLabel}
             </div>
           </div>
         )}
