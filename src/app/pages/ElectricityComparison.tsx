@@ -17,6 +17,7 @@ import { Logo } from '@/app/components/Logo';
 import { PremiumPlanCardSkeleton } from '@/app/components/PremiumPlanCardSkeleton';
 import { ElectricityOfferCard } from '@/app/components/ElectricityOfferCard';
 import {
+  type AgreementFilter,
   type HousingType,
   type UsageLevel,
   ELECTRICITY_USAGE_KWH,
@@ -60,10 +61,18 @@ const usageIconClasses: Record<UsageLevel, string> = {
   high: 'bg-red-50 text-red-600',
 };
 
+const agreementFilterOptions: Array<{ value: AgreementFilter; label: string }> = [
+  { value: 'all', label: 'كل العقود' },
+  { value: 'variable', label: 'سعر متغير' },
+  { value: 'fixed', label: 'سعر ثابت' },
+  { value: 'hourly', label: 'بالساعة/الربع' },
+];
+
 export function ElectricityComparison() {
   const [postcode, setPostcode] = useState('12747');
   const [housingType, setHousingType] = useState<HousingType>('apartment');
   const [usageLevel, setUsageLevel] = useState<UsageLevel>('normal');
+  const [agreementFilter, setAgreementFilter] = useState<AgreementFilter>('all');
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
   const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
@@ -80,6 +89,7 @@ export function ElectricityComparison() {
     housingType,
     usageLevel,
     customAnnualUsage: customAnnualUsage > 0 ? customAnnualUsage : undefined,
+    agreementFilter,
   });
 
   return (
@@ -307,6 +317,31 @@ export function ElectricityComparison() {
           </div>
         )}
 
+        {canSearch && !error && (
+          <div className="mb-3 overflow-x-auto">
+            <div className="flex min-w-max items-center gap-2 rounded-2xl bg-white/80 p-1 shadow-sm ring-1 ring-blue-100/70">
+              {agreementFilterOptions.map((option) => {
+                const isSelected = agreementFilter === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setAgreementFilter(option.value)}
+                    className={`rounded-xl px-3.5 py-2 text-[12px] font-bold transition-all duration-200 active:scale-[0.98] ${
+                      isSelected
+                        ? 'bg-blue-700 text-white shadow-sm'
+                        : 'text-slate-600 hover:bg-blue-50 hover:text-blue-800'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {loading && (
           <div className="grid grid-cols-1 gap-4">
             {[1, 2, 3, 4, 5, 6].map((item) => (
@@ -322,7 +357,7 @@ export function ElectricityComparison() {
               لم نجد عروضًا من الشركات المختارة
             </h2>
             <p className="text-slate-600">
-              جرّب رمزًا بريديًا آخر أو مستوى استهلاك مختلف.
+              جرّب فلترًا آخر أو رمزًا بريديًا أو مستوى استهلاك مختلفًا.
             </p>
           </div>
         )}
