@@ -19,6 +19,7 @@ import { ElectricityOfferCard } from '@/app/components/ElectricityOfferCard';
 import {
   type HousingType,
   type UsageLevel,
+  ELECTRICITY_USAGE_KWH,
   useElectricityOffers,
 } from '@/hooks/useElectricityOffers';
 
@@ -237,6 +238,9 @@ export function ElectricityComparison() {
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
                         </span>
+                        <span className="mt-0.5 block text-[11px] font-medium leading-tight text-blue-800">
+                          {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh / سنة
+                        </span>
                         <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
                           {option.hints[housingType]}
                         </span>
@@ -244,16 +248,10 @@ export function ElectricityComparison() {
                     );
                   })}
                 </div>
-                <div className="mt-2 flex justify-start">
-                  <span className="inline-flex items-center justify-center gap-1.5 rounded-full border border-blue-100 bg-slate-100 px-4 py-1.5 text-[14px] font-black text-slate-700">
-                    <Gauge className="h-3.5 w-3.5 text-blue-700" />
-                    {annualUsage.toLocaleString('sv-SE')} kWh / سنة
-                  </span>
-                </div>
                 <button
                   type="button"
                   onClick={() => setShowCustomUsage((current) => !current)}
-                  className="mt-2 w-full bg-transparent px-2 py-1 text-right text-[13px] font-bold text-slate-400 transition-colors duration-200 hover:text-slate-600"
+                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[13px] font-bold text-slate-400 transition-colors duration-200 hover:text-slate-600"
                 >
                   أو اضغط هنا لإدخال استهلاكك السنوي بنفسك
                 </button>
