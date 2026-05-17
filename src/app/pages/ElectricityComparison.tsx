@@ -2,9 +2,6 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
-  BatteryFull,
-  BatteryLow,
-  BatteryMedium,
   Building2,
   Check,
   Clock,
@@ -31,10 +28,16 @@ const housingOptions: Array<{ value: HousingType; label: string; hint: string; i
 ];
 
 const usageOptions: Array<{ value: UsageLevel; label: string; hint: string; icon: LucideIcon }> = [
-  { value: 'low', label: 'منخفض', hint: 'اقتصادي', icon: BatteryLow },
-  { value: 'normal', label: 'عادي', hint: 'الأكثر شيوعًا', icon: BatteryMedium },
-  { value: 'high', label: 'مرتفع', hint: 'كبير', icon: BatteryFull },
+  { value: 'low', label: 'منخفض', hint: 'اقتصادي', icon: Gauge },
+  { value: 'normal', label: 'عادي', hint: 'الأكثر شيوعًا', icon: Gauge },
+  { value: 'high', label: 'مرتفع', hint: 'كبير', icon: Gauge },
 ];
+
+const usageIconClasses: Record<UsageLevel, string> = {
+  low: 'bg-emerald-50 text-emerald-600',
+  normal: 'bg-amber-50 text-amber-600',
+  high: 'bg-red-50 text-red-600',
+};
 
 export function ElectricityComparison() {
   const [postcode, setPostcode] = useState('');
@@ -115,7 +118,7 @@ export function ElectricityComparison() {
           <div className="rounded-[26px] border border-white/80 bg-white/95 p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.09)] ring-1 ring-blue-100/60 sm:p-4">
             <div className="grid grid-cols-1 gap-3">
               <label className="block">
-                <div className="mb-2 grid grid-cols-1 gap-1 text-center">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
                   <span className="text-[16px] font-extrabold text-slate-900">
                     الرمز البريدي
                   </span>
@@ -190,12 +193,6 @@ export function ElectricityComparison() {
                     الاستهلاك
                   </span>
                 </div>
-                <div className="mb-2 flex justify-center">
-                  <span className="inline-flex items-center justify-center gap-1.5 rounded-full border border-blue-100 bg-slate-100 px-4 py-1.5 text-[14px] font-black text-slate-700">
-                    <Gauge className="h-3.5 w-3.5 text-blue-700" />
-                    {annualUsage.toLocaleString('sv-SE')} kWh / سنة
-                  </span>
-                </div>
                 <div className="grid grid-cols-3 gap-2">
                   {usageOptions.map((option) => {
                     const Icon = option.icon;
@@ -214,8 +211,8 @@ export function ElectricityComparison() {
                             : 'border-blue-600 bg-white text-slate-700 shadow-sm hover:bg-blue-50/50 hover:shadow-md'
                         }`}
                       >
-                        <span className="mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                          <Icon className="h-3.5 w-3.5" />
+                        <span className={`mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-2xl ${usageIconClasses[option.value]}`}>
+                          <Icon className="h-5 w-5" />
                         </span>
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
@@ -227,10 +224,16 @@ export function ElectricityComparison() {
                     );
                   })}
                 </div>
+                <div className="mt-2 flex justify-end">
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-full border border-blue-100 bg-slate-100 px-4 py-1.5 text-[14px] font-black text-slate-700">
+                    <Gauge className="h-3.5 w-3.5 text-blue-700" />
+                    {annualUsage.toLocaleString('sv-SE')} kWh / سنة
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowCustomUsage((current) => !current)}
-                  className="mt-2 w-full rounded-[18px] border border-blue-600 bg-white px-3 py-2 text-center text-[13px] font-extrabold text-blue-700 transition-all duration-200 hover:bg-blue-50"
+                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[13px] font-bold text-slate-400 transition-colors duration-200 hover:text-slate-600"
                 >
                   أدخل استهلاكك السنوي بنفسك
                 </button>
