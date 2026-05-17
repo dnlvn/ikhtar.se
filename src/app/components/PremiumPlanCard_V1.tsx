@@ -86,18 +86,9 @@ const handleClick = () => {
         style={{ borderRadius: '0.75rem' }}
       >
         {/* Regular price badge - top left corner (was right) */}
-        {activePromotion ? (
-          <span className="absolute top-0 -translate-y-1/2 left-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-emerald-200 shadow-sm text-emerald-700">
-            {activePromotion.promotionBadge}
-            <span className="mr-1 text-[10px] font-medium text-slate-500">
-              {activePromotion.promotionText}
-            </span>
-          </span>
-        ) : (
-          <span className={`absolute top-0 -translate-y-1/2 left-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-slate-200 shadow-sm line-through ${isBestDeal ? 'text-red-700' : 'text-slate-600'}`}>
-            {plan.regularPrice} {t('card.pricePerMonth')}
-          </span>
-        )}
+        <span className={`absolute top-0 -translate-y-1/2 left-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-slate-200 shadow-sm line-through ${isBestDeal ? 'text-red-700' : 'text-slate-600'}`}>
+          {plan.regularPrice} {t('card.pricePerMonth')}
+        </span>
 
         {/* Top Deal badge - right corner (was left) */}
         {isBestDeal && (
@@ -130,10 +121,15 @@ const handleClick = () => {
             </div>
 
             {/* CENTER-LEFT: Data amount */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
               <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} font-extrabold text-slate-900 leading-none not-italic p-[0px] m-[0px]`}>
                 {plan.dataLabel || t('card.unlimitedData')}
               </span>
+              {activePromotion && (
+                <span className="text-[11px] font-semibold leading-none text-emerald-700">
+                  + 100 GB extra
+                </span>
+              )}
             </div>
 
             {/* RIGHT: Price */}
