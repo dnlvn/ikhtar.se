@@ -85,7 +85,11 @@ export function ElectricityOfferCard({
           <div className="flex items-center justify-between mb-[6px]">
             <div className="flex min-w-0 flex-col items-end gap-1.5 text-right">
               {providerLogo ? (
-                <div className="flex min-h-[42px] w-[160px] items-center justify-end overflow-visible">
+                <div
+                  className={`flex min-h-[42px] w-[160px] items-center justify-end overflow-visible ${
+                    isBestDeal ? 'pt-3 -mb-3' : ''
+                  }`}
+                >
                   <img
                     src={providerLogo}
                     alt={offer.provider}
