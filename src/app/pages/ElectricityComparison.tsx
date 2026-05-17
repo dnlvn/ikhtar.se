@@ -175,7 +175,7 @@ export function ElectricityComparison() {
                         className={`group min-h-[56px] rounded-[20px] border px-3 py-2.5 text-right transition-all duration-200 active:scale-[0.98] ${
                           isSelected
                             ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
-                            : 'border-blue-600 bg-white text-slate-800 shadow-sm hover:bg-blue-50/50 hover:shadow-md'
+                            : 'border-blue-200 bg-white text-slate-800 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
@@ -228,7 +228,7 @@ export function ElectricityComparison() {
                         className={`min-h-[56px] rounded-[20px] border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
                           isSelected
                             ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
-                            : 'border-blue-600 bg-white text-slate-700 shadow-sm hover:bg-blue-50/50 hover:shadow-md'
+                            : 'border-blue-200 bg-white text-slate-700 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
                         }`}
                       >
                         <span className={`mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-2xl ${usageIconClasses[option.value]}`}>
