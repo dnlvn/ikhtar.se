@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
@@ -120,6 +120,19 @@ export function ElectricityComparison() {
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
   const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'electricity_active_10s_view',
+        vertical: 'electricity',
+        page_path: window.location.pathname,
+      });
+    }, 10000);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const {
     offers,
