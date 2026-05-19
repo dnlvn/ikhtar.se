@@ -17,29 +17,23 @@ export type ElectricityProviderSlug =
   | 'svekraft';
 
 export const ELECTRICITY_PROVIDER_LOGOS: Record<ElectricityProviderSlug, string> = {
-  'skelleftea-kraft': '/assets/electricity-providers/skelleftea-kraft.png?v=2',
-  vattenfall: '/assets/electricity-providers/vattenfall.svg',
+  'skelleftea-kraft': '/assets/electricity-providers/skelleftea-kraft.png',
+  vattenfall: '/assets/electricity-providers/vattenfall.png',
   'telinet-energi': '/assets/electricity-providers/telinet-energi.png',
-  fortum: '/assets/electricity-providers/fortum.svg',
-  greenely: '/assets/electricity-providers/greenely.png',
-  eon: '/assets/electricity-providers/eon.svg',
+  fortum: '/assets/electricity-providers/fortum.png',
+  greenely: '/assets/electricity-providers/greenly.png',
+  eon: '/assets/electricity-providers/eon.png',
   bixia: '/assets/electricity-providers/bixia.png',
   tibber: '/assets/electricity-providers/tibber.png',
-  dalakraft: '/assets/electricity-providers/dalakraft.webp',
-  'enkla-elbolaget': '/assets/electricity-providers/enkla-elbolaget.png?v=2',
-  'cheap-energy': '/assets/electricity-providers/cheap-energy.png?v=2',
-  'karnfull-energi': '/assets/electricity-providers/karnfull-energi.svg',
-  'motala-energi': '/assets/electricity-providers/motala-energi.svg',
-  'stockholms-elbolag': '/assets/electricity-providers/stockholms-elbolag.svg',
-  'svea-lands-elbolag': '/assets/electricity-providers/svea-lands-elbolag.svg',
-  svekraft: '/assets/electricity-providers/svekraft.svg',
+  dalakraft: '/assets/electricity-providers/dalakraft.png',
+  'enkla-elbolaget': '/assets/electricity-providers/enkla-elbolaget.png',
+  'cheap-energy': '/assets/electricity-providers/cheap-energy.png',
+  'karnfull-energi': '/assets/electricity-providers/karnfull-energi.png',
+  'motala-energi': '/assets/electricity-providers/motala-energi.png',
+  'stockholms-elbolag': '/assets/electricity-providers/stockholms-elbolag.png',
+  'svea-lands-elbolag': '/assets/electricity-providers/svealands-elbolag.png',
+  svekraft: '/assets/electricity-providers/svekraft.png',
 };
-
-const PLACEHOLDER_LOGO_PROVIDERS: ElectricityProviderSlug[] = [
-  'skelleftea-kraft',
-  'enkla-elbolaget',
-  'cheap-energy',
-];
 
 function slugifyElectricityProvider(input?: string | null): ElectricityProviderSlug | null {
   if (!input) return null;
@@ -69,6 +63,5 @@ function slugifyElectricityProvider(input?: string | null): ElectricityProviderS
 export function getElectricityProviderLogo(providerName?: string | null): string | null {
   const slug = slugifyElectricityProvider(providerName);
   if (!slug) return null;
-  if (PLACEHOLDER_LOGO_PROVIDERS.includes(slug)) return null;
   return ELECTRICITY_PROVIDER_LOGOS[slug] ?? null;
 }
