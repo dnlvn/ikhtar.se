@@ -1,4 +1,4 @@
-import { Bolt, Sparkles } from 'lucide-react';
+import { Sparkles, Zap } from 'lucide-react';
 import type { ElectricityOffer } from '@/hooks/useElectricityOffers';
 import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
@@ -92,13 +92,13 @@ export function ElectricityOfferCard({
 
         <div className="p-[14px]">
           <div className="flex items-center justify-between mb-[6px]">
-            <div className="flex min-w-0 flex-col items-end gap-1.5 text-right">
+            <div className="flex min-w-0 w-[220px] max-w-[58%] flex-col items-end gap-1.5 text-right">
               {providerLogo ? (
-                <div className="flex min-h-[42px] w-[160px] items-center justify-end overflow-visible">
+                <div className="flex min-h-[42px] w-full items-center justify-end overflow-visible">
                   <img
                     src={providerLogo}
                     alt={offer.provider}
-                    className="h-[35px] w-auto max-w-[160px] object-contain"
+                    className="ml-auto block h-[35px] w-auto max-w-full object-contain"
                   />
                 </div>
               ) : (
@@ -136,21 +136,21 @@ export function ElectricityOfferCard({
           </div>
 
           <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col justify-center gap-1">
-              <div className="flex items-center gap-1.5">
-                <Bolt className="w-3.5 h-3.5 text-blue-700" strokeWidth={2.5} />
+            <div className="flex min-w-0 flex-col items-end justify-center gap-1 text-right">
+              <div className="flex items-center justify-end gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-blue-700" strokeWidth={2.5} />
                 <span className="text-[12px] leading-tight text-slate-900">
                   {offer.comparisonPriceOre.toFixed(2).replace('.', ',')} أوره/kWh
                 </span>
               </div>
               {detailItems.length > 0 && (
-                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium leading-tight text-slate-500">
+                <div className="flex flex-wrap justify-end gap-x-2 gap-y-0.5 text-[10px] font-medium leading-tight text-slate-500">
                   {detailItems.map((item) => (
                     <span key={item}>{item}</span>
                   ))}
                 </div>
               )}
-              <p className="mt-1 max-w-[220px] text-[9px] leading-snug text-slate-500">
+              <p className="mt-1 max-w-[220px] text-right text-[9px] leading-snug text-slate-500">
                 بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف.
               </p>
             </div>
