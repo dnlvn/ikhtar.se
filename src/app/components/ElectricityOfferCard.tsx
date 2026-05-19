@@ -92,7 +92,10 @@ export function ElectricityOfferCard({
 
         <div className="p-[14px]">
           <div className="flex items-center justify-between mb-[6px]">
-            <div className="flex min-w-0 w-[220px] max-w-[58%] flex-col items-end gap-1.5 text-right">
+            <div
+              dir="ltr"
+              className="flex min-w-0 w-[220px] max-w-[58%] flex-col items-end gap-1.5 text-right"
+            >
               {providerLogo ? (
                 <div className="flex min-h-[42px] w-full items-center justify-end overflow-visible">
                   <img
@@ -109,7 +112,10 @@ export function ElectricityOfferCard({
                 </div>
               )}
               {agreementTypeLabel && (
-                <span className="inline-flex w-fit self-end rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
+                <span
+                  dir="rtl"
+                  className="inline-flex w-fit self-end rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700"
+                >
                   {agreementTypeLabel}
                 </span>
               )}
@@ -136,12 +142,12 @@ export function ElectricityOfferCard({
           </div>
 
           <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col items-end justify-center gap-1 text-right">
+            <div dir="ltr" className="flex min-w-0 flex-col items-end justify-center gap-1 text-right">
               <div className="flex items-center justify-end gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-blue-700" strokeWidth={2.5} />
-                <span className="text-[12px] leading-tight text-slate-900">
+                <span dir="rtl" className="text-[12px] leading-tight text-slate-900">
                   {offer.comparisonPriceOre.toFixed(2).replace('.', ',')} أوره/kWh
                 </span>
+                <Zap className="w-3.5 h-3.5 text-blue-700" strokeWidth={2.5} />
               </div>
               {detailItems.length > 0 && (
                 <div className="flex flex-wrap justify-end gap-x-2 gap-y-0.5 text-[10px] font-medium leading-tight text-slate-500">
