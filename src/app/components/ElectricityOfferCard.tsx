@@ -9,6 +9,13 @@ interface ElectricityOfferCardProps {
   postcode: string;
 }
 
+function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
+  if (offer.agreementCategory === 'variable') return 'سعر متغير';
+  if (offer.agreementCategory === 'fixed') return 'سعر ثابت';
+  if (offer.agreementCategory === 'hourly') return 'سعر بالساعة/ربع الساعة';
+  return null;
+}
+
 export function ElectricityOfferCard({
   offer,
   rank,
@@ -23,8 +30,8 @@ export function ElectricityOfferCard({
     3: 'عرض اقتصادي',
   };
   const badgeLabel = badgeLabelByRank[rank];
+  const agreementTypeLabel = getArabicAgreementTypeLabel(offer);
   const hasSpecificAgreementName = offer.agreementName.trim().toLowerCase() !== 'elavtal';
-  const hasSpecificAgreementType = offer.agreementTypeLabel.trim().toLowerCase() !== 'elavtal';
   const detailItems = [
     offer.cancellationPeriod ? `إلغاء: ${offer.cancellationPeriod}` : null,
     offer.newCustomersOnly ? 'للعملاء الجدد' : null,
@@ -87,15 +94,11 @@ export function ElectricityOfferCard({
           <div className="flex items-center justify-between mb-[6px]">
             <div className="flex min-w-0 flex-col items-end gap-1.5 text-right">
               {providerLogo ? (
-                <div
-                  className={`flex min-h-[42px] w-[160px] items-center justify-end overflow-visible ${
-                    isBestDeal ? 'pt-3 -mb-3' : ''
-                  }`}
-                >
+                <div className="flex min-h-[42px] w-[160px] items-center justify-end overflow-visible">
                   <img
                     src={providerLogo}
                     alt={offer.provider}
-                    className="h-auto max-h-[38px] max-w-[160px] object-contain"
+                    className="h-[35px] w-auto max-w-[160px] object-contain"
                   />
                 </div>
               ) : (
@@ -105,9 +108,9 @@ export function ElectricityOfferCard({
                   </span>
                 </div>
               )}
-              {hasSpecificAgreementType && (
+              {agreementTypeLabel && (
                 <span className="inline-flex w-fit self-end rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold leading-tight text-blue-700">
-                  {offer.agreementTypeLabel}
+                  {agreementTypeLabel}
                 </span>
               )}
               {hasSpecificAgreementName && (
@@ -135,9 +138,9 @@ export function ElectricityOfferCard({
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col justify-center gap-1">
               <div className="flex items-center gap-1.5">
-                <Bolt className="w-3.5 h-3.5 text-slate-900" strokeWidth={2.5} />
+                <Bolt className="w-3.5 h-3.5 text-blue-700" strokeWidth={2.5} />
                 <span className="text-[12px] leading-tight text-slate-900">
-                  {offer.comparisonPriceOre.toFixed(2).replace('.', ',')} öre/kWh
+                  {offer.comparisonPriceOre.toFixed(2).replace('.', ',')} أوره/kWh
                 </span>
               </div>
               {detailItems.length > 0 && (
