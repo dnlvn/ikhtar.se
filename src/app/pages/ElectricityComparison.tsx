@@ -422,13 +422,13 @@ export function ElectricityComparison() {
 
         {offers.length > 0 && (
           <>
-            <div className="text-center mb-4">
+            <div className="text-center mb-7">
               <p className="text-xs text-slate-500 text-[10px]">
                 إعلان – عند النقر على عرض قد نحصل على عمولة دون تكلفة إضافية عليك.
               </p>
             </div>
 
-            <div id="results-section" className="grid grid-cols-1 gap-2">
+            <div id="results-section" className="grid grid-cols-1 gap-3">
               {offers.map((offer, index) => (
                 <ElectricityOfferCard
                   key={offer.id}
