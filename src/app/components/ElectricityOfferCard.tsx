@@ -270,8 +270,8 @@ export function ElectricityOfferCard({
                 backgroundImage: rank === 1
                   ? 'linear-gradient(to right, #f97316 0%, #facc15 48%, #f97316 100%)'
                   : 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
-                backgroundSize: '200% auto',
-                animation: 'shimmer-slide 3s ease-in-out infinite',
+                backgroundSize: rank === 1 ? '200% auto' : undefined,
+                animation: rank === 1 ? 'shimmer-slide 3s ease-in-out infinite' : undefined,
                 borderRadius: '0.75rem',
               } : {
                 borderRadius: '0.75rem',
