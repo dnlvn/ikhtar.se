@@ -9,11 +9,75 @@ interface ElectricityOfferCardProps {
   postcode: string;
 }
 
+type TopCardBadgeVariant =
+  | 'floating-pill'
+  | 'premium-medal'
+  | 'soft-ribbon'
+  | 'top-tab'
+  | 'glow-label';
+
+const TOP_CARD_BADGE_VARIANT: TopCardBadgeVariant = 'floating-pill';
+
 function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
   if (offer.agreementCategory === 'variable') return 'سعر متغير';
   if (offer.agreementCategory === 'fixed') return 'سعر ثابت';
   if (offer.agreementCategory === 'hourly') return 'سعر بالساعة/ربع الساعة';
   return null;
+}
+
+function getTopCardBadgeClasses(rank: number, variant: TopCardBadgeVariant) {
+  const isTopRank = rank === 1;
+  const base = 'inline-flex items-center justify-center text-center leading-tight whitespace-nowrap';
+
+  const variants: Record<TopCardBadgeVariant, { wrapper: string; badge: string; accent: string }> = {
+    'floating-pill': {
+      wrapper: '-top-4',
+      badge: `${base} rounded-full ${
+        isTopRank
+          ? 'bg-gradient-to-r from-orange-100 via-amber-50 to-yellow-100 border-2 border-amber-400 px-5 py-2 text-[13px] font-black text-orange-700 shadow-[0_8px_24px_rgba(245,158,11,0.28)]'
+          : 'bg-amber-50 border border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
+      }`,
+      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+    },
+    'premium-medal': {
+      wrapper: '-top-4',
+      badge: `${base} rounded-full ${
+        isTopRank
+          ? 'bg-white border-2 border-amber-400 px-4 py-2 text-[13px] font-black text-orange-700 shadow-[0_10px_26px_rgba(217,119,6,0.22)]'
+          : 'bg-white border border-amber-200 px-3.5 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
+      }`,
+      accent: isTopRank ? 'bg-gradient-to-br from-orange-400 to-yellow-300' : 'bg-amber-300',
+    },
+    'soft-ribbon': {
+      wrapper: '-top-3',
+      badge: `${base} rounded-lg ${
+        isTopRank
+          ? 'bg-gradient-to-r from-amber-200 via-yellow-100 to-orange-100 border border-amber-400 px-5 py-1.5 text-[13px] font-black text-orange-800 shadow-md'
+          : 'bg-amber-50 border border-amber-200 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
+      }`,
+      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+    },
+    'top-tab': {
+      wrapper: '-top-px',
+      badge: `${base} rounded-b-xl ${
+        isTopRank
+          ? 'bg-gradient-to-r from-orange-100 to-yellow-100 border-x-2 border-b-2 border-amber-400 px-5 py-1.5 text-[13px] font-black text-orange-700 shadow-sm'
+          : 'bg-amber-50 border-x border-b border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
+      }`,
+      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+    },
+    'glow-label': {
+      wrapper: '-top-4',
+      badge: `${base} rounded-full ${
+        isTopRank
+          ? 'bg-yellow-50 border-2 border-orange-300 px-5 py-2 text-[13px] font-black text-orange-700 shadow-[0_0_24px_rgba(251,191,36,0.45)]'
+          : 'bg-amber-50 border border-yellow-300 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-[0_0_14px_rgba(251,191,36,0.18)]'
+      }`,
+      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+    },
+  };
+
+  return variants[variant];
 }
 
 export function ElectricityOfferCard({
@@ -25,11 +89,12 @@ export function ElectricityOfferCard({
   const isBestDeal = rank <= 3;
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
-    1: 'الأرخص الآن',
-    2: 'سعر ممتاز',
-    3: 'عرض اقتصادي',
+    1: 'أفضل عرض لك',
+    2: 'يستحق المقارنة',
+    3: 'خيار ذكي',
   };
   const badgeLabel = badgeLabelByRank[rank];
+  const badgeClasses = badgeLabel ? getTopCardBadgeClasses(rank, TOP_CARD_BADGE_VARIANT) : null;
   const agreementTypeLabel = getArabicAgreementTypeLabel(offer);
   const hasSpecificAgreementName = offer.agreementName.trim().toLowerCase() !== 'elavtal';
   const detailItems = [
@@ -84,15 +149,9 @@ export function ElectricityOfferCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {badgeLabel && (
-          <div className="absolute -top-3 right-4 z-20">
-            <div
-              className={`rounded-full flex items-center gap-1 ${
-                rank === 1
-                  ? 'bg-gradient-to-r from-orange-100 via-amber-50 to-yellow-100 border-2 border-amber-400 px-4 py-1.5 text-[12px] font-black text-orange-700 shadow-[0_0_18px_rgba(245,158,11,0.28)]'
-                  : 'bg-amber-50 border border-amber-300/50 px-3 py-1 text-[10px] font-semibold text-amber-700 shadow-sm'
-              }`}
-            >
-              <Sparkles className={rank === 1 ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'} />
+          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${badgeClasses?.wrapper}`}>
+            <div className={badgeClasses?.badge}>
+              <span className={`ml-1.5 h-2 w-2 rounded-full ${badgeClasses?.accent}`} />
               {badgeLabel}
             </div>
           </div>
@@ -105,11 +164,11 @@ export function ElectricityOfferCard({
               className="flex min-w-0 w-[220px] max-w-[58%] flex-col items-end gap-1.5 text-right"
             >
               {providerLogo ? (
-                <div className="flex min-h-[42px] w-full items-center justify-end overflow-visible">
+                <div className={`flex w-full items-center justify-end overflow-visible ${isBestDeal ? 'min-h-[50px]' : 'min-h-[42px]'}`}>
                   <img
                     src={providerLogo}
                     alt={offer.provider}
-                    className="ml-auto block h-[35px] w-auto max-w-full object-contain"
+                    className={`ml-auto block w-auto max-w-full object-contain ${isBestDeal ? 'h-[42px]' : 'h-[35px]'}`}
                   />
                 </div>
               ) : (
@@ -165,7 +224,7 @@ export function ElectricityOfferCard({
                 </div>
               )}
               <p className="mt-1 max-w-[220px] text-right text-[9px] leading-snug text-slate-500">
-                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف.
+                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف
               </p>
             </div>
 
@@ -192,7 +251,7 @@ export function ElectricityOfferCard({
                 borderRadius: '0.75rem',
               }}
             >
-              احصل على العرض
+              {rank === 1 ? 'اشترك الآن' : 'احصل على العرض'}
             </button>
           </div>
         </div>
