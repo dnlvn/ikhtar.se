@@ -51,6 +51,14 @@ export function ElectricityOfferCard({
       postcode: postcode.replace(/\D/g, ''),
       rank,
     });
+    window.dataLayer.push({
+      event: 'electricity_provider_click',
+      vertical: 'electricity',
+      provider: offer.provider,
+      plan_name: offer.agreementName,
+      rank,
+      affiliate_url_type: offer.affiliateUrlType,
+    });
 
     window.open(offer.affiliateUrl, '_blank', 'noopener,noreferrer');
   };
