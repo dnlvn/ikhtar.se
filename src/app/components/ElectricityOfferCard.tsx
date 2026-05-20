@@ -17,6 +17,22 @@ type TopCardBadgeVariant =
   | 'glow-label';
 
 const TOP_CARD_BADGE_VARIANT: TopCardBadgeVariant = 'floating-pill';
+const TOP_CARD_BADGE_VARIANTS: TopCardBadgeVariant[] = [
+  'floating-pill',
+  'premium-medal',
+  'soft-ribbon',
+  'top-tab',
+  'glow-label',
+];
+
+function getSelectedTopCardBadgeVariant(): TopCardBadgeVariant {
+  if (typeof window === 'undefined') return TOP_CARD_BADGE_VARIANT;
+
+  const variant = new URLSearchParams(window.location.search).get('badgeVariant');
+  return TOP_CARD_BADGE_VARIANTS.includes(variant as TopCardBadgeVariant)
+    ? (variant as TopCardBadgeVariant)
+    : TOP_CARD_BADGE_VARIANT;
+}
 
 function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
   if (offer.agreementCategory === 'variable') return 'سعر متغير';
@@ -94,7 +110,8 @@ export function ElectricityOfferCard({
     3: 'خيار ذكي',
   };
   const badgeLabel = badgeLabelByRank[rank];
-  const badgeClasses = badgeLabel ? getTopCardBadgeClasses(rank, TOP_CARD_BADGE_VARIANT) : null;
+  const badgeVariant = getSelectedTopCardBadgeVariant();
+  const badgeClasses = badgeLabel ? getTopCardBadgeClasses(rank, badgeVariant) : null;
   const agreementTypeLabel = getArabicAgreementTypeLabel(offer);
   const hasSpecificAgreementName = offer.agreementName.trim().toLowerCase() !== 'elavtal';
   const detailItems = [
