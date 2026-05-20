@@ -1,4 +1,4 @@
-import { Award, Sparkles, Trophy, Zap } from 'lucide-react';
+import { Check, Sparkles, Zap } from 'lucide-react';
 import type { ElectricityOffer } from '@/hooks/useElectricityOffers';
 import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
@@ -98,8 +98,7 @@ function getTopCardBadgeClasses(rank: number, variant: TopCardBadgeVariant) {
 
 function TopCardBadgeIcon({ rank, className }: { rank: number; className: string }) {
   if (rank === 1) return <Zap className={`h-4 w-4 ${className}`} strokeWidth={2.8} />;
-  if (rank === 2) return <Trophy className={`h-3.5 w-3.5 ${className}`} strokeWidth={2.4} />;
-  return <Award className={`h-3.5 w-3.5 ${className}`} strokeWidth={2.4} />;
+  return <Check className={`h-3 w-3 ${className}`} strokeWidth={2.6} />;
 }
 
 export function ElectricityOfferCard({
@@ -112,7 +111,7 @@ export function ElectricityOfferCard({
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
     1: 'أفضل عرض لك',
-    2: 'يستحق المقارنة',
+    2: 'خيار قوي',
     3: 'خيار ذكي',
   };
   const badgeLabel = badgeLabelByRank[rank];
@@ -165,7 +164,7 @@ export function ElectricityOfferCard({
         className={`
           relative overflow-visible rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer
           ${isBestDeal
-            ? 'bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/60 border-2 border-amber-400 shadow-amber-200/40 shadow-lg hover:shadow-xl hover:shadow-amber-300/50'
+            ? `bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/60 border-2 border-amber-400 shadow-amber-200/40 shadow-lg hover:shadow-xl hover:shadow-amber-300/50 ${rank === 1 ? 'animate-pulse-subtle' : ''}`
             : 'bg-white border border-slate-200/60'
           }
         `}
@@ -217,7 +216,7 @@ export function ElectricityOfferCard({
             </div>
 
             <div className="flex flex-col items-end text-right">
-              <span className="mb-0.5 block w-full text-right text-[10px] font-bold text-slate-500">
+              <span className="mb-[-1px] block w-full text-right text-[10px] font-bold text-slate-500">
                 تقدير من
               </span>
               <div className="flex items-baseline gap-1">
@@ -257,14 +256,14 @@ export function ElectricityOfferCard({
                 handleClick();
               }}
               className={`
-                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase sm:px-5 sm:text-[13px]
+                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl font-bold uppercase sm:px-5
                 transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
                 cursor-pointer relative overflow-hidden
                 ${isBestDeal
                   ? rank === 1
-                    ? 'text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
-                    : 'text-white shadow-lg hover:brightness-110'
-                  : 'bg-blue-700 text-white border-2 border-blue-700 hover:bg-blue-800'
+                    ? 'text-[14px] sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
+                    : 'text-[12px] sm:text-[13px] text-white shadow-lg hover:brightness-110'
+                  : 'text-[12px] sm:text-[13px] bg-blue-700 text-white border-2 border-blue-700 hover:bg-blue-800'
                 }
               `}
               style={isBestDeal ? {
