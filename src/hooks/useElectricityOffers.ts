@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  type AffiliateUrlType,
+  getEffectiveAffiliateUrl,
+  getEffectiveAffiliateUrlType,
+} from '@/lib/electricityAffiliateLinks';
 
 export type HousingType = 'apartment' | 'house';
 export type UsageLevel = 'low' | 'normal' | 'high';
@@ -17,6 +22,7 @@ export interface ElectricityOffer {
   cancellationPeriod?: string;
   newCustomersOnly: boolean;
   affiliateUrl: string;
+  affiliateUrlType: AffiliateUrlType;
   raw: Record<string, any>;
 }
 
@@ -234,11 +240,6 @@ function flattenRows(payload: any): Record<string, any>[] {
   return [];
 }
 
-function getAffiliateUrl(provider: string): string {
-  const slug = normalizeName(provider);
-  return `https://www.elpriskollen.se/sidor/sok-avtal.html?ikhtar_provider=${encodeURIComponent(slug)}`;
-}
-
 function getProviderSlug(provider: string): string {
   return normalizeName(provider);
 }
@@ -308,6 +309,18 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
   const agreementType = agreementTypeValue ? String(agreementTypeValue) : undefined;
   const agreementCategory = classifyAgreement(row, agreementName, agreementType);
   const cancellationPeriod = getValue(row, CANCELLATION_PERIOD_KEYS);
+  const affiliateUrl = getEffectiveAffiliateUrl({ vertical: 'electricity', provider });
+  const affiliateUrlType = getEffectiveAffiliateUrlType({ vertical: 'electricity', provider });
+
+  if (!affiliateUrl || !affiliateUrlType) {
+    if (import.meta.env.DEV) {
+      console.warn('[Ikhtar elavtal] Leverantör saknar affiliate-länk och filtreras bort', {
+        provider,
+        agreementName,
+      });
+    }
+    return null;
+  }
 
   return {
     id: `${provider}-${agreementName}-${comparisonPriceOre}-${index}`,
@@ -320,7 +333,8 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
     estimatedMonthlyCost: Math.round((comparisonPriceOre / 100) * annualUsage / 12),
     cancellationPeriod: cancellationPeriod ? String(cancellationPeriod) : undefined,
     newCustomersOnly: toBoolean(getValue(row, NEW_CUSTOMERS_ONLY_KEYS)),
-    affiliateUrl: getAffiliateUrl(provider),
+    affiliateUrl,
+    affiliateUrlType,
     raw: row,
   };
 }
@@ -383,6 +397,7 @@ export function useElectricityOffers({
           .filter(Boolean);
         const unmatchedProviders = new Set<string>();
         let matchedOffers = 0;
+        let monetizedOffers = 0;
 
         rows.forEach((row, index) => {
           const offer = transformOffer(row, annualUsage, index);
@@ -397,6 +412,7 @@ export function useElectricityOffers({
           }
 
           matchedOffers += 1;
+          monetizedOffers += 1;
 
           const providerSlug = getProviderSlug(offer.provider);
           const currentBest = bestOfferByProvider.get(providerSlug);
@@ -416,6 +432,7 @@ export function useElectricityOffers({
           totalRows: rows.length,
           providerNames: Array.from(new Set(providerNames)).slice(0, 40),
           matchedOffers,
+          monetizedOffers,
           agreementFilter,
           displayedProviders: bestOfferByProvider.size,
           unmatchedProviders: Array.from(unmatchedProviders).slice(0, 40),
