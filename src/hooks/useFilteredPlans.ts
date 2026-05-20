@@ -49,15 +49,19 @@ function comparePlansForBestDeal(a: Plan, b: Plan): number {
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
 
-  // 4. Cheapest regular price
-  const regularPriceCompare = a.regularPrice - b.regularPrice;
-  if (regularPriceCompare !== 0) return regularPriceCompare;
-
-  // 5. More data (using dataSortValue)
+  // 4. More data (using dataSortValue)
   const dataCompare = b.dataSortValue - a.dataSortValue;
   if (dataCompare !== 0) return dataCompare;
 
-  // 6. Stable tie-breakers: operator A-Ö, then plan_key
+  // 5. Shortest binding period
+  const bindingCompare = a.bindingMonths - b.bindingMonths;
+  if (bindingCompare !== 0) return bindingCompare;
+
+  // 6. Cheapest regular price
+  const regularPriceCompare = a.regularPrice - b.regularPrice;
+  if (regularPriceCompare !== 0) return regularPriceCompare;
+
+  // 7. Stable tie-breakers: operator A-Ö, then plan_key
   const operatorCompare = a.title.localeCompare(b.title, 'sv');
   if (operatorCompare !== 0) return operatorCompare;
   return a.id.localeCompare(b.id);
