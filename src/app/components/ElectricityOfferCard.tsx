@@ -1,4 +1,4 @@
-import { Sparkles, Zap } from 'lucide-react';
+import { Award, Sparkles, Trophy, Zap } from 'lucide-react';
 import type { ElectricityOffer } from '@/hooks/useElectricityOffers';
 import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
@@ -43,57 +43,63 @@ function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
 
 function getTopCardBadgeClasses(rank: number, variant: TopCardBadgeVariant) {
   const isTopRank = rank === 1;
-  const base = 'inline-flex items-center justify-center text-center leading-tight whitespace-nowrap';
+  const base = 'inline-flex items-center justify-center gap-1.5 text-center leading-tight whitespace-nowrap';
 
   const variants: Record<TopCardBadgeVariant, { wrapper: string; badge: string; accent: string }> = {
     'floating-pill': {
       wrapper: '-top-4',
       badge: `${base} rounded-full ${
         isTopRank
-          ? 'bg-gradient-to-r from-orange-100 via-amber-50 to-yellow-100 border-2 border-amber-400 px-5 py-2 text-[13px] font-black text-orange-700 shadow-[0_8px_24px_rgba(245,158,11,0.28)]'
+          ? 'bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]'
           : 'bg-amber-50 border border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
       }`,
-      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
     },
     'premium-medal': {
       wrapper: '-top-4',
       badge: `${base} rounded-full ${
         isTopRank
-          ? 'bg-white border-2 border-amber-400 px-4 py-2 text-[13px] font-black text-orange-700 shadow-[0_10px_26px_rgba(217,119,6,0.22)]'
+          ? 'bg-white border-2 border-orange-400 px-5 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]'
           : 'bg-white border border-amber-200 px-3.5 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
       }`,
-      accent: isTopRank ? 'bg-gradient-to-br from-orange-400 to-yellow-300' : 'bg-amber-300',
+      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
     },
     'soft-ribbon': {
       wrapper: '-top-3',
       badge: `${base} rounded-lg ${
         isTopRank
-          ? 'bg-gradient-to-r from-amber-200 via-yellow-100 to-orange-100 border border-amber-400 px-5 py-1.5 text-[13px] font-black text-orange-800 shadow-md'
+          ? 'bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]'
           : 'bg-amber-50 border border-amber-200 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
       }`,
-      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
     },
     'top-tab': {
       wrapper: '-top-px',
       badge: `${base} rounded-b-xl ${
         isTopRank
-          ? 'bg-gradient-to-r from-orange-100 to-yellow-100 border-x-2 border-b-2 border-amber-400 px-5 py-1.5 text-[13px] font-black text-orange-700 shadow-sm'
+          ? 'bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]'
           : 'bg-amber-50 border-x border-b border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
       }`,
-      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
     },
     'glow-label': {
       wrapper: '-top-4',
       badge: `${base} rounded-full ${
         isTopRank
-          ? 'bg-yellow-50 border-2 border-orange-300 px-5 py-2 text-[13px] font-black text-orange-700 shadow-[0_0_24px_rgba(251,191,36,0.45)]'
+          ? 'bg-yellow-50 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]'
           : 'bg-amber-50 border border-yellow-300 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-[0_0_14px_rgba(251,191,36,0.18)]'
       }`,
-      accent: isTopRank ? 'bg-orange-500' : 'bg-amber-400',
+      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
     },
   };
 
   return variants[variant];
+}
+
+function TopCardBadgeIcon({ rank, className }: { rank: number; className: string }) {
+  if (rank === 1) return <Zap className={`h-4 w-4 ${className}`} strokeWidth={2.8} />;
+  if (rank === 2) return <Trophy className={`h-3.5 w-3.5 ${className}`} strokeWidth={2.4} />;
+  return <Award className={`h-3.5 w-3.5 ${className}`} strokeWidth={2.4} />;
 }
 
 export function ElectricityOfferCard({
@@ -168,7 +174,7 @@ export function ElectricityOfferCard({
         {badgeLabel && (
           <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${badgeClasses?.wrapper}`}>
             <div className={badgeClasses?.badge}>
-              <span className={`ml-1.5 h-2 w-2 rounded-full ${badgeClasses?.accent}`} />
+              <TopCardBadgeIcon rank={rank} className={badgeClasses?.accent ?? ''} />
               {badgeLabel}
             </div>
           </div>
@@ -251,16 +257,20 @@ export function ElectricityOfferCard({
                 handleClick();
               }}
               className={`
-                whitespace-nowrap px-4 py-2.5 rounded-xl text-[11px] font-bold uppercase sm:px-5 sm:text-[13px]
+                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase sm:px-5 sm:text-[13px]
                 transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
                 cursor-pointer relative overflow-hidden
                 ${isBestDeal
-                  ? 'text-white shadow-lg hover:brightness-110'
+                  ? rank === 1
+                    ? 'text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
+                    : 'text-white shadow-lg hover:brightness-110'
                   : 'bg-blue-700 text-white border-2 border-blue-700 hover:bg-blue-800'
                 }
               `}
               style={isBestDeal ? {
-                backgroundImage: 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
+                backgroundImage: rank === 1
+                  ? 'linear-gradient(to right, #f97316 0%, #facc15 48%, #f97316 100%)'
+                  : 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
                 backgroundSize: '200% auto',
                 animation: 'shimmer-slide 3s ease-in-out infinite',
                 borderRadius: '0.75rem',
