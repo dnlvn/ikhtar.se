@@ -64,7 +64,7 @@ export function Logo({ className = "" }: { className?: string }) {
       {/* Text logo */}
       <div className="flex items-baseline leading-none text-[24px]" dir="ltr">
         <span className="text-2xl font-bold text-slate-900 tracking-tight text-[36px]">
-          Ikhtar
+          ikhtar
         </span>
         <span className="text-xs font-medium text-[rgb(0,0,0)] tracking-wide text-[20px]">
           .se
