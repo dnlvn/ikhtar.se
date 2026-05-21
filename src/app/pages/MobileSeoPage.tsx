@@ -1,4 +1,5 @@
 import { SeoLandingPageTemplate } from "@/app/components/SeoLandingPageTemplate";
+import { MobilePlansTeaserWidget } from "@/app/components/MobilePlansTeaserWidget";
 
 const cheapestMobilePage = {
   metaTitle: "أرخص اشتراك جوال في السويد – قارن الأسعار والعروض",
@@ -35,13 +36,13 @@ const cheapestMobilePage = {
     },
   ],
   operatorLinks: [
-    { label: "Vimla / فيملا", href: "[AFFILIATE_LINK_VIMLA]" },
-    { label: "Fello / فيلّو", href: "[AFFILIATE_LINK_FELLO]" },
-    { label: "Comviq / كومفيك", href: "[AFFILIATE_LINK_COMVIQ]" },
-    { label: "Tre / تري", href: "[AFFILIATE_LINK_TRE]" },
-    { label: "Tele2 / تيلي 2", href: "[AFFILIATE_LINK_TELE2]" },
-    { label: "Telenor / تيلينور", href: "[AFFILIATE_LINK_TELENOR]" },
-    { label: "Telia / تيليا", href: "[AFFILIATE_LINK_TELIA]" },
+    { label: "Vimla / فيملا", href: "/mobilabonnemang/vimla" },
+    { label: "Fello / فيلّو", href: "/mobilabonnemang/fello" },
+    { label: "Comviq / كومفيك", href: "/mobilabonnemang/comviq" },
+    { label: "Tre / تري", href: "/mobilabonnemang/tre" },
+    { label: "Tele2 / تيلي 2", href: "/mobilabonnemang/tele2" },
+    { label: "Telenor / تيلينور", href: "/mobilabonnemang/telenor" },
+    { label: "Telia / تيليا", href: "/mobilabonnemang/telia" },
   ],
   faq: [
     {
@@ -71,5 +72,10 @@ const cheapestMobilePage = {
 };
 
 export function CheapestMobileSubscriptionPage() {
-  return <SeoLandingPageTemplate {...cheapestMobilePage} />;
+  return (
+    <SeoLandingPageTemplate
+      {...cheapestMobilePage}
+      teaser={<MobilePlansTeaserWidget />}
+    />
+  );
 }
