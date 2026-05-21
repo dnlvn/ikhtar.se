@@ -9,11 +9,9 @@ import {
   House,
   MapPin,
   RefreshCw,
-  SlidersHorizontal,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import { Logo } from '@/app/components/Logo';
 import { PremiumPlanCardSkeleton } from '@/app/components/PremiumPlanCardSkeleton';
 import { ElectricityOfferCard } from '@/app/components/ElectricityOfferCard';
 import {
@@ -119,8 +117,16 @@ export function ElectricityComparison() {
   const [agreementFilter, setAgreementFilter] = useState<AgreementFilter>('all');
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
+  const [showPostcodeCta, setShowPostcodeCta] = useState(false);
+  const postcodeInputRef = useRef<HTMLInputElement>(null);
+  const searchSectionRef = useRef<HTMLElement>(null);
   const trackedResultsViews = useRef<Set<string>>(new Set());
   const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
+
+  const scrollToPostcodeInput = () => {
+    postcodeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => postcodeInputRef.current?.focus(), 450);
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -171,6 +177,28 @@ export function ElectricityComparison() {
     });
   }, [agreementFilter, annualUsage, canSearch, error, loading, offers, postcode]);
 
+  useEffect(() => {
+    const updatePostcodeCtaVisibility = () => {
+      const inputRect = postcodeInputRef.current?.getBoundingClientRect();
+      const sectionRect = searchSectionRef.current?.getBoundingClientRect();
+      const inputIsVisible = inputRect
+        ? inputRect.top < window.innerHeight - 80 && inputRect.bottom > 80
+        : false;
+      const hasScrolledPastForm = sectionRect ? sectionRect.bottom < 24 : false;
+
+      setShowPostcodeCta(!canSearch && hasScrolledPastForm && !inputIsVisible);
+    };
+
+    updatePostcodeCtaVisibility();
+    window.addEventListener('scroll', updatePostcodeCtaVisibility, { passive: true });
+    window.addEventListener('resize', updatePostcodeCtaVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', updatePostcodeCtaVisibility);
+      window.removeEventListener('resize', updatePostcodeCtaVisibility);
+    };
+  }, [canSearch]);
+
   return (
     <>
       <Helmet>
@@ -180,6 +208,7 @@ export function ElectricityComparison() {
           content="قارن عقود الكهرباء في السويد حسب الرمز البريدي والاستهلاك واعثر بسرعة على عرض مناسب من شركات الكهرباء السويدية."
         />
         <link rel="canonical" href="https://ikhtar.se/elavtal" />
+        <link rel="icon" type="image/svg+xml" href="/assets/electricity-favicon.svg" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
@@ -187,7 +216,19 @@ export function ElectricityComparison() {
         <div className="relative max-w-7xl mx-auto px-[16px] py-[24px] sm:py-12">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex justify-center mb-[14px]">
-              <Logo />
+              <div className="flex items-center gap-2.5" dir="ltr">
+                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-blue-50 text-blue-700 ring-1 ring-blue-100 shadow-sm">
+                  <Zap className="h-8 w-8 fill-blue-600/10" strokeWidth={2.5} />
+                </div>
+                <div className="flex items-baseline leading-none text-[24px]">
+                  <span className="text-2xl font-bold text-slate-900 tracking-tight text-[36px]">
+                    ikhtar
+                  </span>
+                  <span className="text-xs font-medium text-[rgb(0,0,0)] tracking-wide text-[20px]">
+                    .se
+                  </span>
+                </div>
+              </div>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-2 leading-tight">
@@ -195,11 +236,12 @@ export function ElectricityComparison() {
               <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 bg-clip-text text-transparent">
                 عقود الكهرباء
               </span>
-              {' '}في السويد
+              <br />
+              في السويد
             </h1>
 
             <p className="sm:text-xl text-slate-600 mb-3 leading-relaxed text-[15px]">
-              أدخل الرمز البريدي واختر نوع السكن والاستهلاك لعرض أرخص عقود الكهرباء بسرعة.
+              اكتشف أرخص العروض وغيّر عقد الكهرباء خلال دقائق.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-600">
@@ -224,7 +266,7 @@ export function ElectricityComparison() {
         </div>
       </div>
 
-      <section id="electricity-search" className="border-b border-blue-100/70 bg-gradient-to-b from-white to-blue-50/60 px-3 py-3">
+      <section ref={searchSectionRef} id="electricity-search" className="border-b border-blue-100/70 bg-gradient-to-b from-white to-blue-50/60 px-3 py-3">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-[26px] border border-white/80 bg-white/95 p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.09)] ring-1 ring-blue-100/60 sm:p-4">
             <div className="grid grid-cols-1 gap-3">
@@ -240,6 +282,7 @@ export function ElectricityComparison() {
                     <MapPin className="h-5 w-5" />
                   </span>
                   <input
+                    ref={postcodeInputRef}
                     inputMode="numeric"
                     value={postcode}
                     onChange={(event) => setPostcode(event.target.value)}
@@ -368,11 +411,18 @@ export function ElectricityComparison() {
         {!canSearch && (
           <div className="text-center py-12 px-4">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              ابدأ بإدخال الرمز البريدي
+              أدخل الرمز البريدي لعرض أرخص العقود
             </h2>
-            <p className="text-slate-600">
-              سنعرض عقود الكهرباء المتاحة حسب منطقتك واستهلاكك التقريبي.
+            <p className="text-slate-600 mb-5">
+              نقارن عقود الكهرباء حسب منطقتك واستهلاكك التقريبي.
             </p>
+            <button
+              type="button"
+              onClick={scrollToPostcodeInput}
+              className="rounded-2xl bg-blue-700 px-5 py-3 text-[14px] font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 active:scale-[0.98]"
+            >
+              أدخل الرمز البريدي الآن
+            </button>
           </div>
         )}
 
@@ -412,13 +462,6 @@ export function ElectricityComparison() {
                 );
               })}
             </div>
-          </div>
-        )}
-
-        {canSearch && !error && (
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-blue-700" />
-            الأرخص أولًا
           </div>
         )}
 
@@ -466,6 +509,19 @@ export function ElectricityComparison() {
 
         <ElectricitySeoSection />
       </main>
+
+      {showPostcodeCta && (
+        <div className="fixed inset-x-3 bottom-3 z-50 sm:hidden">
+          <button
+            type="button"
+            onClick={scrollToPostcodeInput}
+            className="flex w-full items-center justify-center gap-2 rounded-[22px] bg-blue-700 px-5 py-4 text-[15px] font-black text-white ring-1 ring-white/30 transition duration-300 animate-in fade-in slide-in-from-bottom-3 active:scale-[0.98]"
+          >
+            <MapPin className="h-5 w-5" />
+            أدخل الرمز البريدي لعرض العروض
+          </button>
+        </div>
+      )}
     </>
   );
 }
