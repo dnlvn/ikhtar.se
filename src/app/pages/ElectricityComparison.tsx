@@ -9,11 +9,9 @@ import {
   House,
   MapPin,
   RefreshCw,
-  SlidersHorizontal,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import { Logo } from '@/app/components/Logo';
 import { PremiumPlanCardSkeleton } from '@/app/components/PremiumPlanCardSkeleton';
 import { ElectricityOfferCard } from '@/app/components/ElectricityOfferCard';
 import {
@@ -180,6 +178,7 @@ export function ElectricityComparison() {
           content="قارن عقود الكهرباء في السويد حسب الرمز البريدي والاستهلاك واعثر بسرعة على عرض مناسب من شركات الكهرباء السويدية."
         />
         <link rel="canonical" href="https://ikhtar.se/elavtal" />
+        <link rel="icon" type="image/svg+xml" href="/assets/electricity-favicon.svg" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
@@ -187,7 +186,19 @@ export function ElectricityComparison() {
         <div className="relative max-w-7xl mx-auto px-[16px] py-[24px] sm:py-12">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex justify-center mb-[14px]">
-              <Logo />
+              <div className="flex items-center gap-2.5" dir="ltr">
+                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-blue-50 text-blue-700 ring-1 ring-blue-100 shadow-sm">
+                  <Zap className="h-8 w-8 fill-blue-600/10" strokeWidth={2.5} />
+                </div>
+                <div className="flex items-baseline leading-none text-[24px]">
+                  <span className="text-2xl font-bold text-slate-900 tracking-tight text-[36px]">
+                    ikhtar
+                  </span>
+                  <span className="text-xs font-medium text-[rgb(0,0,0)] tracking-wide text-[20px]">
+                    .se
+                  </span>
+                </div>
+              </div>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-2 leading-tight">
@@ -195,7 +206,8 @@ export function ElectricityComparison() {
               <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 bg-clip-text text-transparent">
                 عقود الكهرباء
               </span>
-              {' '}في السويد
+              <br />
+              في السويد
             </h1>
 
             <p className="sm:text-xl text-slate-600 mb-3 leading-relaxed text-[15px]">
@@ -412,13 +424,6 @@ export function ElectricityComparison() {
                 );
               })}
             </div>
-          </div>
-        )}
-
-        {canSearch && !error && (
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-[18px] bg-slate-50 px-3 py-2 text-[11px] font-bold text-slate-500">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-blue-700" />
-            الأرخص أولًا
           </div>
         )}
 
