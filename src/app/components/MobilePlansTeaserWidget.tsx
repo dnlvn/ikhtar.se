@@ -5,6 +5,36 @@ import { useFilteredPlans } from "@/hooks/useFilteredPlans";
 import { getOperatorLogo } from "@/lib/operatorLogos";
 import { getActiveMobileProviderPromotion } from "@/lib/mobileProviderConfig";
 
+function getOperatorKey(plan: Plan) {
+  return plan.title.trim().toLowerCase();
+}
+
+function selectCheapestUniqueOperatorPlans(plans: Plan[]) {
+  const selectedPlans: Plan[] = [];
+  const seenOperators = new Set<string>();
+
+  for (const plan of plans) {
+    const operatorKey = getOperatorKey(plan);
+
+    if (seenOperators.has(operatorKey)) {
+      continue;
+    }
+
+    seenOperators.add(operatorKey);
+    selectedPlans.push(plan);
+
+    if (selectedPlans.length === 3) {
+      break;
+    }
+  }
+
+  if (selectedPlans.length >= 3) {
+    return selectedPlans;
+  }
+
+  return plans.slice(0, 3);
+}
+
 function trackAndOpenOffer(plan: Plan) {
   const activePromotion = getActiveMobileProviderPromotion(plan.title);
   const ctaUrl = activePromotion?.promotionUrl || plan.sourceUrl;
@@ -90,7 +120,12 @@ function TeaserPlanCard({ plan }: { plan: Plan }) {
         type="button"
         onClick={() => trackAndOpenOffer(plan)}
         disabled={!hasOfferLink}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-3 text-sm font-black text-white shadow-sm transition-colors hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg transition-all duration-500 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+        style={{
+          backgroundImage: "linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)",
+          backgroundSize: "200% auto",
+          animation: "shimmer-slide 3s ease-in-out infinite",
+        }}
       >
         شاهد العرض
         <ExternalLink className="h-4 w-4" />
@@ -107,7 +142,7 @@ export function MobilePlansTeaserWidget() {
     sortBy: "price-asc",
   });
 
-  const teaserPlans = filteredPlans.slice(0, 3);
+  const teaserPlans = selectCheapestUniqueOperatorPlans(filteredPlans);
 
   return (
     <section className="mx-auto max-w-4xl px-4 pb-8">
@@ -120,13 +155,6 @@ export function MobilePlansTeaserWidget() {
               عروض محدّثة من مواقع المشغّلين
             </p>
           </div>
-          <Link
-            to="/mobilabonnemang"
-            className="inline-flex items-center gap-2 text-sm font-black text-green-700 hover:text-green-800"
-          >
-            عرض جميع باقات الجوال
-            <ArrowLeft className="h-4 w-4 rotate-180" />
-          </Link>
         </div>
 
         {loading && (
@@ -140,11 +168,23 @@ export function MobilePlansTeaserWidget() {
         {!loading && (error || teaserPlans.length === 0) && <FallbackCtaCard />}
 
         {!loading && !error && teaserPlans.length > 0 && (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {teaserPlans.map((plan) => (
-              <TeaserPlanCard key={plan.id} plan={plan} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              {teaserPlans.map((plan) => (
+                <TeaserPlanCard key={plan.id} plan={plan} />
+              ))}
+            </div>
+
+            <div className="mt-5 flex justify-center sm:justify-end">
+              <Link
+                to="/mobilabonnemang"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-green-800 transition-colors hover:border-emerald-300 hover:bg-emerald-100"
+              >
+                عرض جميع باقات الجوال
+                <ArrowLeft className="h-4 w-4 rotate-180" />
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </section>
