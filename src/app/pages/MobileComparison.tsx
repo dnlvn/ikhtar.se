@@ -35,6 +35,8 @@ export function MobileComparison() {
       <Helmet>
         <title>{t("seo.title")}</title>
         <meta name="description" content={t("seo.description")} />
+        <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+        <link rel="canonical" href="https://ikhtar.se/mobilabonnemang" />
       </Helmet>
 
       {/* Hero Section */}
