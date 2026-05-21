@@ -2,6 +2,19 @@ import { Link } from 'react-router';
 import { t, tr } from '@/i18n';
 
 export function Footer() {
+  const seoLinks = [
+    { href: '/mobilabonnemang/billigaste', label: 'أرخص اشتراك جوال' },
+    { href: '/mobilabonnemang/comviq', label: 'عروض Comviq' },
+    { href: '/mobilabonnemang/vimla', label: 'عروض Vimla' },
+    { href: '/mobilabonnemang/fello', label: 'عروض Fello' },
+    { href: '/mobilabonnemang/tre', label: 'عروض Tre' },
+    { href: '/mobilabonnemang/tele2', label: 'عروض Tele2' },
+    { href: '/mobilabonnemang/telenor', label: 'عروض Telenor' },
+    { href: '/mobilabonnemang/telia', label: 'عروض Telia' },
+    { href: '/mobilabonnemang/utan-bindningstid', label: 'باقات بدون التزام' },
+    { href: '/guider/hur-mycket-surf', label: 'كم إنترنت أحتاج؟' },
+  ];
+
   return (
     <footer className="bg-slate-900 text-slate-300 mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
@@ -24,14 +37,16 @@ export function Footer() {
           <div className="text-center md:text-left">
             <h3 className="text-white font-semibold mb-3">{t('footer.links.title')}</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  to="/mobilabonnemang/billigaste"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  أرخص اشتراك جوال
-                </Link>
-              </li>
+              {seoLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    to={link.href}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link 
                   to="/integritetspolicy" 
