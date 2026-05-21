@@ -25,6 +25,14 @@ export function Footer() {
             <h3 className="text-white font-semibold mb-3">{t('footer.links.title')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
+                <Link
+                  to="/mobilabonnemang/billigaste"
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  أرخص اشتراك جوال
+                </Link>
+              </li>
+              <li>
                 <Link 
                   to="/integritetspolicy" 
                   className="text-slate-400 hover:text-white transition-colors"
