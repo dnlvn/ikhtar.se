@@ -515,7 +515,7 @@ export function ElectricityComparison() {
           <button
             type="button"
             onClick={scrollToPostcodeInput}
-            className="flex w-full items-center justify-center gap-2 rounded-[22px] bg-blue-700 px-5 py-4 text-[15px] font-black text-white shadow-[0_18px_42px_rgba(29,78,216,0.32)] ring-1 ring-white/30 transition duration-300 animate-in fade-in slide-in-from-bottom-3 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 rounded-[22px] bg-blue-700 px-5 py-4 text-[15px] font-black text-white ring-1 ring-white/30 transition duration-300 animate-in fade-in slide-in-from-bottom-3 active:scale-[0.98]"
           >
             <MapPin className="h-5 w-5" />
             أدخل الرمز البريدي لعرض العروض
