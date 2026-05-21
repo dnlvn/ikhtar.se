@@ -17,7 +17,7 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   {
     vertical: 'electricity',
     provider: 'Vattenfall',
-    affiliateUrl: 'https://go.adt291.com/t/t?a=1515676052&as=2043693860&t=2&tk=1',
+    affiliateUrl: 'https://go.adt291.com/t/t?a=1515676052&as=2043693860&t=2&tk=1&url=www.vattenfall.se/elavtal/teckna-elavtal/',
   },
   {
     vertical: 'electricity',
