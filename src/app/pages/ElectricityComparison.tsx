@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
@@ -119,6 +119,7 @@ export function ElectricityComparison() {
   const [agreementFilter, setAgreementFilter] = useState<AgreementFilter>('all');
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
+  const trackedResultsViews = useRef<Set<string>>(new Set());
   const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
 
   useEffect(() => {
@@ -148,6 +149,27 @@ export function ElectricityComparison() {
     customAnnualUsage: customAnnualUsage > 0 ? customAnnualUsage : undefined,
     agreementFilter,
   });
+
+  useEffect(() => {
+    if (!canSearch || loading || error || offers.length === 0) return;
+
+    const resultSignature = [
+      postcode.replace(/\D/g, ''),
+      annualUsage,
+      agreementFilter,
+      offers.map((offer) => offer.id).join('|'),
+    ].join(':');
+
+    if (trackedResultsViews.current.has(resultSignature)) return;
+    trackedResultsViews.current.add(resultSignature);
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'electricity_results_view',
+      vertical: 'electricity',
+      results_count: offers.length,
+    });
+  }, [agreementFilter, annualUsage, canSearch, error, loading, offers, postcode]);
 
   return (
     <>
