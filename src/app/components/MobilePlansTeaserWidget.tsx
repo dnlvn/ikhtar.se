@@ -5,8 +5,25 @@ import { useFilteredPlans } from "@/hooks/useFilteredPlans";
 import { getOperatorLogo } from "@/lib/operatorLogos";
 import { getActiveMobileProviderPromotion } from "@/lib/mobileProviderConfig";
 
+type MobilePlansTeaserWidgetProps = {
+  intent?: "cheapest" | "operator" | "no-binding" | "data-guide";
+  operatorSlug?: string;
+};
+
 function getOperatorKey(plan: Plan) {
-  return plan.title.trim().toLowerCase();
+  return plan.title.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function matchesOperator(plan: Plan, operatorSlug?: string) {
+  if (!operatorSlug) return false;
+
+  const title = plan.title.trim().toLowerCase();
+
+  if (operatorSlug === "tre") {
+    return title === "tre" || title === "3" || title.includes("tre");
+  }
+
+  return title.includes(operatorSlug);
 }
 
 function selectCheapestUniqueOperatorPlans(plans: Plan[]) {
@@ -33,6 +50,49 @@ function selectCheapestUniqueOperatorPlans(plans: Plan[]) {
   }
 
   return plans.slice(0, 3);
+}
+
+function selectOperatorPlans(plans: Plan[], operatorSlug?: string) {
+  const operatorPlan = plans.find((plan) => matchesOperator(plan, operatorSlug));
+  const alternatives = selectCheapestUniqueOperatorPlans(
+    plans.filter((plan) => !matchesOperator(plan, operatorSlug))
+  );
+
+  return [operatorPlan, ...alternatives].filter(Boolean).slice(0, 3) as Plan[];
+}
+
+function selectDataGuidePlans(plans: Plan[]) {
+  const lightPlan = plans.find((plan) => plan.dataSortValue > 0 && plan.dataSortValue <= 5);
+  const mediumPlan = plans.find((plan) => plan.dataSortValue >= 10 && plan.dataSortValue <= 20);
+  const heavyPlan = plans.find((plan) => plan.dataSortValue >= 50 || plan.isUnlimited);
+
+  const selected = [lightPlan, mediumPlan, heavyPlan].filter(Boolean) as Plan[];
+
+  if (selected.length >= 3) {
+    return selected;
+  }
+
+  return selectCheapestUniqueOperatorPlans(plans);
+}
+
+function selectTeaserPlans(
+  plans: Plan[],
+  intent: MobilePlansTeaserWidgetProps["intent"],
+  operatorSlug?: string
+) {
+  if (intent === "operator") {
+    return selectOperatorPlans(plans, operatorSlug);
+  }
+
+  if (intent === "no-binding") {
+    return selectCheapestUniqueOperatorPlans(plans.filter((plan) => plan.bindingMonths === 0));
+  }
+
+  if (intent === "data-guide") {
+    return selectDataGuidePlans(plans);
+  }
+
+  return selectCheapestUniqueOperatorPlans(plans);
 }
 
 function trackAndOpenOffer(plan: Plan) {
@@ -134,7 +194,10 @@ function TeaserPlanCard({ plan }: { plan: Plan }) {
   );
 }
 
-export function MobilePlansTeaserWidget() {
+export function MobilePlansTeaserWidget({
+  intent = "cheapest",
+  operatorSlug,
+}: MobilePlansTeaserWidgetProps) {
   const { plans, loading, error } = usePlans();
   const { filteredPlans } = useFilteredPlans({
     plans,
@@ -142,7 +205,7 @@ export function MobilePlansTeaserWidget() {
     sortBy: "price-asc",
   });
 
-  const teaserPlans = selectCheapestUniqueOperatorPlans(filteredPlans);
+  const teaserPlans = selectTeaserPlans(filteredPlans, intent, operatorSlug);
 
   return (
     <section className="mx-auto max-w-4xl px-4 pb-8">
