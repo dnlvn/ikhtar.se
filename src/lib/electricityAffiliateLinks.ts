@@ -32,7 +32,7 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   {
     vertical: 'electricity',
     provider: 'Cheap Energy',
-    affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756',
+    affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756&u=https%3A%2F%2Far.cheapenergy.se%2Fentering-into-an-energy-deal%2F',
     aliases: ['Cheap Energy AB'],
   },
   {
