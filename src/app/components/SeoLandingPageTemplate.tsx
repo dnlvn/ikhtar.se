@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, CheckCircle, Info, Search, ShieldCheck } from "lucide-react";
 import { Logo } from "@/app/components/Logo";
+import type { ReactNode } from "react";
 
 type SeoFaq = {
   question: string;
@@ -39,6 +40,7 @@ type SeoLandingPageTemplateProps = {
   operatorLinks?: SeoOperatorLink[];
   faq: SeoFaq[];
   internalLinks: SeoInternalLink[];
+  teaser?: ReactNode;
 };
 
 export function SeoLandingPageTemplate({
@@ -56,6 +58,7 @@ export function SeoLandingPageTemplate({
   operatorLinks = [],
   faq,
   internalLinks,
+  teaser,
 }: SeoLandingPageTemplateProps) {
   return (
     <>
@@ -77,7 +80,7 @@ export function SeoLandingPageTemplate({
             دليل مقارنة باقات الجوال
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-tight mb-4">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-tight mb-4">
             {h1}
           </h1>
 
@@ -113,6 +116,8 @@ export function SeoLandingPageTemplate({
           </div>
         </section>
 
+        {teaser}
+
         <article className="max-w-4xl mx-auto px-4 pb-16">
           <section className="bg-white border border-slate-200 rounded-[16px] shadow-sm p-5 sm:p-8 mb-8">
             {bodyIntro.map((paragraph) => (
@@ -140,21 +145,20 @@ export function SeoLandingPageTemplate({
           {operatorLinks.length > 0 && (
             <section className="mb-10 p-5 sm:p-6 bg-white border border-slate-200 rounded-[16px] shadow-sm">
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-4">
-                مشغلون يمكن مقارنتهم
+                مشغّلون يمكنك مقارنة عروضهم
               </h2>
               <p className="text-slate-700 leading-relaxed text-lg mb-4">
                 يمكنك مقارنة عروض من عدة مشغلين في السويد:
               </p>
               <div className="flex flex-wrap gap-2">
                 {operatorLinks.map((operator) => (
-                  <a
+                  <Link
                     key={operator.href}
-                    href={operator.href}
-                    rel="sponsored nofollow"
+                    to={operator.href}
                     className="inline-flex items-center px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-slate-800 font-bold hover:border-green-300 hover:bg-green-50 transition-colors"
                   >
                     {operator.label}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </section>
