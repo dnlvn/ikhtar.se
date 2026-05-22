@@ -249,7 +249,7 @@ export function MobileComparison() {
       </main>
 
       {/* SEO Content Section - Below all plan cards */}
-      {!loading && !error && filteredPlans.length > 0 && <SeoContentSection />}
+      {!loading && !error && filteredPlans.length > 0 && <SeoContentSection plans={plans} />}
     </>
   );
 }
