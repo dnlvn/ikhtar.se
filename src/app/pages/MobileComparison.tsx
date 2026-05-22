@@ -5,6 +5,7 @@ import { FilterSection } from "@/app/components/FilterSection";
 import { PremiumPlanCard } from "@/app/components/PremiumPlanCard_V1";
 import { PremiumPlanCardSkeleton } from "@/app/components/PremiumPlanCardSkeleton";
 import { SeoContentSection } from "@/app/components/SeoContentSection";
+import { StickyTopOfferCard } from "@/app/components/StickyTopOfferCard";
 import { usePlans } from "@/hooks/usePlans";
 import {
   useFilteredPlans,
@@ -29,6 +30,10 @@ export function MobileComparison() {
   const resetFilters = () => {
     setSortBy("best-deals");
   };
+
+  const visiblePlans = sortBy === "best-deals" ? diverseList : filteredPlans;
+  const topOfferPlan = visiblePlans[0] ?? null;
+  const observedTopPlanIds = visiblePlans.slice(0, 3).map((plan) => plan.id);
 
   return (
     <>
@@ -250,6 +255,12 @@ export function MobileComparison() {
 
       {/* SEO Content Section - Below all plan cards */}
       {!loading && !error && filteredPlans.length > 0 && <SeoContentSection plans={plans} />}
+      {!loading && !error && (
+        <StickyTopOfferCard
+          plan={topOfferPlan}
+          observedPlanIds={observedTopPlanIds}
+        />
+      )}
     </>
   );
 }
