@@ -11,6 +11,7 @@ interface PremiumPlanCardProps {
   dealRank?: 1 | 2 | 3;
   dealType?: 'best-price' | 'most-data' | 'popular';
   savingsVariant?: 'gradient-text' | 'outlined' | 'soft-highlight';
+  cardId?: string;
 }
 
 /**
@@ -21,7 +22,7 @@ interface PremiumPlanCardProps {
  * - Pulsing animation on CTA button
  * - Strong gold shadow on hover
  */
-export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'soft-highlight' }: PremiumPlanCardProps) {
+export function PremiumPlanCard({ plan, dealRank, dealType, savingsVariant = 'soft-highlight', cardId }: PremiumPlanCardProps) {
   const operatorLogo = getOperatorLogo(plan.title);
   const activePromotion = getActiveMobileProviderPromotion(plan.title);
   const ctaUrl = activePromotion?.promotionUrl || plan.sourceUrl;
@@ -62,7 +63,7 @@ const handleClick = () => {
 
   return (
     <div 
-      id={`plan-${plan.id}`}
+      id={cardId ?? `plan-${plan.id}`}
       className="relative"
     >
       {/* Sparkle decorations for best deals */}
