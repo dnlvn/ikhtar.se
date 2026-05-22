@@ -15,6 +15,7 @@ import {
 import type { ReactNode } from 'react';
 import type { Plan } from '@/hooks/usePlans';
 import { getActiveMobileProviderPromotion } from '@/lib/mobileProviderConfig';
+import { getOperatorLogo } from '@/lib/operatorLogos';
 
 type OperatorSlug =
   | 'vimla'
@@ -148,6 +149,54 @@ function OperatorActionLink({
       {children}
       <ExternalLink className="h-3.5 w-3.5" />
     </button>
+  );
+}
+
+function OperatorLogoLink({ slug, plans }: { slug: OperatorSlug; plans: Plan[] }) {
+  const plan = getOperatorPlan(plans, slug);
+  const outboundUrl = getOutboundUrl(plan);
+  const logo = getOperatorLogo(slug);
+  const label = operatorLabels[slug];
+  const logoContent = logo ? (
+    <img src={logo} alt={label} className="h-10 max-w-[112px] object-contain" />
+  ) : (
+    <span className="text-lg font-black text-slate-900">{label}</span>
+  );
+
+  if (!plan || !outboundUrl) {
+    return (
+      <Link
+        to={operatorInternalLinks[slug]}
+        data-operator-logo-fallback={slug}
+        className="mb-3 inline-flex h-12 items-center justify-center rounded-xl px-3 transition-transform hover:-translate-y-0.5"
+        aria-label={`شاهد عروض ${label}`}
+      >
+        {logoContent}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      data-operator-logo-outbound={slug}
+      onClick={() => trackAndOpenOperator(plan, slug)}
+      className="mb-3 inline-flex h-12 cursor-pointer items-center justify-center rounded-xl px-3 transition-transform hover:-translate-y-0.5"
+      aria-label={`شاهد عروض ${label}`}
+    >
+      {logoContent}
+    </button>
+  );
+}
+
+function OperatorOfferCard({ slug, plans }: { slug: OperatorSlug; plans: Plan[] }) {
+  return (
+    <li className="rounded-[12px] border border-emerald-100 bg-white px-4 py-4 text-center shadow-sm transition-shadow hover:shadow-md">
+      <OperatorLogoLink slug={slug} plans={plans} />
+      <div className="text-base leading-relaxed">
+        شاهد عروض <OperatorActionLink slug={slug} plans={plans}>{operatorLabels[slug]}</OperatorActionLink>
+      </div>
+    </li>
   );
 }
 
@@ -348,9 +397,7 @@ export function SeoContentSection({ plans }: SeoContentSectionProps) {
         </p>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {operatorSlugs.map((slug) => (
-            <li key={slug} className="rounded-[12px] border border-emerald-100 bg-white px-4 py-3 shadow-sm">
-              شاهد عروض <OperatorActionLink slug={slug} plans={plans}>{operatorLabels[slug]}</OperatorActionLink>
-            </li>
+            <OperatorOfferCard key={slug} slug={slug} plans={plans} />
           ))}
         </ul>
         <p>
