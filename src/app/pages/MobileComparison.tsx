@@ -33,7 +33,7 @@ export function MobileComparison() {
 
   const visiblePlans = sortBy === "best-deals" ? diverseList : filteredPlans;
   const topOfferPlan = visiblePlans[0] ?? null;
-  const observedTopPlanIds = visiblePlans.slice(0, 3).map((plan) => plan.id);
+  const observedTopPlanIds = visiblePlans.slice(0, 2).map((plan) => plan.id);
 
   return (
     <>
