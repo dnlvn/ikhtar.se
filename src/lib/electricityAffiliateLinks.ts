@@ -38,23 +38,23 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   {
     vertical: 'electricity',
     provider: 'Kärnfull Energi',
-    affiliateUrl: 'https://addrevenue.io/t?a=984789&c=3467756',
+    affiliateUrl: 'https://addrevenue.io/t?a=984789&c=3467756&u=https%3A%2F%2Fwww.karnfull.se%2Fsignup%2F',
     aliases: ['Karnfull Energi'],
   },
   {
     vertical: 'electricity',
     provider: 'Motala Energi',
-    affiliateUrl: 'https://addrevenue.io/t?a=986637&c=3467756',
+    affiliateUrl: 'https://addrevenue.io/t?a=986637&c=3467756&u=https%3A%2F%2Fmotalaenergi.se%2Fprivatperson%2F',
   },
   {
     vertical: 'electricity',
     provider: 'Stockholms Elbolag',
-    affiliateUrl: 'https://addrevenue.io/t?a=985027&c=3467756',
+    affiliateUrl: 'https://addrevenue.io/t?a=985027&c=3467756&u=https%3A%2F%2Fwww.stockholmselbolag.se%2Felavtal%2F',
   },
   {
     vertical: 'electricity',
     provider: 'Svea Lands Elbolag',
-    affiliateUrl: 'https://addrevenue.io/t?a=985029&c=3467756',
+    affiliateUrl: 'https://addrevenue.io/t?a=985029&c=3467756&u=https%3A%2F%2Fwww.svealandselbolag.se%2Fteckna-avtal%2F',
     aliases: ['Svealands Elbolag'],
   },
   {
