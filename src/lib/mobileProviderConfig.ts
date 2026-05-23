@@ -1,4 +1,5 @@
 export const DISABLED_MOBILE_PROVIDERS = ['hallon'] as const;
+export const HIGHLIGHTED_MOBILE_PROVIDERS = ['comviq'] as const;
 
 export interface MobileProviderPromotion {
   promotionBadge: string;
@@ -28,6 +29,13 @@ function normalizeMobileProvider(providerName?: string | null): string {
 export function isMobileProviderDisabled(providerName?: string | null): boolean {
   const normalizedProvider = normalizeMobileProvider(providerName);
   return DISABLED_MOBILE_PROVIDERS.some(
+    (provider) => normalizeMobileProvider(provider) === normalizedProvider
+  );
+}
+
+export function isMobileProviderHighlighted(providerName?: string | null): boolean {
+  const normalizedProvider = normalizeMobileProvider(providerName);
+  return HIGHLIGHTED_MOBILE_PROVIDERS.some(
     (provider) => normalizeMobileProvider(provider) === normalizedProvider
   );
 }
