@@ -2,7 +2,7 @@ import { ArrowRight, Sparkles, Unlock, Lock, Phone, Crown } from 'lucide-react';
 import { useState } from 'react';
 import type { Plan } from '@/hooks/usePlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
-import { getActiveMobileProviderPromotion } from '@/lib/mobileProviderConfig';
+import { getActiveMobileProviderPromotion, isMobileProviderHighlighted } from '@/lib/mobileProviderConfig';
 import { PlanDetailsModal } from './PlanDetailsModal';
 import { t } from '@/i18n';
 
@@ -57,8 +57,8 @@ const handleClick = () => {
   // Extract operator name from plan title (e.g., "Hallon 5GB" -> "hallon")
   const operatorName = plan.title.toLowerCase().split(' ')[0];
 
-  // Check if this is a best deal (price <= 50 SEK)
-  const isBestDeal = plan.price <= 100;
+  // Check if this is a best deal (price <= 100 SEK) or a manually highlighted provider
+  const isBestDeal = plan.price <= 100 || isMobileProviderHighlighted(plan.title);
 
   return (
     <div 
