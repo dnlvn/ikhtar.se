@@ -53,8 +53,8 @@ function transformPlan(dbPlan: MobilePlanDB): Plan {
   }
 
   // Compute dataSortValue: unlimited = 9999, else use data_gb
-  const dataSortValue = dbPlan.unlimited_data || dbPlan.data_gb === null 
-    ? 9999 
+  const dataSortValue = dbPlan.unlimited_data || dbPlan.data_gb === null
+    ? 9999
     : dbPlan.data_gb;
   const planOverride = getMobilePlanOverride(dbPlan.plan_key);
   const affiliateUrl = planOverride?.customAffiliateUrl || dbPlan.affiliate_url;
@@ -108,37 +108,22 @@ export function usePlans() {
         throw fetchError;
       }
 
-      console.log('🔍 DEBUG: Raw rows from Supabase:', data?.length || 0);
-
       if (data && data.length > 0) {
         // Deduplicate by plan_key ONLY (keep first occurrence)
         const seen = new Set<string>();
         const uniquePlans = (data as MobilePlanDB[]).filter((plan) => {
           if (seen.has(plan.plan_key)) {
-            console.log('⚠️ Dropping duplicate plan_key:', plan.plan_key);
             return false;
           }
           seen.add(plan.plan_key);
           return true;
         });
 
-        console.log('🔍 DEBUG: After dedupe by plan_key:', uniquePlans.length);
-
         const transformedPlans = uniquePlans
           .map((plan) => transformPlan(plan))
           .filter((plan) => !isMobileProviderDisabled(plan.title))
           .filter((plan) => !getMobilePlanOverride(plan.planKey)?.hidePlan);
-        
-        console.log('🔍 DEBUG: After transformation:', transformedPlans.length);
-        console.log('✅ Final plans to render:', transformedPlans.map(p => ({ 
-          plan_key: p.planKey, 
-          operator: p.title, 
-          data: p.dataLabel, 
-          price: p.price,
-          campaignMonths: p.campaign?.months ?? null,
-          unlimited: p.isUnlimited
-        })));
-        
+
         setPlans(transformedPlans);
 
         // Get max updated_at
@@ -147,7 +132,6 @@ export function usePlans() {
         }, uniquePlans[0].updated_at);
         setLastUpdated(maxUpdated);
       } else {
-        console.log('⚠️ No data returned from Supabase');
         setPlans([]);
         setLastUpdated(null);
       }
