@@ -147,30 +147,23 @@ export interface GroupedPlans {
 }
 
 export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPlansParams) {
-  const result = useMemo(() => {
-    console.log('🔍 DEBUG useFilteredPlans: Input plans:', plans.length);
-    console.log('🔍 DEBUG useFilteredPlans: Active filters:', Array.from(activeFilters));
-    console.log('🔍 DEBUG useFilteredPlans: Sort by:', sortBy);
-    
+  return useMemo(() => {
     let filtered = [...plans];
 
     if (activeFilters.has('no-binding')) {
       filtered = filtered.filter((p) => p.bindingMonths === 0);
-      console.log('🔍 DEBUG: After no-binding filter:', filtered.length);
     }
-    
+
     if (activeFilters.has('esim')) {
       filtered = filtered.filter((p) => p.esim);
-      console.log('🔍 DEBUG: After esim filter:', filtered.length);
     }
-    
+
     if (activeFilters.has('eu-roaming')) {
       filtered = filtered.filter((p) => p.euRoaming);
-      console.log('🔍 DEBUG: After eu-roaming filter:', filtered.length);
     }
 
     let effectiveSort = sortBy;
-    
+
     if (activeFilters.has('cheapest')) {
       effectiveSort = 'price-asc';
     } else if (activeFilters.has('most-data')) {
@@ -224,31 +217,18 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
         filtered.sort(comparePlansForBestDeal);
         const grouped = groupBestPlanPerOperator(filtered);
 
-        console.log('🔍 DEBUG best-deals mode: diverseList length:', grouped.diverseList.length);
-        console.log('🔍 DEBUG best-deals mode: additionalPlansByOperator size:', grouped.additionalPlansByOperator.size);
-
-        return { 
-          filteredPlans: filtered, 
-          diverseList: grouped.diverseList, 
+        return {
+          filteredPlans: filtered,
+          diverseList: grouped.diverseList,
           additionalPlansByOperator: grouped.additionalPlansByOperator,
         };
       }
     }
 
-    console.log('🔍 DEBUG: Returning filtered plans:', filtered.length);
-    
-    return { 
-      filteredPlans: filtered, 
-      diverseList: filtered, 
+    return {
+      filteredPlans: filtered,
+      diverseList: filtered,
       additionalPlansByOperator: new Map<string, Plan[]>(),
     };
   }, [plans, activeFilters, sortBy]);
-
-  console.log('🔍 DEBUG useFilteredPlans RESULT:', {
-    filteredPlans: result.filteredPlans.length,
-    diverseList: result.diverseList.length,
-    additionalOperators: result.additionalPlansByOperator.size,
-  });
-
-  return result;
 }
