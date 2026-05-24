@@ -1,5 +1,4 @@
-import { ChevronDown, Lock, Phone, Sparkles, Unlock } from 'lucide-react';
-import { useState } from 'react';
+import { Lock, Phone, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
@@ -32,7 +31,6 @@ export function PremiumPlanCard({
   const planOverride = getMobilePlanOverride(plan.planKey);
   const ctaUrl = activePromotion?.promotionUrl || planOverride?.customAffiliateUrl || plan.sourceUrl;
   const ctaText = planOverride?.customCtaText || t('card.viewOffer');
-  const [isExpanded, setIsExpanded] = useState(false);
   const costSummary = getPlanCostSummary(plan);
   const badge = getPlanBadge(plan, allPlans);
   const hasGoldBadge = badge?.variant === 'gold';
@@ -53,31 +51,15 @@ export function PremiumPlanCard({
       effective_monthly_price_12m: costSummary.effectiveMonthlyPrice12m,
       badge_text: badge?.text ?? null,
       card_position: cardPosition ?? null,
-      is_expanded: isExpanded,
+      is_expanded: false,
     });
 
     window.open(ctaUrl, '_blank', 'noopener,noreferrer');
   };
 
   const operatorName = plan.title.toLowerCase().split(' ')[0];
-  const showCampaignCostRows = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
-  const detailRows = [
-    costSummary.postCampaignPrice !== null
-      ? { label: 'السعر بعد العرض', value: `${formatSek(costSummary.postCampaignPrice)} كرونة/شهر` }
-      : null,
-    costSummary.campaignMonths !== null
-      ? { label: 'مدة العرض', value: `${costSummary.campaignMonths} أشهر` }
-      : null,
-    costSummary.totalCost12m !== null
-      ? { label: 'التكلفة خلال أول سنة', value: `${formatSek(costSummary.totalCost12m)} كرونة` }
-      : null,
-    costSummary.discountTotal !== null
-      ? { label: 'الخصم الكلي', value: `${formatSek(costSummary.discountTotal)} كرونة`, valueClassName: 'text-emerald-700' }
-      : null,
-    { label: 'فترة الالتزام', value: plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}` },
-    plan.euRoaming ? { label: 'استخدام داخل EU', value: 'مشمول' } : null,
-    plan.esim ? { label: 'eSIM', value: 'متاح' } : null,
-  ].filter((row): row is { label: string; value: string; valueClassName?: string } => row !== null);
+  const showPostCampaignPrice = costSummary.postCampaignPrice !== null && plan.campaign !== null;
+  const showReliableYearCost = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
 
   return (
     <div id={`plan-${plan.id}`} className="relative pt-3">
@@ -199,52 +181,32 @@ export function PremiumPlanCard({
                 <span className="relative flex items-center gap-1.5">{ctaText}</span>
               </button>
 
-              {showCampaignCostRows && (
-                <div className="max-w-[150px] text-right leading-tight">
-                  {costSummary.discountTotal !== null && (
+              {(showPostCampaignPrice || showReliableYearCost) && (
+                <div className="max-w-[170px] space-y-0.5 text-right leading-tight">
+                  {showPostCampaignPrice && (
+                    <div className="text-[10px] font-bold text-slate-700">
+                      بعد العرض: {formatSek(costSummary.postCampaignPrice!)} كرونة/شهر
+                    </div>
+                  )}
+                  {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
+                    <div className="text-[10px] font-bold text-slate-600">
+                      متوسط السنة الأولى: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                    </div>
+                  )}
+                  {showReliableYearCost && costSummary.discountTotal !== null && (
                     <div className="text-[10px] font-black text-emerald-700">
                       وفّر {formatSek(costSummary.discountTotal)} كرونة
                     </div>
                   )}
-                  {costSummary.effectiveMonthlyPrice12m !== null && (
-                    <div className="text-[10px] font-bold text-slate-600">
-                      متوسط السنة الأولى: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                  {showReliableYearCost && costSummary.totalCost12m !== null && (
+                    <div className="text-[10px] font-semibold text-slate-500">
+                      تكلفة أول سنة: {formatSek(costSummary.totalCost12m)} كرونة
                     </div>
                   )}
                 </div>
               )}
             </div>
           </div>
-
-          {detailRows.length > 0 && (
-            <div className="mt-1.5 flex justify-end">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setIsExpanded((current) => !current);
-                }}
-                className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 transition-colors hover:text-slate-700"
-              >
-                {isExpanded ? 'إخفاء' : 'تفاصيل'}
-                <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          )}
-
-          {isExpanded && detailRows.length > 0 && (
-            <div
-              className="mt-1.5 divide-y divide-slate-100 rounded-lg bg-slate-50/70 px-2.5 py-1.5 text-[10px] font-semibold leading-tight text-slate-600"
-              onClick={(event) => event.stopPropagation()}
-            >
-              {detailRows.map((row) => (
-                <div key={row.label} className="flex items-center justify-between gap-3 py-1">
-                  <span>{row.label}</span>
-                  <span className={`text-left font-black text-slate-800 ${row.valueClassName ?? ''}`}>{row.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
