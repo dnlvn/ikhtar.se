@@ -1,4 +1,5 @@
 import type { Plan } from '@/hooks/usePlans';
+import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getMobileOperatorOverride, getMobilePlanOverride, getCommercialPriority } from '@/lib/mobileProviderConfig';
 import { getPlanCostSummary } from '@/lib/mobilePlanCost';
 
@@ -10,8 +11,18 @@ export interface MobilePlanBadge {
   variant: MobilePlanBadgeVariant;
 }
 
+interface PlanBadgeContext {
+  sortMode?: SortOption;
+  cardPosition?: number;
+  isAdditionalPlan?: boolean;
+}
+
 function isSameNumber(a: number, b: number) {
   return Math.round(a) === Math.round(b);
+}
+
+function isTopMainCard(context: PlanBadgeContext, limit = 3) {
+  return !context.isAdditionalPlan && typeof context.cardPosition === 'number' && context.cardPosition <= limit;
 }
 
 function getLowestReliableYearlyCost(plans: Plan[]): number | null {
@@ -32,15 +43,48 @@ function getLowestCurrentPrice(plans: Plan[]): number | null {
   return Math.min(...prices);
 }
 
-export function getPlanBadge(plan: Plan, allPlans: Plan[]): MobilePlanBadge | null {
+export function getPlanBadge(
+  plan: Plan,
+  allPlans: Plan[],
+  context: PlanBadgeContext = {}
+): MobilePlanBadge | null {
+  const sortMode = context.sortMode ?? 'best-deals';
+  const summary = getPlanCostSummary(plan);
   const planOverride = getMobilePlanOverride(plan.planKey);
-  if (planOverride?.customBadgeAr) {
+
+  if (!context.isAdditionalPlan && planOverride?.customBadgeAr) {
     return { text: planOverride.customBadgeAr, reason: 'commercial', variant: 'gold' };
   }
 
-  const summary = getPlanCostSummary(plan);
-  const lowestReliableYearlyCost = getLowestReliableYearlyCost(allPlans);
+  if (sortMode === 'price-asc') {
+    if (isTopMainCard(context, 3)) {
+      return { text: 'أرخص الآن', reason: 'current-cheapest', variant: 'gold' };
+    }
+    return null;
+  }
 
+  if (sortMode === 'yearly-cost') {
+    if (isTopMainCard(context, 3) && summary.hasReliable12mCost) {
+      return { text: 'الأرخص سنة', reason: 'yearly-cheapest', variant: 'gold' };
+    }
+    return null;
+  }
+
+  if (sortMode === 'heavy-data') {
+    if (isTopMainCard(context, 3) && (plan.isUnlimited || plan.dataSortValue >= 20)) {
+      return { text: 'أكثر من 20 GB', reason: 'data', variant: 'gold' };
+    }
+    return null;
+  }
+
+  if (sortMode === 'no-binding') {
+    if (isTopMainCard(context, 3) && plan.bindingMonths === 0) {
+      return { text: 'بدون التزام', reason: 'no-binding', variant: 'gold' };
+    }
+    return null;
+  }
+
+  const lowestReliableYearlyCost = getLowestReliableYearlyCost(allPlans);
   if (
     lowestReliableYearlyCost !== null &&
     summary.hasReliable12mCost &&
@@ -55,25 +99,27 @@ export function getPlanBadge(plan: Plan, allPlans: Plan[]): MobilePlanBadge | nu
     return { text: 'أرخص الآن', reason: 'current-cheapest', variant: 'gold' };
   }
 
-  const operatorOverride = getMobileOperatorOverride(plan.title);
-  if (operatorOverride?.defaultBadgeAr || getCommercialPriority(plan.title) > 0) {
-    return {
-      text: operatorOverride?.defaultBadgeAr ?? 'اختيار شائع',
-      reason: 'commercial',
-      variant: 'gold',
-    };
+  if (!context.isAdditionalPlan) {
+    const operatorOverride = getMobileOperatorOverride(plan.title);
+    if (operatorOverride?.defaultBadgeAr || getCommercialPriority(plan.title) > 0) {
+      return {
+        text: operatorOverride?.defaultBadgeAr ?? 'اختيار شائع',
+        reason: 'commercial',
+        variant: 'gold',
+      };
+    }
   }
 
   if (summary.discountTotal !== null && summary.discountTotal >= 300) {
-    return { text: 'خصم قوي', reason: 'discount', variant: 'green' };
+    return { text: 'خصم قوي', reason: 'discount', variant: context.isAdditionalPlan ? 'green' : 'gold' };
   }
 
   if (plan.bindingMonths === 0) {
-    return { text: 'بدون التزام', reason: 'no-binding', variant: 'blue' };
+    return { text: 'بدون التزام', reason: 'no-binding', variant: context.isAdditionalPlan ? 'blue' : 'gold' };
   }
 
   if (plan.isUnlimited || plan.dataSortValue >= 50) {
-    return { text: 'أكثر من 50 GB', reason: 'data', variant: 'neutral' };
+    return { text: 'أكثر من 20 GB', reason: 'data', variant: 'neutral' };
   }
 
   return null;
