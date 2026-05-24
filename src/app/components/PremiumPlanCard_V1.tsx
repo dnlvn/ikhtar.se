@@ -61,6 +61,23 @@ export function PremiumPlanCard({
 
   const operatorName = plan.title.toLowerCase().split(' ')[0];
   const showCampaignCostRows = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
+  const detailRows = [
+    costSummary.postCampaignPrice !== null
+      ? { label: 'السعر بعد العرض', value: `${formatSek(costSummary.postCampaignPrice)} كرونة/شهر` }
+      : null,
+    costSummary.campaignMonths !== null
+      ? { label: 'مدة العرض', value: `${costSummary.campaignMonths} أشهر` }
+      : null,
+    costSummary.totalCost12m !== null
+      ? { label: 'التكلفة خلال أول سنة', value: `${formatSek(costSummary.totalCost12m)} كرونة` }
+      : null,
+    costSummary.discountTotal !== null
+      ? { label: 'الخصم الكلي', value: `${formatSek(costSummary.discountTotal)} كرونة`, valueClassName: 'text-emerald-700' }
+      : null,
+    { label: 'فترة الالتزام', value: plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}` },
+    plan.euRoaming ? { label: 'استخدام داخل EU', value: 'مشمول' } : null,
+    plan.esim ? { label: 'eSIM', value: 'متاح' } : null,
+  ].filter((row): row is { label: string; value: string; valueClassName?: string } => row !== null);
 
   return (
     <div id={`plan-${plan.id}`} className="relative pt-3">
@@ -182,73 +199,50 @@ export function PremiumPlanCard({
                 <span className="relative flex items-center gap-1.5">{ctaText}</span>
               </button>
 
-              {showCampaignCostRows && costSummary.effectiveMonthlyPrice12m !== null && (
-                <span className="text-[10px] font-bold leading-tight text-slate-600">
-                  متوسط السنة الأولى: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
-                </span>
-              )}
-
-              {costSummary.discountTotal !== null && (
-                <span className="text-[10px] font-black leading-tight text-emerald-700">
-                  وفّر {formatSek(costSummary.discountTotal)} كرونة
-                </span>
+              {showCampaignCostRows && (
+                <div className="max-w-[150px] text-right leading-tight">
+                  {costSummary.discountTotal !== null && (
+                    <div className="text-[10px] font-black text-emerald-700">
+                      وفّر {formatSek(costSummary.discountTotal)} كرونة
+                    </div>
+                  )}
+                  {costSummary.effectiveMonthlyPrice12m !== null && (
+                    <div className="text-[10px] font-bold text-slate-600">
+                      متوسط السنة الأولى: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
 
-          <div className="mt-2 flex justify-end">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                setIsExpanded((current) => !current);
-              }}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800"
-            >
-              {isExpanded ? 'إخفاء التفاصيل' : 'تفاصيل السعر'}
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
+          {detailRows.length > 0 && (
+            <div className="mt-1.5 flex justify-end">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsExpanded((current) => !current);
+                }}
+                className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 transition-colors hover:text-slate-700"
+              >
+                {isExpanded ? 'إخفاء' : 'تفاصيل'}
+                <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          )}
 
-          {isExpanded && (
+          {isExpanded && detailRows.length > 0 && (
             <div
-              className="mt-2 grid grid-cols-1 gap-1.5 rounded-xl border border-slate-100 bg-white/80 p-3 text-[11px] font-semibold leading-relaxed text-slate-700"
+              className="mt-1.5 divide-y divide-slate-100 rounded-lg bg-slate-50/70 px-2.5 py-1.5 text-[10px] font-semibold leading-tight text-slate-600"
               onClick={(event) => event.stopPropagation()}
             >
-              {costSummary.totalCost12m !== null && (
-                <div className="flex justify-between gap-3">
-                  <span>التكلفة خلال أول سنة</span>
-                  <span className="font-black text-slate-900">{formatSek(costSummary.totalCost12m)} كرونة</span>
+              {detailRows.map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-3 py-1">
+                  <span>{row.label}</span>
+                  <span className={`text-left font-black text-slate-800 ${row.valueClassName ?? ''}`}>{row.value}</span>
                 </div>
-              )}
-              {costSummary.postCampaignPrice !== null && (
-                <div className="flex justify-between gap-3">
-                  <span>السعر بعد العرض</span>
-                  <span className="font-black text-slate-900">{formatSek(costSummary.postCampaignPrice)} كرونة/شهر</span>
-                </div>
-              )}
-              {costSummary.campaignMonths !== null && (
-                <div className="flex justify-between gap-3">
-                  <span>مدة العرض</span>
-                  <span className="font-black text-slate-900">{costSummary.campaignMonths} أشهر</span>
-                </div>
-              )}
-              {costSummary.discountTotal !== null && (
-                <div className="flex justify-between gap-3">
-                  <span>الخصم الكلي</span>
-                  <span className="font-black text-emerald-700">{formatSek(costSummary.discountTotal)} كرونة</span>
-                </div>
-              )}
-              <div className="flex justify-between gap-3">
-                <span>الباقة</span>
-                <span className="text-left font-black text-slate-900">{plan.subtitle}</span>
-              </div>
-              <div className="flex justify-between gap-3">
-                <span>فترة الالتزام</span>
-                <span className="font-black text-slate-900">
-                  {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
-                </span>
-              </div>
+              ))}
             </div>
           )}
         </div>
