@@ -32,6 +32,19 @@ export function MobileComparison() {
     setSortBy("best-deals");
   };
 
+  const handleSortChange = (nextSort: SortOption) => {
+    setSortBy(nextSort);
+    setExpandedOperators(new Set());
+
+    window.setTimeout(() => {
+      const resultsSection = document.getElementById("results-section");
+      if (!resultsSection) return;
+
+      const offsetTop = resultsSection.getBoundingClientRect().top + window.scrollY - 86;
+      window.scrollTo({ top: Math.max(offsetTop, 0), behavior: "smooth" });
+    }, 0);
+  };
+
   return (
     <>
       <Helmet>
@@ -48,7 +61,7 @@ export function MobileComparison() {
       {!loading && !error && (
         <FilterSection
           sortBy={sortBy}
-          onSortChange={setSortBy}
+          onSortChange={handleSortChange}
           resultsCount={filteredPlans.length}
         />
       )}
@@ -181,6 +194,7 @@ export function MobileComparison() {
                                       allPlans={filteredPlans}
                                       sortMode={sortBy}
                                       cardPosition={index + additionalIndex + 2}
+                                      isAdditionalPlan
                                     />
                                   ))}
                                 </div>
