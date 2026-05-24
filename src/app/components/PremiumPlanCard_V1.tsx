@@ -15,6 +15,7 @@ interface PremiumPlanCardProps {
   allPlans?: Plan[];
   sortMode?: SortOption;
   cardPosition?: number;
+  isAdditionalPlan?: boolean;
 }
 
 export function PremiumPlanCard({
@@ -25,6 +26,7 @@ export function PremiumPlanCard({
   allPlans = [plan],
   sortMode = 'best-deals',
   cardPosition,
+  isAdditionalPlan = false,
 }: PremiumPlanCardProps) {
   const operatorLogo = getOperatorLogo(plan.title);
   const activePromotion = getActiveMobileProviderPromotion(plan.title);
@@ -32,9 +34,13 @@ export function PremiumPlanCard({
   const ctaUrl = activePromotion?.promotionUrl || planOverride?.customAffiliateUrl || plan.sourceUrl;
   const ctaText = planOverride?.customCtaText || t('card.viewOffer');
   const costSummary = getPlanCostSummary(plan);
-  const badge = getPlanBadge(plan, allPlans);
+  const badge = getPlanBadge(plan, allPlans, { sortMode, cardPosition, isAdditionalPlan });
   const hasGoldBadge = badge?.variant === 'gold';
-  const isBestDeal = plan.price <= 100 || isMobileProviderHighlighted(plan.title) || hasGoldBadge;
+  const isObjectiveMode = sortMode !== 'best-deals';
+  const isMainTopCard = !isAdditionalPlan && typeof cardPosition === 'number' && cardPosition <= 3;
+  const isBestDeal = isObjectiveMode
+    ? isMainTopCard && hasGoldBadge
+    : !isAdditionalPlan && (hasGoldBadge || plan.price <= 100 || isMobileProviderHighlighted(plan.title));
 
   const handleClick = () => {
     if (!ctaUrl) return;
@@ -58,7 +64,7 @@ export function PremiumPlanCard({
   };
 
   const operatorName = plan.title.toLowerCase().split(' ')[0];
-  const showPostCampaignPrice = costSummary.postCampaignPrice !== null && plan.campaign !== null;
+  const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
   const showReliableYearCost = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
 
   return (
@@ -181,26 +187,19 @@ export function PremiumPlanCard({
                 <span className="relative flex items-center gap-1.5">{ctaText}</span>
               </button>
 
-              {(showPostCampaignPrice || showReliableYearCost) && (
-                <div className="max-w-[170px] space-y-0.5 text-right leading-tight">
-                  {showPostCampaignPrice && (
+              {(showRegularPrice || showReliableYearCost) && (
+                <div className="max-w-[182px] space-y-0.5 text-right leading-tight">
+                  {showRegularPrice && (
                     <div className="text-[10px] font-bold text-slate-700">
-                      بعد العرض: {formatSek(costSummary.postCampaignPrice!)} كرونة/شهر
+                      السعر العادي: {formatSek(plan.regularPrice)} كرونة/شهر
+                      {showReliableYearCost && costSummary.discountTotal !== null && (
+                        <span className="text-emerald-700"> · وفّر {formatSek(costSummary.discountTotal)} كرونة</span>
+                      )}
                     </div>
                   )}
                   {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
-                    <div className="text-[10px] font-bold text-slate-600">
-                      متوسط السنة الأولى: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
-                    </div>
-                  )}
-                  {showReliableYearCost && costSummary.discountTotal !== null && (
-                    <div className="text-[10px] font-black text-emerald-700">
-                      وفّر {formatSek(costSummary.discountTotal)} كرونة
-                    </div>
-                  )}
-                  {showReliableYearCost && costSummary.totalCost12m !== null && (
-                    <div className="text-[10px] font-semibold text-slate-500">
-                      تكلفة أول سنة: {formatSek(costSummary.totalCost12m)} كرونة
+                    <div className="text-[10px] font-normal text-slate-600">
+                      متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
                     </div>
                   )}
                 </div>
