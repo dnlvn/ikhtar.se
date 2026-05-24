@@ -115,35 +115,31 @@ function comparePopular(a: Plan, b: Plan): number {
   return compareStable(a, b);
 }
 
-function groupBestPlanPerOperator(filtered: Plan[]) {
-  const operatorGroups = new Map<string, Plan[]>();
-  filtered.forEach((plan) => {
-    const operator = plan.title;
-    if (!operatorGroups.has(operator)) {
-      operatorGroups.set(operator, []);
-    }
-    operatorGroups.get(operator)!.push(plan);
-  });
-
+function groupSortedPlansByOperator(sortedPlans: Plan[]) {
   const diverseList: Plan[] = [];
   const additionalPlansByOperator = new Map<string, Plan[]>();
+  const seenOperators = new Set<string>();
 
-  operatorGroups.forEach((operatorPlans, operator) => {
-    operatorPlans.sort(comparePlansForBestDeal);
-    diverseList.push(operatorPlans[0]);
+  sortedPlans.forEach((plan) => {
+    const operator = plan.title;
 
-    if (operatorPlans.length > 1) {
-      additionalPlansByOperator.set(operator, operatorPlans.slice(1));
+    if (!seenOperators.has(operator)) {
+      seenOperators.add(operator);
+      diverseList.push(plan);
+      return;
     }
+
+    const additionalPlans = additionalPlansByOperator.get(operator) ?? [];
+    additionalPlans.push(plan);
+    additionalPlansByOperator.set(operator, additionalPlans);
   });
 
-  diverseList.sort(comparePlansForBestDeal);
   return { diverseList, additionalPlansByOperator };
 }
 
 export interface GroupedPlans {
-  diverseList: Plan[]; // Best plan per operator or current sorted list
-  additionalPlansByOperator: Map<string, Plan[]>; // operator -> additional plans
+  diverseList: Plan[]; // Best visible plan per operator in the current sort/filter mode
+  additionalPlansByOperator: Map<string, Plan[]>; // operator -> additional plans in the current mode
 }
 
 export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPlansParams) {
@@ -213,22 +209,17 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
         filtered.sort(comparePopular);
         break;
 
-      case 'best-deals': {
+      case 'best-deals':
         filtered.sort(comparePlansForBestDeal);
-        const grouped = groupBestPlanPerOperator(filtered);
-
-        return {
-          filteredPlans: filtered,
-          diverseList: grouped.diverseList,
-          additionalPlansByOperator: grouped.additionalPlansByOperator,
-        };
-      }
+        break;
     }
+
+    const grouped = groupSortedPlansByOperator(filtered);
 
     return {
       filteredPlans: filtered,
-      diverseList: filtered,
-      additionalPlansByOperator: new Map<string, Plan[]>(),
+      diverseList: grouped.diverseList,
+      additionalPlansByOperator: grouped.additionalPlansByOperator,
     };
   }, [plans, activeFilters, sortBy]);
 }
