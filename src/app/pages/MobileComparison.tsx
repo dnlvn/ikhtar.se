@@ -5,6 +5,8 @@ import { FilterSection } from "@/app/components/FilterSection";
 import { PremiumPlanCard } from "@/app/components/PremiumPlanCard_V1";
 import { PremiumPlanCardSkeleton } from "@/app/components/PremiumPlanCardSkeleton";
 import { SeoContentSection } from "@/app/components/SeoContentSection";
+import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
+import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
 import {
   useFilteredPlans,
@@ -29,6 +31,8 @@ export function MobileComparison() {
   const resetFilters = () => {
     setSortBy("best-deals");
   };
+
+  const displayedPlans = sortBy === "best-deals" ? diverseList : filteredPlans;
 
   return (
     <>
@@ -126,7 +130,6 @@ export function MobileComparison() {
                         additionalPlansByOperator.get(operator) || [];
                       const isExpanded = expandedOperators.has(operator);
 
-                      // Simple index-based highlighting: first 3 get premium treatment
                       let dealType:
                         | "best-price"
                         | "most-data"
@@ -152,6 +155,9 @@ export function MobileComparison() {
                             plan={plan}
                             dealRank={dealRank}
                             dealType={dealType}
+                            allPlans={filteredPlans}
+                            sortMode={sortBy}
+                            cardPosition={index + 1}
                           />
 
                           {/* Show more button if operator has additional plans */}
@@ -164,21 +170,21 @@ export function MobileComparison() {
                                       new Set([...prev, operator])
                                     )
                                   }
-                                  className="mx-auto block py-1 px-2 text-[11px] font-medium text-slate-500 hover:text-slate-900 underline decoration-slate-300 hover:decoration-slate-500 transition-colors"
+                                  className="mx-auto block rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-600 shadow-sm transition-colors hover:border-green-200 hover:bg-green-50 hover:text-green-800"
                                 >
-                                  {tr("home.showMore", {
-                                    operator,
-                                    count: additionalPlans.length,
-                                  })}
+                                  شاهد {additionalPlans.length} باقات أخرى من {operator}
                                 </button>
                               ) : (
                                 <>
                                   {/* Additional plans */}
                                   <div className="space-y-2 mb-2">
-                                    {additionalPlans.map((additionalPlan) => (
+                                    {additionalPlans.map((additionalPlan, additionalIndex) => (
                                       <PremiumPlanCard
                                         key={additionalPlan.id}
                                         plan={additionalPlan}
+                                        allPlans={filteredPlans}
+                                        sortMode={sortBy}
+                                        cardPosition={index + additionalIndex + 2}
                                       />
                                     ))}
                                   </div>
@@ -191,9 +197,9 @@ export function MobileComparison() {
                                         return next;
                                       })
                                     }
-                                    className="w-full py-2 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
                                   >
-                                    {tr("home.showLess", { operator })}
+                                    إخفاء عروض {operator}
                                   </button>
                                 </>
                               )}
@@ -205,7 +211,6 @@ export function MobileComparison() {
                   ) : (
                     // Regular flat list for other sort modes
                     filteredPlans.map((plan, index) => {
-                      // Simple index-based highlighting: first 3 get premium treatment
                       let dealType:
                         | "best-price"
                         | "most-data"
@@ -230,6 +235,9 @@ export function MobileComparison() {
                           plan={plan}
                           dealRank={dealRank}
                           dealType={dealType}
+                          allPlans={filteredPlans}
+                          sortMode={sortBy}
+                          cardPosition={index + 1}
                         />
                       );
                     })
@@ -242,6 +250,9 @@ export function MobileComparison() {
                     {t("home.disclaimer")}
                   </p>
                 </div>
+
+                <MobileQuickComparison plans={displayedPlans} sortMode={sortBy} />
+                <MobileDataUsageGuide />
               </>
             )}
           </>
