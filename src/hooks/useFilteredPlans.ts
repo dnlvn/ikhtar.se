@@ -27,6 +27,19 @@ function compareStable(a: Plan, b: Plan): number {
   return a.id.localeCompare(b.id);
 }
 
+function compareByCurrentPrice(a: Plan, b: Plan): number {
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
+
+  const dataCompare = b.dataSortValue - a.dataSortValue;
+  if (dataCompare !== 0) return dataCompare;
+
+  const bindingCompare = a.bindingMonths - b.bindingMonths;
+  if (bindingCompare !== 0) return bindingCompare;
+
+  return compareStable(a, b);
+}
+
 function compareByYearlyCost(a: Plan, b: Plan): number {
   const aSummary = getPlanCostSummary(a);
   const bSummary = getPlanCostSummary(b);
@@ -39,6 +52,19 @@ function compareByYearlyCost(a: Plan, b: Plan): number {
     if (costCompare !== 0) return costCompare;
   }
 
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
+
+  const regularPriceCompare = a.regularPrice - b.regularPrice;
+  if (regularPriceCompare !== 0) return regularPriceCompare;
+
+  const dataCompare = b.dataSortValue - a.dataSortValue;
+  if (dataCompare !== 0) return dataCompare;
+
+  return compareStable(a, b);
+}
+
+function compareByHeavyData(a: Plan, b: Plan): number {
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
 
@@ -79,17 +105,7 @@ function comparePlansForBestDeal(a: Plan, b: Plan): number {
   const scoreCompare = getBestDealScore(b) - getBestDealScore(a);
   if (scoreCompare !== 0) return scoreCompare;
 
-  // Stable fallbacks if score is identical.
-  const priceCompare = a.price - b.price;
-  if (priceCompare !== 0) return priceCompare;
-
-  const dataCompare = b.dataSortValue - a.dataSortValue;
-  if (dataCompare !== 0) return dataCompare;
-
-  const bindingCompare = a.bindingMonths - b.bindingMonths;
-  if (bindingCompare !== 0) return bindingCompare;
-
-  return compareStable(a, b);
+  return compareByCurrentPrice(a, b);
 }
 
 function comparePopular(a: Plan, b: Plan): number {
@@ -103,16 +119,7 @@ function comparePopular(a: Plan, b: Plan): number {
   if (aCampaign && !bCampaign) return -1;
   if (!aCampaign && bCampaign) return 1;
 
-  const priceCompare = a.price - b.price;
-  if (priceCompare !== 0) return priceCompare;
-
-  const dataCompare = b.dataSortValue - a.dataSortValue;
-  if (dataCompare !== 0) return dataCompare;
-
-  const bindingCompare = a.bindingMonths - b.bindingMonths;
-  if (bindingCompare !== 0) return bindingCompare;
-
-  return compareStable(a, b);
+  return compareByCurrentPrice(a, b);
 }
 
 function groupSortedPlansByOperator(sortedPlans: Plan[]) {
@@ -168,7 +175,7 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
 
     switch (effectiveSort) {
       case 'price-asc':
-        filtered.sort((a, b) => a.price - b.price || compareStable(a, b));
+        filtered.sort(compareByCurrentPrice);
         break;
 
       case 'price-desc':
@@ -179,7 +186,7 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
         filtered.sort((a, b) => {
           const dataCompare = b.dataSortValue - a.dataSortValue;
           if (dataCompare !== 0) return dataCompare;
-          return a.price - b.price || compareStable(a, b);
+          return compareByCurrentPrice(a, b);
         });
         break;
 
@@ -197,12 +204,12 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
 
       case 'heavy-data':
         filtered = filtered.filter((p) => p.isUnlimited || p.dataSortValue >= 20);
-        filtered.sort(comparePlansForBestDeal);
+        filtered.sort(compareByHeavyData);
         break;
 
       case 'no-binding':
         filtered = filtered.filter((p) => p.bindingMonths === 0);
-        filtered.sort(comparePlansForBestDeal);
+        filtered.sort(compareByCurrentPrice);
         break;
 
       case 'popular':
