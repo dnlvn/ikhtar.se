@@ -118,7 +118,8 @@ export function PremiumPlanCard({
             </div>
 
             <div className="flex-shrink-0">
-              <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} m-0 p-0 font-extrabold leading-none text-slate-900`}>                {plan.dataLabel || t('card.unlimitedData')}
+              <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} m-0 p-0 font-extrabold leading-none text-slate-900`}>
+                {plan.dataLabel || t('card.unlimitedData')}
               </span>
             </div>
 
