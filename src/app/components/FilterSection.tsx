@@ -7,10 +7,10 @@ interface FilterSectionProps {
   resultsCount: number;
 }
 
-const sortChips: Array<{ value: SortOption; label: string; ariaLabel: string }> = [
+const sortChips: Array<{ value: SortOption; label: string; ariaLabel: string; ltr?: boolean }> = [
   { value: 'best-deals', label: 'أفضل الآن', ariaLabel: 'أفضل العروض الآن' },
   { value: 'yearly-cost', label: 'خلال سنة', ariaLabel: 'الأرخص خلال سنة' },
-  { value: 'heavy-data', label: '+20 GB', ariaLabel: 'أكثر من 20 GB إنترنت' },
+  { value: 'heavy-data', label: '20GB+', ariaLabel: 'أكثر من 20 GB إنترنت', ltr: true },
   { value: 'no-binding', label: 'بدون التزام', ariaLabel: 'بدون التزام' },
 ];
 
@@ -47,7 +47,7 @@ export function FilterSection({
                     : 'border-slate-200 bg-gradient-to-b from-white to-slate-50 text-slate-700 shadow-sm hover:border-green-200 hover:text-green-800'
                 }`}
               >
-                {chip.label}
+                <span dir={chip.ltr ? 'ltr' : 'rtl'}>{chip.label}</span>
               </button>
             );
           })}
