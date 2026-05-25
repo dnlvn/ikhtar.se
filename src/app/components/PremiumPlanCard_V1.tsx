@@ -40,7 +40,7 @@ export function PremiumPlanCard({
   const isMainTopCard = !isAdditionalPlan && typeof cardPosition === 'number' && cardPosition <= 3;
   const isBestDeal = isObjectiveMode
     ? isMainTopCard && hasGoldBadge
-    : !isAdditionalPlan && (hasGoldBadge || plan.price <= 100 || isMobileProviderHighlighted(plan.title));
+    : hasGoldBadge || (!isAdditionalPlan && (plan.price <= 100 || isMobileProviderHighlighted(plan.title)));
 
   const handleClick = () => {
     if (!ctaUrl) return;
