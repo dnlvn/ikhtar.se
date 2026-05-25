@@ -157,7 +157,7 @@ export function PremiumPlanCard({
                   <Lock className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
                 )}
                 <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
-                  {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
+                  <strong>مدة الالتزام:</strong> {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
 
@@ -165,7 +165,7 @@ export function PremiumPlanCard({
                 <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
                   <ReceiptText className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
                   <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
-                    متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                    <strong>متوسط أول 12 شهر:</strong> {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
                   </span>
                 </div>
               )}
@@ -174,7 +174,7 @@ export function PremiumPlanCard({
                 <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
                   <CalendarClock className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
                   <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
-                    بعد العرض: {formatSek(plan.regularPrice)} كرونة/شهر
+                    <strong>بعد العرض:</strong> {formatSek(plan.regularPrice)} كرونة/شهر
                   </span>
                 </div>
               )}
