@@ -1,4 +1,4 @@
-import { BadgePercent, Lock, ReceiptText, Sparkles, Unlock } from 'lucide-react';
+import { BadgePercent, CalendarClock, Lock, ReceiptText, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
@@ -148,39 +148,39 @@ export function PremiumPlanCard({
             </div>
           </div>
 
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex flex-col gap-0.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <div className="flex items-center gap-1.5">
                 {plan.bindingMonths === 0 ? (
                   <Unlock className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
                 ) : (
                   <Lock className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
                 )}
-                <span className="text-[12px] font-regular leading-tight text-slate-900">
+                <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
                   {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
 
-              {(showRegularPrice || showReliableYearCost) && (
-                <div className="mt-0.5 flex items-start gap-1.5 text-right" dir="rtl">
-                  <ReceiptText className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
-                  <div className="space-y-0.5 leading-tight">
-                    {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
-                      <div className="text-[12px] font-regular text-slate-900">
-                        متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
-                      </div>
-                    )}
-                    {showRegularPrice && (
-                      <div className="text-[12px] font-regular text-slate-900">
-                        بعد العرض: {formatSek(plan.regularPrice)} كرونة/شهر
-                      </div>
-                    )}
-                  </div>
+              {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
+                <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
+                  <ReceiptText className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
+                  <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
+                    متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                  </span>
+                </div>
+              )}
+
+              {showRegularPrice && (
+                <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
+                  <CalendarClock className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
+                  <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
+                    بعد العرض: {formatSek(plan.regularPrice)} كرونة/شهر
+                  </span>
                 </div>
               )}
             </div>
 
-            <div className="flex min-w-[128px] flex-col items-end gap-1">
+            <div className="flex min-w-[108px] flex-col items-end gap-1 sm:min-w-[128px]">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -188,8 +188,8 @@ export function PremiumPlanCard({
                 }}
                 disabled={!ctaUrl}
                 className={`
-                  relative cursor-pointer overflow-hidden rounded-xl px-5 py-2.5 text-[13px] font-bold uppercase
-                  shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed
+                  relative cursor-pointer overflow-hidden rounded-xl px-3.5 py-2.5 text-[12px] font-bold uppercase
+                  shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed sm:px-5 sm:text-[13px]
                   ${isBestDeal
                     ? 'text-white shadow-lg hover:brightness-110'
                     : 'border-2 border-green-700 bg-green-700 text-white hover:bg-green-800'
