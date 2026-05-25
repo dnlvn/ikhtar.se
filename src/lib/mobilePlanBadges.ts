@@ -27,7 +27,10 @@ function isTopMainCard(context: PlanBadgeContext, limit = 3) {
 
 function getLowestReliableYearlyCost(plans: Plan[]): number | null {
   const reliableCosts = plans
-    .map((plan) => getPlanCostSummary(plan).effectiveMonthlyPrice12m)
+    .map((plan) => {
+      const summary = getPlanCostSummary(plan);
+      return summary.hasReliable12mCost ? summary.effectiveMonthlyPrice12m : null;
+    })
     .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
 
   if (reliableCosts.length === 0) return null;
@@ -41,6 +44,35 @@ function getLowestCurrentPrice(plans: Plan[]): number | null {
 
   if (prices.length === 0) return null;
   return Math.min(...prices);
+}
+
+function getThirdLowestCurrentPrice(plans: Plan[]): number | null {
+  const prices = [...new Set(
+    plans
+      .map((plan) => plan.price)
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  )].sort((a, b) => a - b);
+
+  if (prices.length === 0) return null;
+  return prices[Math.min(2, prices.length - 1)];
+}
+
+function isCommerciallyCloseToCheapest(plan: Plan, allPlans: Plan[]) {
+  const lowestCurrentPrice = getLowestCurrentPrice(allPlans);
+  if (lowestCurrentPrice === null) return false;
+
+  return plan.price <= lowestCurrentPrice + 20 || plan.price <= lowestCurrentPrice * 1.15;
+}
+
+function isStrongCurrentPrice(plan: Plan, allPlans: Plan[]) {
+  const thirdLowestPrice = getThirdLowestCurrentPrice(allPlans);
+  if (thirdLowestPrice === null) return false;
+
+  return plan.price <= 100 || plan.price <= thirdLowestPrice;
+}
+
+function isStrongDiscount(summary: ReturnType<typeof getPlanCostSummary>) {
+  return summary.discountTotal !== null && summary.discountTotal >= 300;
 }
 
 export function getPlanBadge(
@@ -65,14 +97,14 @@ export function getPlanBadge(
 
   if (sortMode === 'yearly-cost') {
     if (isTopMainCard(context, 3) && summary.hasReliable12mCost) {
-      return { text: 'الأرخص سنة', reason: 'yearly-cheapest', variant: 'gold' };
+      return { text: 'الأرخص خلال 12 شهرًا', reason: 'yearly-cheapest', variant: 'gold' };
     }
     return null;
   }
 
   if (sortMode === 'heavy-data') {
     if (isTopMainCard(context, 3) && (plan.isUnlimited || plan.dataSortValue >= 20)) {
-      return { text: 'أكثر من 20 GB', reason: 'data', variant: 'gold' };
+      return { text: 'الأرخص مع +20 GB', reason: 'data', variant: 'gold' };
     }
     return null;
   }
@@ -84,42 +116,51 @@ export function getPlanBadge(
     return null;
   }
 
-  const lowestReliableYearlyCost = getLowestReliableYearlyCost(allPlans);
-  if (
-    lowestReliableYearlyCost !== null &&
-    summary.hasReliable12mCost &&
-    summary.effectiveMonthlyPrice12m !== null &&
-    isSameNumber(summary.effectiveMonthlyPrice12m, lowestReliableYearlyCost)
-  ) {
-    return { text: 'الأرخص خلال سنة', reason: 'yearly-cheapest', variant: 'gold' };
-  }
-
   const lowestCurrentPrice = getLowestCurrentPrice(allPlans);
-  if (lowestCurrentPrice !== null && isSameNumber(plan.price, lowestCurrentPrice)) {
+  if (!context.isAdditionalPlan && lowestCurrentPrice !== null && isSameNumber(plan.price, lowestCurrentPrice)) {
     return { text: 'أرخص الآن', reason: 'current-cheapest', variant: 'gold' };
   }
 
-  if (!context.isAdditionalPlan) {
-    const operatorOverride = getMobileOperatorOverride(plan.title);
-    if (operatorOverride?.defaultBadgeAr || getCommercialPriority(plan.title) > 0) {
-      return {
-        text: operatorOverride?.defaultBadgeAr ?? 'اختيار شائع',
-        reason: 'commercial',
-        variant: 'gold',
-      };
-    }
+  const operatorOverride = getMobileOperatorOverride(plan.title);
+  if (
+    !context.isAdditionalPlan &&
+    getCommercialPriority(plan.title) > 0 &&
+    isCommerciallyCloseToCheapest(plan, allPlans) &&
+    isTopMainCard(context, 4)
+  ) {
+    return {
+      text: operatorOverride?.defaultBadgeAr ?? 'اختيار شائع',
+      reason: 'commercial',
+      variant: 'gold',
+    };
   }
 
-  if (summary.discountTotal !== null && summary.discountTotal >= 300) {
-    return { text: 'خصم قوي', reason: 'discount', variant: context.isAdditionalPlan ? 'green' : 'gold' };
+  if (isStrongDiscount(summary)) {
+    return { text: context.isAdditionalPlan ? 'وفّر أكثر' : 'خصم قوي', reason: 'discount', variant: 'gold' };
   }
 
-  if (plan.bindingMonths === 0) {
-    return { text: 'بدون التزام', reason: 'no-binding', variant: context.isAdditionalPlan ? 'blue' : 'gold' };
+  if (sortMode === 'best-deals' && isStrongCurrentPrice(plan, allPlans)) {
+    return { text: context.isAdditionalPlan ? 'عرض قوي' : 'أرخص الآن', reason: 'current-cheapest', variant: 'gold' };
   }
 
-  if (plan.isUnlimited || plan.dataSortValue >= 50) {
-    return { text: 'أكثر من 20 GB', reason: 'data', variant: 'neutral' };
+  if (!context.isAdditionalPlan && plan.bindingMonths === 0 && isTopMainCard(context, 3)) {
+    return { text: 'بدون التزام', reason: 'no-binding', variant: 'gold' };
+  }
+
+  if (!context.isAdditionalPlan && (plan.isUnlimited || plan.dataSortValue >= 50) && isTopMainCard(context, 3)) {
+    return { text: 'إنترنت كثير', reason: 'data', variant: 'gold' };
+  }
+
+  const lowestReliableYearlyCost = getLowestReliableYearlyCost(allPlans);
+  if (
+    !context.isAdditionalPlan &&
+    lowestReliableYearlyCost !== null &&
+    summary.hasReliable12mCost &&
+    summary.effectiveMonthlyPrice12m !== null &&
+    isSameNumber(summary.effectiveMonthlyPrice12m, lowestReliableYearlyCost) &&
+    isTopMainCard(context, 3)
+  ) {
+    return { text: 'الأرخص خلال 12 شهرًا', reason: 'yearly-cheapest', variant: 'gold' };
   }
 
   return null;
