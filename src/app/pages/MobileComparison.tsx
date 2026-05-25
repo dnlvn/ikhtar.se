@@ -12,7 +12,7 @@ import {
   useFilteredPlans,
   type SortOption,
 } from "@/hooks/useFilteredPlans";
-import { AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { t } from "@/i18n";
 
 export function MobileComparison() {
@@ -40,8 +40,14 @@ export function MobileComparison() {
       const resultsSection = document.getElementById("results-section");
       if (!resultsSection) return;
 
-      const offsetTop = resultsSection.getBoundingClientRect().top + window.scrollY - 86;
-      window.scrollTo({ top: Math.max(offsetTop, 0), behavior: "smooth" });
+      const targetTop = Math.max(
+        resultsSection.getBoundingClientRect().top + window.scrollY - 86,
+        0
+      );
+
+      if (window.scrollY < targetTop - 16) return;
+
+      window.scrollTo({ top: targetTop, behavior: "smooth" });
     }, 0);
   };
 
@@ -55,7 +61,7 @@ export function MobileComparison() {
       </Helmet>
 
       {/* Hero Section */}
-      <Hero />
+      <Hero resultsCount={filteredPlans.length} />
 
       {/* Filter Section - Sticky */}
       {!loading && !error && (
@@ -125,17 +131,10 @@ export function MobileComparison() {
             ) : (
               <>
                 {/* Disclaimer - Top */}
-                <div className="text-center mb-2">
+                <div className="text-center mb-3">
                   <p className="text-xs text-slate-500 text-[10px]">
                     {t("home.disclaimer")}
                   </p>
-                </div>
-
-                <div className="mb-3 flex justify-center" dir="rtl">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-800 ring-1 ring-emerald-100">
-                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    جميع الباقات تشمل مكالمات ورسائل مجانية داخل السويد
-                  </div>
                 </div>
 
                 {/* Plan Cards Grid */}
