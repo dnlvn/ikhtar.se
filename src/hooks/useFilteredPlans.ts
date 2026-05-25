@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Plan } from './usePlans';
-import { getCommercialPriority } from '@/lib/mobileProviderConfig';
+import { getBestOffersRank, getCommercialPriority } from '@/lib/mobileProviderConfig';
 import { getPlanCostSummary } from '@/lib/mobilePlanCost';
 
 export type QuickFilter = 'cheapest' | 'most-data' | 'no-binding' | 'esim' | 'eu-roaming';
@@ -40,6 +40,20 @@ function getYearlyCost(plan: Plan): number | null {
   return summary.hasReliable12mCost && summary.effectiveMonthlyPrice12m !== null
     ? summary.effectiveMonthlyPrice12m
     : null;
+}
+
+function compareBestOffersRank(a: Plan, b: Plan): number {
+  const aRank = getBestOffersRank(a.title, a.price);
+  const bRank = getBestOffersRank(b.title, b.price);
+
+  if (aRank !== null && bRank !== null) {
+    return aRank - bRank;
+  }
+
+  if (aRank !== null && bRank === null) return -1;
+  if (aRank === null && bRank !== null) return 1;
+
+  return 0;
 }
 
 function compareYearlyCostValue(a: Plan, b: Plan): number {
@@ -156,6 +170,9 @@ function createBestDealsComparator(plans: Plan[]) {
   return function compareBestDeals(a: Plan, b: Plan): number {
     const clickableCompare = compareClickable(a, b);
     if (clickableCompare !== 0) return clickableCompare;
+
+    const bestOffersRankCompare = compareBestOffersRank(a, b);
+    if (bestOffersRankCompare !== 0) return bestOffersRankCompare;
 
     const getAdjustedIndex = (plan: Plan) => {
       const baseIndex = getBestDealsPriceIndex(plan);
