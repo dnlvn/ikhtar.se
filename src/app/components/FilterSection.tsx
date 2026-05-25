@@ -10,7 +10,7 @@ const sortChips: Array<{ value: SortOption; label: string; ariaLabel: string }> 
   { value: 'best-deals', label: 'أفضل العروض', ariaLabel: 'أفضل العروض' },
   { value: 'price-asc', label: 'الأرخص الآن', ariaLabel: 'الأرخص الآن' },
   { value: 'yearly-cost', label: 'الأرخص سنة', ariaLabel: 'الأرخص سنة' },
-  { value: 'heavy-data', label: '+20GB', ariaLabel: 'أكثر من 20 GB إنترنت' },
+  { value: 'heavy-data', label: 'إنترنت كثير', ariaLabel: 'إنترنت كثير' },
   { value: 'no-binding', label: 'بدون التزام', ariaLabel: 'بدون التزام' },
 ];
 
