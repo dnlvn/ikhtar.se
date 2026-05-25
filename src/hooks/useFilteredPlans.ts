@@ -58,9 +58,6 @@ function compareYearlyCostValue(a: Plan, b: Plan): number {
 }
 
 function compareByCurrentPrice(a: Plan, b: Plan): number {
-  const clickableCompare = compareClickable(a, b);
-  if (clickableCompare !== 0) return clickableCompare;
-
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
 
@@ -77,9 +74,6 @@ function compareByCurrentPrice(a: Plan, b: Plan): number {
 }
 
 function compareByYearlyCost(a: Plan, b: Plan): number {
-  const clickableCompare = compareClickable(a, b);
-  if (clickableCompare !== 0) return clickableCompare;
-
   const yearlyCompare = compareYearlyCostValue(a, b);
   if (yearlyCompare !== 0) return yearlyCompare;
 
@@ -96,9 +90,6 @@ function compareByYearlyCost(a: Plan, b: Plan): number {
 }
 
 function compareByHeavyData(a: Plan, b: Plan): number {
-  const clickableCompare = compareClickable(a, b);
-  if (clickableCompare !== 0) return clickableCompare;
-
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
 
@@ -115,9 +106,6 @@ function compareByHeavyData(a: Plan, b: Plan): number {
 }
 
 function compareNoBinding(a: Plan, b: Plan): number {
-  const clickableCompare = compareClickable(a, b);
-  if (clickableCompare !== 0) return clickableCompare;
-
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
 
@@ -141,17 +129,17 @@ function getBestDealsPriceIndex(plan: Plan): number {
   const summary = getPlanCostSummary(plan);
 
   const discountBonus = summary.discountTotal !== null
-    ? Math.min(summary.discountTotal / 300, 6)
+    ? Math.min(summary.discountTotal / 600, 3)
     : 0;
-  const noBindingBonus = plan.bindingMonths === 0 ? 2 : 0;
+  const noBindingBonus = plan.bindingMonths === 0 ? 1.5 : 0;
   const dataBonus = plan.isUnlimited
-    ? 3
+    ? 1.5
     : plan.dataSortValue >= 50
-      ? 3
+      ? 1.5
       : plan.dataSortValue >= 20
-        ? 2
+        ? 1
         : plan.dataSortValue >= 5
-          ? 1
+          ? 0.5
           : 0;
 
   return priceIndex - discountBonus - noBindingBonus - dataBonus;
@@ -177,7 +165,7 @@ function createBestDealsComparator(plans: Plan[]) {
         plan.price <= lowestClickablePrice * 1.15
       );
       const commercialBonus = isCommerciallyClose
-        ? Math.min(commercialPriority / 8, 3)
+        ? Math.min(commercialPriority / 10, 2)
         : 0;
 
       return baseIndex - commercialBonus;
@@ -186,7 +174,19 @@ function createBestDealsComparator(plans: Plan[]) {
     const scoreCompare = getAdjustedIndex(a) - getAdjustedIndex(b);
     if (scoreCompare !== 0) return scoreCompare;
 
-    return compareByCurrentPrice(a, b);
+    const priceCompare = a.price - b.price;
+    if (priceCompare !== 0) return priceCompare;
+
+    const yearlyCompare = compareYearlyCostValue(a, b);
+    if (yearlyCompare !== 0) return yearlyCompare;
+
+    const dataCompare = b.dataSortValue - a.dataSortValue;
+    if (dataCompare !== 0) return dataCompare;
+
+    const bindingCompare = a.bindingMonths - b.bindingMonths;
+    if (bindingCompare !== 0) return bindingCompare;
+
+    return compareStable(a, b);
   };
 }
 
