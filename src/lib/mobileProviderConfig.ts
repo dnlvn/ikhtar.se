@@ -10,6 +10,8 @@ export const COMMERCIAL_PRIORITY: Record<string, number> = {
 export interface MobileOperatorOverride {
   priorityBoost?: number;
   defaultBadgeAr?: string;
+  bestOffersRank?: number;
+  bestOffersMaxCurrentPrice?: number;
 }
 
 export interface MobilePlanOverride {
@@ -22,8 +24,25 @@ export interface MobilePlanOverride {
 }
 
 export const MOBILE_OPERATOR_OVERRIDES: Record<string, MobileOperatorOverride> = {
-  comviq: { priorityBoost: 18, defaultBadgeAr: 'اختيار شائع' },
-  vimla: { priorityBoost: 20, defaultBadgeAr: 'اختيار شائع' },
+  // Controls only the default "أفضل العروض" ranking.
+  // Lower bestOffersRank appears higher, while max price keeps the ranking honest.
+  vimla: {
+    priorityBoost: 35,
+    bestOffersRank: 1,
+    bestOffersMaxCurrentPrice: 100,
+    defaultBadgeAr: 'اختيار شائع',
+  },
+  comviq: {
+    priorityBoost: 30,
+    bestOffersRank: 2,
+    bestOffersMaxCurrentPrice: 100,
+    defaultBadgeAr: 'اختيار شائع',
+  },
+  fello: {
+    priorityBoost: 0,
+    bestOffersRank: 3,
+    bestOffersMaxCurrentPrice: 100,
+  },
 };
 
 // Future-friendly frontend override layer. This can later move to Supabase.
@@ -94,6 +113,27 @@ export function getCommercialPriority(providerName?: string | null): number {
   const slug = getMobileProviderSlug(providerName);
   const overridePriority = MOBILE_OPERATOR_OVERRIDES[slug]?.priorityBoost;
   return overridePriority ?? COMMERCIAL_PRIORITY[slug] ?? 0;
+}
+
+export function getBestOffersRank(
+  providerName?: string | null,
+  currentPrice?: number | null
+): number | null {
+  const slug = getMobileProviderSlug(providerName);
+  const override = MOBILE_OPERATOR_OVERRIDES[slug];
+
+  if (override?.bestOffersRank === undefined) return null;
+
+  if (
+    override.bestOffersMaxCurrentPrice !== undefined &&
+    currentPrice !== undefined &&
+    currentPrice !== null &&
+    currentPrice > override.bestOffersMaxCurrentPrice
+  ) {
+    return null;
+  }
+
+  return override.bestOffersRank;
 }
 
 export function getMobileOperatorOverride(providerName?: string | null): MobileOperatorOverride | null {
