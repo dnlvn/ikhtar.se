@@ -62,6 +62,12 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
     provider: 'Svekraft',
     affiliateUrl: 'https://addrevenue.io/t?a=985245&c=3467756',
   },
+  {
+    vertical: 'electricity',
+    provider: 'Dalakraft',
+    affiliateUrl: 'https://dot.dalakraft.se/t/t?a=1970530769&as=2043693860&t=2&tk=1&url=www.dalakraft.se/elavtal/affiliate-jamforelse/?nav_id=24900&ttl=30#blikund',
+    aliases: ['Dala Kraft'],
+  },
 ];
 
 function matchesProvider(link: AffiliateLink, provider: string): boolean {
