@@ -1,8 +1,8 @@
-import { Lock, Sparkles, Unlock } from 'lucide-react';
+import { BadgePercent, CalendarClock, Lock, ReceiptText, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
-import { getActiveMobileProviderPromotion, getMobilePlanOverride } from '@/lib/mobileProviderConfig';
+import { getActiveMobileProviderPromotion, getMobilePlanOverride, isMobileProviderHighlighted } from '@/lib/mobileProviderConfig';
 import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { getBadgeClasses, getPlanBadge } from '@/lib/mobilePlanBadges';
 import { t } from '@/i18n';
@@ -36,7 +36,11 @@ export function PremiumPlanCard({
   const costSummary = getPlanCostSummary(plan);
   const badge = getPlanBadge(plan, allPlans, { sortMode, cardPosition, isAdditionalPlan });
   const hasGoldBadge = badge?.variant === 'gold';
-  const isBestDeal = !isAdditionalPlan && hasGoldBadge;
+  const isObjectiveMode = sortMode !== 'best-deals';
+  const isMainTopCard = !isAdditionalPlan && typeof cardPosition === 'number' && cardPosition <= 3;
+  const isBestDeal = isObjectiveMode
+    ? isMainTopCard && hasGoldBadge
+    : !isAdditionalPlan && (hasGoldBadge || plan.price <= 100 || isMobileProviderHighlighted(plan.title));
 
   const handleClick = () => {
     if (!ctaUrl) return;
@@ -64,7 +68,7 @@ export function PremiumPlanCard({
   const hasCampaignMonths = typeof plan.campaign?.months === 'number' && Number.isFinite(plan.campaign.months);
   const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
   const showReliableYearCost = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
-  const showSavingsText =
+  const showSavingsBadge =
     hasCampaignPrice &&
     showRegularPrice &&
     hasCampaignMonths &&
@@ -98,6 +102,15 @@ export function PremiumPlanCard({
               <Sparkles className="h-3 w-3" />
               {badge.text}
             </div>
+          </div>
+        )}
+
+        {showSavingsBadge && (
+          <div className="absolute left-4 top-0 z-20 -translate-y-1/2" dir="rtl">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-extrabold leading-none text-emerald-700 shadow-sm shadow-emerald-100">
+              <BadgePercent className="h-3 w-3" strokeWidth={2.5} />
+              وفّر {formatSek(costSummary.discountTotal!)} كرونة
+            </span>
           </div>
         )}
 
@@ -147,6 +160,24 @@ export function PremiumPlanCard({
                   <strong>مدة الالتزام:</strong> {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
+
+              {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
+                <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
+                  <ReceiptText className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
+                  <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
+                    <strong>متوسط أول 12 شهر:</strong> {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                  </span>
+                </div>
+              )}
+
+              {showRegularPrice && (
+                <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
+                  <CalendarClock className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
+                  <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
+                    <strong>بعد العرض:</strong> {formatSek(plan.regularPrice)} كرونة/شهر
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex min-w-[108px] flex-col items-end gap-1 sm:min-w-[128px]">
@@ -175,22 +206,6 @@ export function PremiumPlanCard({
               >
                 <span className="relative flex items-center gap-1.5">{ctaText}</span>
               </button>
-
-              {(showRegularPrice || (showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null)) && (
-                <div className="mt-1 max-w-[190px] text-right text-[10px] font-medium leading-snug text-slate-600 sm:text-[11px]" dir="rtl">
-                  {showRegularPrice && (
-                    <div>
-                      السعر العادي: {formatSek(plan.regularPrice)} كرونة/شهر
-                      {showSavingsText && ` · وفّر ${formatSek(costSummary.discountTotal!)} كرونة`}
-                    </div>
-                  )}
-                  {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
-                    <div className="font-normal">
-                      متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
