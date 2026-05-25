@@ -1,4 +1,4 @@
-import { Lock, Phone, Sparkles, Unlock } from 'lucide-react';
+import { BadgePercent, Lock, ReceiptText, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
@@ -64,8 +64,16 @@ export function PremiumPlanCard({
   };
 
   const operatorName = plan.title.toLowerCase().split(' ')[0];
+  const hasCampaignPrice = typeof plan.campaign?.price === 'number' && Number.isFinite(plan.campaign.price);
+  const hasCampaignMonths = typeof plan.campaign?.months === 'number' && Number.isFinite(plan.campaign.months);
   const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
   const showReliableYearCost = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
+  const showSavingsBadge =
+    hasCampaignPrice &&
+    showRegularPrice &&
+    hasCampaignMonths &&
+    plan.campaign!.price < plan.regularPrice &&
+    costSummary.discountTotal !== null;
 
   return (
     <div id={`plan-${plan.id}`} className="relative pt-3">
@@ -97,11 +105,11 @@ export function PremiumPlanCard({
           </div>
         )}
 
-        {activePromotion && (
-          <div className="absolute left-1/2 top-[54px] z-10 flex -translate-x-1/2 flex-col items-center gap-0.5 text-[9px] font-bold leading-none" dir="rtl">
-            <span className="text-[9px] font-semibold text-slate-900">الآن</span>
-            <span className="inline-flex items-center whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 shadow-sm">
-              100 GB إضافية
+        {showSavingsBadge && (
+          <div className="absolute left-1/2 top-[54px] z-10 flex -translate-x-1/2 items-center" dir="rtl">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-extrabold leading-none text-emerald-700 shadow-sm shadow-emerald-100">
+              <BadgePercent className="h-3 w-3" strokeWidth={2.5} />
+              وفّر {formatSek(costSummary.discountTotal!)} كرونة
             </span>
           </div>
         )}
@@ -152,12 +160,24 @@ export function PremiumPlanCard({
                   {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
-                <span className="text-[12px] font-regular leading-tight text-slate-900">
-                  {t('card.freeCalls')}
-                </span>
-              </div>
+
+              {(showRegularPrice || showReliableYearCost) && (
+                <div className="mt-0.5 flex items-start gap-1.5 text-right" dir="rtl">
+                  <ReceiptText className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
+                  <div className="space-y-0.5 leading-tight">
+                    {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
+                      <div className="text-[12px] font-regular text-slate-900">
+                        متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                      </div>
+                    )}
+                    {showRegularPrice && (
+                      <div className="text-[12px] font-regular text-slate-900">
+                        بعد العرض: {formatSek(plan.regularPrice)} كرونة/شهر
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex min-w-[128px] flex-col items-end gap-1">
@@ -186,24 +206,6 @@ export function PremiumPlanCard({
               >
                 <span className="relative flex items-center gap-1.5">{ctaText}</span>
               </button>
-
-              {(showRegularPrice || showReliableYearCost) && (
-                <div className="max-w-[182px] space-y-0.5 text-right leading-tight">
-                  {showRegularPrice && (
-                    <div className="text-[10px] font-bold text-slate-700">
-                      السعر العادي: {formatSek(plan.regularPrice)} كرونة/شهر
-                      {showReliableYearCost && costSummary.discountTotal !== null && (
-                        <span className="text-emerald-700"> · وفّر {formatSek(costSummary.discountTotal)} كرونة</span>
-                      )}
-                    </div>
-                  )}
-                  {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
-                    <div className="text-[10px] font-normal text-slate-600">
-                      متوسط أول 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
