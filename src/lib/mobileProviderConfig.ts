@@ -1,11 +1,10 @@
 export const DISABLED_MOBILE_PROVIDERS = ['hallon'] as const;
-export const HIGHLIGHTED_MOBILE_PROVIDERS = ['comviq'] as const;
-export const POPULAR_MOBILE_PROVIDERS = ['comviq', 'vimla', 'fello'] as const;
+export const HIGHLIGHTED_MOBILE_PROVIDERS = [] as const;
+export const POPULAR_MOBILE_PROVIDERS = ['comviq', 'vimla'] as const;
 
 export const COMMERCIAL_PRIORITY: Record<string, number> = {
   vimla: 20,
   comviq: 18,
-  fello: 8,
 };
 
 export interface MobileOperatorOverride {
@@ -25,7 +24,6 @@ export interface MobilePlanOverride {
 export const MOBILE_OPERATOR_OVERRIDES: Record<string, MobileOperatorOverride> = {
   comviq: { priorityBoost: 18, defaultBadgeAr: 'اختيار شائع' },
   vimla: { priorityBoost: 20, defaultBadgeAr: 'اختيار شائع' },
-  fello: { priorityBoost: 8 },
 };
 
 // Future-friendly frontend override layer. This can later move to Supabase.
