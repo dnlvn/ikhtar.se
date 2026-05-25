@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Plan } from './usePlans';
-import { getCommercialPriority, isPopularMobileProvider } from '@/lib/mobileProviderConfig';
+import { getCommercialPriority } from '@/lib/mobileProviderConfig';
 import { getPlanCostSummary } from '@/lib/mobilePlanCost';
 
 export type QuickFilter = 'cheapest' | 'most-data' | 'no-binding' | 'esim' | 'eu-roaming';
@@ -27,7 +27,62 @@ function compareStable(a: Plan, b: Plan): number {
   return a.id.localeCompare(b.id);
 }
 
+function compareClickable(a: Plan, b: Plan): number {
+  const aClickable = Boolean(a.sourceUrl);
+  const bClickable = Boolean(b.sourceUrl);
+  if (aClickable && !bClickable) return -1;
+  if (!aClickable && bClickable) return 1;
+  return 0;
+}
+
+function getYearlyCost(plan: Plan): number | null {
+  const summary = getPlanCostSummary(plan);
+  return summary.hasReliable12mCost && summary.effectiveMonthlyPrice12m !== null
+    ? summary.effectiveMonthlyPrice12m
+    : null;
+}
+
+function compareYearlyCostValue(a: Plan, b: Plan): number {
+  const aYearly = getYearlyCost(a);
+  const bYearly = getYearlyCost(b);
+
+  if (aYearly !== null && bYearly !== null) {
+    const costCompare = aYearly - bYearly;
+    if (costCompare !== 0) return costCompare;
+  }
+
+  if (aYearly !== null && bYearly === null) return -1;
+  if (aYearly === null && bYearly !== null) return 1;
+
+  return 0;
+}
+
 function compareByCurrentPrice(a: Plan, b: Plan): number {
+  const clickableCompare = compareClickable(a, b);
+  if (clickableCompare !== 0) return clickableCompare;
+
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
+
+  const dataCompare = b.dataSortValue - a.dataSortValue;
+  if (dataCompare !== 0) return dataCompare;
+
+  const bindingCompare = a.bindingMonths - b.bindingMonths;
+  if (bindingCompare !== 0) return bindingCompare;
+
+  const regularPriceCompare = a.regularPrice - b.regularPrice;
+  if (regularPriceCompare !== 0) return regularPriceCompare;
+
+  return compareStable(a, b);
+}
+
+function compareByYearlyCost(a: Plan, b: Plan): number {
+  const clickableCompare = compareClickable(a, b);
+  if (clickableCompare !== 0) return clickableCompare;
+
+  const yearlyCompare = compareYearlyCostValue(a, b);
+  if (yearlyCompare !== 0) return yearlyCompare;
+
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
 
@@ -40,86 +95,99 @@ function compareByCurrentPrice(a: Plan, b: Plan): number {
   return compareStable(a, b);
 }
 
-function compareByYearlyCost(a: Plan, b: Plan): number {
-  const aSummary = getPlanCostSummary(a);
-  const bSummary = getPlanCostSummary(b);
-
-  if (aSummary.hasReliable12mCost && !bSummary.hasReliable12mCost) return -1;
-  if (!aSummary.hasReliable12mCost && bSummary.hasReliable12mCost) return 1;
-
-  if (aSummary.effectiveMonthlyPrice12m !== null && bSummary.effectiveMonthlyPrice12m !== null) {
-    const costCompare = aSummary.effectiveMonthlyPrice12m - bSummary.effectiveMonthlyPrice12m;
-    if (costCompare !== 0) return costCompare;
-  }
+function compareByHeavyData(a: Plan, b: Plan): number {
+  const clickableCompare = compareClickable(a, b);
+  if (clickableCompare !== 0) return clickableCompare;
 
   const priceCompare = a.price - b.price;
   if (priceCompare !== 0) return priceCompare;
+
+  const yearlyCompare = compareYearlyCostValue(a, b);
+  if (yearlyCompare !== 0) return yearlyCompare;
+
+  const dataCompare = b.dataSortValue - a.dataSortValue;
+  if (dataCompare !== 0) return dataCompare;
+
+  const bindingCompare = a.bindingMonths - b.bindingMonths;
+  if (bindingCompare !== 0) return bindingCompare;
+
+  return compareStable(a, b);
+}
+
+function compareNoBinding(a: Plan, b: Plan): number {
+  const clickableCompare = compareClickable(a, b);
+  if (clickableCompare !== 0) return clickableCompare;
+
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
+
+  const yearlyCompare = compareYearlyCostValue(a, b);
+  if (yearlyCompare !== 0) return yearlyCompare;
+
+  const dataCompare = b.dataSortValue - a.dataSortValue;
+  if (dataCompare !== 0) return dataCompare;
 
   const regularPriceCompare = a.regularPrice - b.regularPrice;
   if (regularPriceCompare !== 0) return regularPriceCompare;
 
-  const dataCompare = b.dataSortValue - a.dataSortValue;
-  if (dataCompare !== 0) return dataCompare;
-
   return compareStable(a, b);
 }
 
-function compareByHeavyData(a: Plan, b: Plan): number {
-  const priceCompare = a.price - b.price;
-  if (priceCompare !== 0) return priceCompare;
-
-  const dataCompare = b.dataSortValue - a.dataSortValue;
-  if (dataCompare !== 0) return dataCompare;
-
-  return compareStable(a, b);
-}
-
-function getBestDealScore(plan: Plan): number {
+function getBestDealsPriceIndex(plan: Plan): number {
+  const yearlyCost = getYearlyCost(plan);
+  const priceIndex = yearlyCost !== null
+    ? plan.price * 0.7 + yearlyCost * 0.3
+    : plan.price;
   const summary = getPlanCostSummary(plan);
-  const commercialPriority = getCommercialPriority(plan.title);
-  const clickableScore = plan.sourceUrl ? 100000 : 0;
-  const campaignScore = plan.campaign ? 8000 : 0;
-  const commercialScore = commercialPriority * 350;
-  const noBindingScore = plan.bindingMonths === 0 ? 900 : 0;
-  const dataScore = Math.min(plan.dataSortValue, 120) * 18;
-  const yearlyCostScore = summary.hasReliable12mCost && summary.effectiveMonthlyPrice12m !== null
-    ? Math.max(0, 5000 - summary.effectiveMonthlyPrice12m * 12)
+
+  const discountBonus = summary.discountTotal !== null
+    ? Math.min(summary.discountTotal / 300, 6)
     : 0;
-  const discountScore = summary.discountTotal ? Math.min(summary.discountTotal, 2500) : 0;
-  const pricePenalty = plan.price * 45;
+  const noBindingBonus = plan.bindingMonths === 0 ? 2 : 0;
+  const dataBonus = plan.isUnlimited
+    ? 3
+    : plan.dataSortValue >= 50
+      ? 3
+      : plan.dataSortValue >= 20
+        ? 2
+        : plan.dataSortValue >= 5
+          ? 1
+          : 0;
 
-  return (
-    clickableScore +
-    campaignScore +
-    commercialScore +
-    noBindingScore +
-    dataScore +
-    yearlyCostScore +
-    discountScore -
-    pricePenalty
-  );
+  return priceIndex - discountBonus - noBindingBonus - dataBonus;
 }
 
-// CRO-friendly ranking for default mode.
-function comparePlansForBestDeal(a: Plan, b: Plan): number {
-  const scoreCompare = getBestDealScore(b) - getBestDealScore(a);
-  if (scoreCompare !== 0) return scoreCompare;
+function createBestDealsComparator(plans: Plan[]) {
+  const clickablePrices = plans
+    .filter((plan) => plan.sourceUrl)
+    .map((plan) => plan.price);
+  const lowestClickablePrice = clickablePrices.length > 0
+    ? Math.min(...clickablePrices)
+    : null;
 
-  return compareByCurrentPrice(a, b);
-}
+  return function compareBestDeals(a: Plan, b: Plan): number {
+    const clickableCompare = compareClickable(a, b);
+    if (clickableCompare !== 0) return clickableCompare;
 
-function comparePopular(a: Plan, b: Plan): number {
-  const aPopular = isPopularMobileProvider(a.title);
-  const bPopular = isPopularMobileProvider(b.title);
-  if (aPopular && !bPopular) return -1;
-  if (!aPopular && bPopular) return 1;
+    const getAdjustedIndex = (plan: Plan) => {
+      const baseIndex = getBestDealsPriceIndex(plan);
+      const commercialPriority = getCommercialPriority(plan.title);
+      const isCommerciallyClose = lowestClickablePrice !== null && (
+        plan.price <= lowestClickablePrice + 20 ||
+        plan.price <= lowestClickablePrice * 1.15
+      );
+      const commercialBonus = isCommerciallyClose
+        ? Math.min(commercialPriority / 8, 3)
+        : 0;
 
-  const aCampaign = a.campaign !== null;
-  const bCampaign = b.campaign !== null;
-  if (aCampaign && !bCampaign) return -1;
-  if (!aCampaign && bCampaign) return 1;
+      return baseIndex - commercialBonus;
+    };
 
-  return compareByCurrentPrice(a, b);
+    const scoreCompare = getAdjustedIndex(a) - getAdjustedIndex(b);
+    if (scoreCompare !== 0) return scoreCompare;
+
+    return compareByCurrentPrice(a, b);
+  };
 }
 
 function groupSortedPlansByOperator(sortedPlans: Plan[]) {
@@ -209,15 +277,12 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
 
       case 'no-binding':
         filtered = filtered.filter((p) => p.bindingMonths === 0);
-        filtered.sort(compareByCurrentPrice);
+        filtered.sort(compareNoBinding);
         break;
 
       case 'popular':
-        filtered.sort(comparePopular);
-        break;
-
       case 'best-deals':
-        filtered.sort(comparePlansForBestDeal);
+        filtered.sort(createBestDealsComparator(filtered));
         break;
     }
 
