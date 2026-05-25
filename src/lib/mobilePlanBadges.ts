@@ -27,7 +27,10 @@ function isTopMainCard(context: PlanBadgeContext, limit = 3) {
 
 function getLowestReliableYearlyCost(plans: Plan[]): number | null {
   const reliableCosts = plans
-    .map((plan) => getPlanCostSummary(plan).effectiveMonthlyPrice12m)
+    .map((plan) => {
+      const summary = getPlanCostSummary(plan);
+      return summary.hasReliable12mCost ? summary.effectiveMonthlyPrice12m : null;
+    })
     .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
 
   if (reliableCosts.length === 0) return null;
@@ -41,6 +44,13 @@ function getLowestCurrentPrice(plans: Plan[]): number | null {
 
   if (prices.length === 0) return null;
   return Math.min(...prices);
+}
+
+function isCommerciallyCloseToCheapest(plan: Plan, allPlans: Plan[]) {
+  const lowestCurrentPrice = getLowestCurrentPrice(allPlans);
+  if (lowestCurrentPrice === null) return false;
+
+  return plan.price <= lowestCurrentPrice + 20 || plan.price <= lowestCurrentPrice * 1.15;
 }
 
 export function getPlanBadge(
@@ -72,7 +82,7 @@ export function getPlanBadge(
 
   if (sortMode === 'heavy-data') {
     if (isTopMainCard(context, 3) && (plan.isUnlimited || plan.dataSortValue >= 20)) {
-      return { text: 'أكثر من 20 GB', reason: 'data', variant: 'gold' };
+      return { text: 'إنترنت كثير', reason: 'data', variant: 'gold' };
     }
     return null;
   }
@@ -84,42 +94,47 @@ export function getPlanBadge(
     return null;
   }
 
-  const lowestReliableYearlyCost = getLowestReliableYearlyCost(allPlans);
-  if (
-    lowestReliableYearlyCost !== null &&
-    summary.hasReliable12mCost &&
-    summary.effectiveMonthlyPrice12m !== null &&
-    isSameNumber(summary.effectiveMonthlyPrice12m, lowestReliableYearlyCost)
-  ) {
-    return { text: 'الأرخص خلال سنة', reason: 'yearly-cheapest', variant: 'gold' };
-  }
+  if (context.isAdditionalPlan) return null;
 
   const lowestCurrentPrice = getLowestCurrentPrice(allPlans);
   if (lowestCurrentPrice !== null && isSameNumber(plan.price, lowestCurrentPrice)) {
     return { text: 'أرخص الآن', reason: 'current-cheapest', variant: 'gold' };
   }
 
-  if (!context.isAdditionalPlan) {
-    const operatorOverride = getMobileOperatorOverride(plan.title);
-    if (operatorOverride?.defaultBadgeAr || getCommercialPriority(plan.title) > 0) {
-      return {
-        text: operatorOverride?.defaultBadgeAr ?? 'اختيار شائع',
-        reason: 'commercial',
-        variant: 'gold',
-      };
-    }
+  const operatorOverride = getMobileOperatorOverride(plan.title);
+  if (
+    getCommercialPriority(plan.title) > 0 &&
+    isCommerciallyCloseToCheapest(plan, allPlans) &&
+    isTopMainCard(context, 4)
+  ) {
+    return {
+      text: operatorOverride?.defaultBadgeAr ?? 'اختيار شائع',
+      reason: 'commercial',
+      variant: 'gold',
+    };
   }
 
-  if (summary.discountTotal !== null && summary.discountTotal >= 300) {
-    return { text: 'خصم قوي', reason: 'discount', variant: context.isAdditionalPlan ? 'green' : 'gold' };
+  if (summary.discountTotal !== null && summary.discountTotal >= 500 && isTopMainCard(context, 3)) {
+    return { text: 'خصم قوي', reason: 'discount', variant: 'gold' };
   }
 
-  if (plan.bindingMonths === 0) {
-    return { text: 'بدون التزام', reason: 'no-binding', variant: context.isAdditionalPlan ? 'blue' : 'gold' };
+  if (plan.bindingMonths === 0 && isTopMainCard(context, 3)) {
+    return { text: 'بدون التزام', reason: 'no-binding', variant: 'gold' };
   }
 
-  if (plan.isUnlimited || plan.dataSortValue >= 50) {
-    return { text: 'أكثر من 20 GB', reason: 'data', variant: 'neutral' };
+  if ((plan.isUnlimited || plan.dataSortValue >= 50) && isTopMainCard(context, 3)) {
+    return { text: 'إنترنت كثير', reason: 'data', variant: 'gold' };
+  }
+
+  const lowestReliableYearlyCost = getLowestReliableYearlyCost(allPlans);
+  if (
+    lowestReliableYearlyCost !== null &&
+    summary.hasReliable12mCost &&
+    summary.effectiveMonthlyPrice12m !== null &&
+    isSameNumber(summary.effectiveMonthlyPrice12m, lowestReliableYearlyCost) &&
+    isTopMainCard(context, 3)
+  ) {
+    return { text: 'الأرخص سنة', reason: 'yearly-cheapest', variant: 'gold' };
   }
 
   return null;
