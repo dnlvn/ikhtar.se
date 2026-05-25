@@ -97,7 +97,7 @@ export function PremiumPlanCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {badge && (
-          <div className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2">
+          <div className="absolute right-4 top-0 z-20 -translate-y-1/2">
             <div className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-1.5 text-[12px] font-black shadow-md ${getBadgeClasses(badge.variant)}`}>
               <Sparkles className="h-3 w-3" />
               {badge.text}
@@ -106,7 +106,7 @@ export function PremiumPlanCard({
         )}
 
         {showSavingsBadge && (
-          <div className="absolute left-1/2 top-[54px] z-10 flex -translate-x-1/2 items-center" dir="rtl">
+          <div className="absolute left-4 top-0 z-20 -translate-y-1/2" dir="rtl">
             <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-extrabold leading-none text-emerald-700 shadow-sm shadow-emerald-100">
               <BadgePercent className="h-3 w-3" strokeWidth={2.5} />
               وفّر {formatSek(costSummary.discountTotal!)} كرونة
