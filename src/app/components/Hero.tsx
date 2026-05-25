@@ -1,4 +1,4 @@
-import { Check, Clock, MessageCircle } from 'lucide-react';
+import { Check, Clock, Phone } from 'lucide-react';
 import { t } from '@/i18n';
 import { Logo } from '@/app/components/Logo';
 
@@ -55,7 +55,7 @@ export function Hero({ resultsCount = 0 }: HeroProps) {
             <div className="w-px h-4 bg-slate-200" />
 
             <div className="inline-flex items-center gap-1.5">
-              <MessageCircle className="w-4 h-4 text-green-600" />
+              <Phone className="w-4 h-4 text-green-600" />
               <span className="font-medium text-[12px]">جميع الباقات تشمل مكالمات ورسائل مجانية داخل السويد</span>
             </div>
           </div>
