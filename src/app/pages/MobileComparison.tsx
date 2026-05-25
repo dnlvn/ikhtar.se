@@ -5,13 +5,15 @@ import { FilterSection } from "@/app/components/FilterSection";
 import { PremiumPlanCard } from "@/app/components/PremiumPlanCard_V1";
 import { PremiumPlanCardSkeleton } from "@/app/components/PremiumPlanCardSkeleton";
 import { SeoContentSection } from "@/app/components/SeoContentSection";
+import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
+import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
 import {
   useFilteredPlans,
   type SortOption,
 } from "@/hooks/useFilteredPlans";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import { t, tr } from "@/i18n";
+import { t } from "@/i18n";
 
 export function MobileComparison() {
   const [sortBy, setSortBy] = useState<SortOption>("best-deals");
@@ -30,6 +32,25 @@ export function MobileComparison() {
     setSortBy("best-deals");
   };
 
+  const handleSortChange = (nextSort: SortOption) => {
+    setSortBy(nextSort);
+    setExpandedOperators(new Set());
+
+    window.setTimeout(() => {
+      const resultsSection = document.getElementById("results-section");
+      if (!resultsSection) return;
+
+      const targetTop = Math.max(
+        resultsSection.getBoundingClientRect().top + window.scrollY - 86,
+        0
+      );
+
+      if (window.scrollY < targetTop - 16) return;
+
+      window.scrollTo({ top: targetTop, behavior: "smooth" });
+    }, 0);
+  };
+
   return (
     <>
       <Helmet>
@@ -40,13 +61,13 @@ export function MobileComparison() {
       </Helmet>
 
       {/* Hero Section */}
-      <Hero />
+      <Hero resultsCount={filteredPlans.length} />
 
       {/* Filter Section - Sticky */}
       {!loading && !error && (
         <FilterSection
           sortBy={sortBy}
-          onSortChange={setSortBy}
+          onSortChange={handleSortChange}
           resultsCount={filteredPlans.length}
         />
       )}
@@ -110,7 +131,7 @@ export function MobileComparison() {
             ) : (
               <>
                 {/* Disclaimer - Top */}
-                <div className="text-center mb-4">
+                <div className="text-center mb-3">
                   <p className="text-xs text-slate-500 text-[10px]">
                     {t("home.disclaimer")}
                   </p>
@@ -118,122 +139,91 @@ export function MobileComparison() {
 
                 {/* Plan Cards Grid */}
                 <div id="results-section" className="grid grid-cols-1 gap-2">
-                  {sortBy === "best-deals" ? (
-                    // Operator-diverse display with "Show more" expansion
-                    diverseList.map((plan, index) => {
-                      const operator = plan.title;
-                      const additionalPlans =
-                        additionalPlansByOperator.get(operator) || [];
-                      const isExpanded = expandedOperators.has(operator);
+                  {diverseList.map((plan, index) => {
+                    const operator = plan.title;
+                    const additionalPlans =
+                      additionalPlansByOperator.get(operator) || [];
+                    const isExpanded = expandedOperators.has(operator);
 
-                      // Simple index-based highlighting: first 3 get premium treatment
-                      let dealType:
-                        | "best-price"
-                        | "most-data"
-                        | "popular"
-                        | undefined;
-                      let dealRank: 1 | 2 | 3 | undefined;
+                    let dealType:
+                      | "best-price"
+                      | "most-data"
+                      | "popular"
+                      | undefined;
+                    let dealRank: 1 | 2 | 3 | undefined;
 
-                      if (index === 0) {
-                        dealType = "best-price";
-                        dealRank = 1;
-                      } else if (index === 1) {
-                        dealType = "most-data";
-                        dealRank = 2;
-                      } else if (index === 2) {
-                        dealType = "popular";
-                        dealRank = 3;
-                      }
+                    if (index === 0) {
+                      dealType = "best-price";
+                      dealRank = 1;
+                    } else if (index === 1) {
+                      dealType = "most-data";
+                      dealRank = 2;
+                    } else if (index === 2) {
+                      dealType = "popular";
+                      dealRank = 3;
+                    }
 
-                      return (
-                        <div key={plan.id}>
-                          {/* Best plan from operator */}
-                          <PremiumPlanCard
-                            plan={plan}
-                            dealRank={dealRank}
-                            dealType={dealType}
-                          />
-
-                          {/* Show more button if operator has additional plans */}
-                          {additionalPlans.length > 0 && (
-                            <div className="mt-2">
-                              {!isExpanded ? (
-                                <button
-                                  onClick={() =>
-                                    setExpandedOperators((prev) =>
-                                      new Set([...prev, operator])
-                                    )
-                                  }
-                                  className="mx-auto block py-1 px-2 text-[11px] font-medium text-slate-500 hover:text-slate-900 underline decoration-slate-300 hover:decoration-slate-500 transition-colors"
-                                >
-                                  {tr("home.showMore", {
-                                    operator,
-                                    count: additionalPlans.length,
-                                  })}
-                                </button>
-                              ) : (
-                                <>
-                                  {/* Additional plans */}
-                                  <div className="space-y-2 mb-2">
-                                    {additionalPlans.map((additionalPlan) => (
-                                      <PremiumPlanCard
-                                        key={additionalPlan.id}
-                                        plan={additionalPlan}
-                                      />
-                                    ))}
-                                  </div>
-                                  {/* Collapse button */}
-                                  <button
-                                    onClick={() =>
-                                      setExpandedOperators((prev) => {
-                                        const next = new Set(prev);
-                                        next.delete(operator);
-                                        return next;
-                                      })
-                                    }
-                                    className="w-full py-2 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                                  >
-                                    {tr("home.showLess", { operator })}
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    // Regular flat list for other sort modes
-                    filteredPlans.map((plan, index) => {
-                      // Simple index-based highlighting: first 3 get premium treatment
-                      let dealType:
-                        | "best-price"
-                        | "most-data"
-                        | "popular"
-                        | undefined;
-                      let dealRank: 1 | 2 | 3 | undefined;
-
-                      if (index === 0) {
-                        dealType = "best-price";
-                        dealRank = 1;
-                      } else if (index === 1) {
-                        dealType = "most-data";
-                        dealRank = 2;
-                      } else if (index === 2) {
-                        dealType = "popular";
-                        dealRank = 3;
-                      }
-
-                      return (
+                    return (
+                      <div key={plan.id}>
+                        {/* Best visible plan from operator in current mode */}
                         <PremiumPlanCard
-                          key={plan.id}
                           plan={plan}
                           dealRank={dealRank}
                           dealType={dealType}
+                          allPlans={filteredPlans}
+                          sortMode={sortBy}
+                          cardPosition={index + 1}
                         />
-                      );
-                    })
-                  )}
+
+                        {/* Show more button if operator has additional plans */}
+                        {additionalPlans.length > 0 && (
+                          <div className="mt-1.5 text-center">
+                            {!isExpanded ? (
+                              <button
+                                onClick={() =>
+                                  setExpandedOperators((prev) =>
+                                    new Set([...prev, operator])
+                                  )
+                                }
+                                className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
+                              >
+                                شاهد {additionalPlans.length} باقات أخرى من {operator}
+                              </button>
+                            ) : (
+                              <>
+                                {/* Additional plans */}
+                                <div className="space-y-2 mb-1.5">
+                                  {additionalPlans.map((additionalPlan, additionalIndex) => (
+                                    <PremiumPlanCard
+                                      key={additionalPlan.id}
+                                      plan={additionalPlan}
+                                      allPlans={filteredPlans}
+                                      sortMode={sortBy}
+                                      cardPosition={index + additionalIndex + 2}
+                                      isAdditionalPlan
+                                    />
+                                  ))}
+                                </div>
+                                {/* Collapse button */}
+                                <button
+                                  onClick={() =>
+                                    setExpandedOperators((prev) => {
+                                      const next = new Set(prev);
+                                      next.delete(operator);
+                                      return next;
+                                    })
+                                  }
+                                  className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
+                                >
+                                  إخفاء عروض {operator}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Disclaimer - Bottom */}
@@ -242,6 +232,9 @@ export function MobileComparison() {
                     {t("home.disclaimer")}
                   </p>
                 </div>
+
+                <MobileQuickComparison plans={diverseList} sortMode={sortBy} />
+                <MobileDataUsageGuide />
               </>
             )}
           </>

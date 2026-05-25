@@ -1,14 +1,15 @@
-import { Sparkles, ArrowDown, CheckCircle, Clock, Check } from 'lucide-react';
+import { Check, Clock, Phone } from 'lucide-react';
 import { t } from '@/i18n';
 import { Logo } from '@/app/components/Logo';
 
-export function Hero() {
-  const scrollToResults = () => {
-    const resultsSection = document.getElementById('results-section');
-    if (resultsSection) {
-      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+interface HeroProps {
+  resultsCount?: number;
+}
+
+export function Hero({ resultsCount = 0 }: HeroProps) {
+  const updatedLabel = resultsCount > 0
+    ? `تحديث يومي لـ ${resultsCount} باقة`
+    : t('hero.trust.updatedToday');
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
@@ -22,8 +23,6 @@ export function Hero() {
           <div className="flex justify-center mb-[14px] mt-[0px] mr-[0px] ml-[0px]">
             <Logo />
           </div>
-          
-          {/* Small eyebrow */}
           
           {/* Main headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-2 leading-tight">
@@ -40,20 +39,24 @@ export function Hero() {
           </p>
           
           {/* Trust indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-600">
-            {/* Freshness indicator */}
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-600" dir="rtl">
             <div className="inline-flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-green-600" />
-              <span className="font-medium text-[12px]">{t('hero.trust.updatedToday')}</span>
+              <span className="font-medium text-[12px]">{updatedLabel}</span>
             </div>
             
-            {/* Divider */}
             <div className="w-px h-4 bg-slate-200" />
             
-            {/* Trust signals */}
             <div className="inline-flex items-center gap-1.5">
               <Check className="w-4 h-4 text-green-600" />
               <span className="font-medium text-[12px]">{t('hero.trust.officialPrices')}</span>
+            </div>
+
+            <div className="w-px h-4 bg-slate-200" />
+
+            <div className="inline-flex items-center gap-1.5">
+              <Phone className="w-4 h-4 text-green-600" />
+              <span className="font-medium text-[12px]">جميع الباقات تشمل مكالمات ورسائل مجانية داخل السويد</span>
             </div>
           </div>
         </div>

@@ -1,52 +1,46 @@
-import { ChevronDown, SlidersHorizontal, Smartphone } from 'lucide-react';
 import type { SortOption } from '@/hooks/useFilteredPlans';
-import { t } from '@/i18n';
 
 interface FilterSectionProps {
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
-  resultsCount: number;
+  resultsCount?: number;
 }
+
+const sortChips: Array<{ value: SortOption; label: string; ariaLabel: string }> = [
+  { value: 'best-deals', label: 'أفضل العروض', ariaLabel: 'أفضل العروض' },
+  { value: 'price-asc', label: 'الأرخص الآن', ariaLabel: 'الأرخص الآن' },
+  { value: 'yearly-cost', label: 'الأرخص سنة', ariaLabel: 'الأرخص سنة' },
+  { value: 'heavy-data', label: '+20GB', ariaLabel: 'أكثر من 20 GB إنترنت' },
+  { value: 'no-binding', label: 'بدون التزام', ariaLabel: 'بدون التزام' },
+];
 
 export function FilterSection({
   sortBy,
   onSortChange,
-  resultsCount
 }: FilterSectionProps) {
   return (
-    <div className="bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-30 backdrop-blur-lg bg-white/95">
-      <div className="max-w-4xl mx-auto px-4 md:px-0 py-4">
-        <div className="flex items-center justify-between gap-3">
-          {/* Results count - left side */}
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-slate-900 text-[16px]">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              {resultsCount} {t('filter.resultsCount')}
-            </span>
-          </div>
+    <div className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-lg">
+      <div className="mx-auto max-w-4xl px-3 py-2 md:px-0">
+        <div className="flex flex-wrap justify-center gap-1" dir="rtl">
+          {sortChips.map((chip) => {
+            const isActive = sortBy === chip.value;
 
-          {/* Sort control - right side, subtle */}
-          <div className="flex items-center gap-1.5">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
-            <label htmlFor="sort-select" className="text-xs font-medium text-slate-500 hidden sm:inline">
-              {t('filter.sortLabel')}
-            </label>
-            <div className="relative">
-              <select
-                id="sort-select"
-                value={sortBy}
-                onChange={(e) => onSortChange(e.target.value as SortOption)}
-                className="appearance-none text-xs pl-2 pr-6 py-1.5 rounded-[8px] border border-slate-200 bg-slate-50 text-slate-700 font-medium hover:border-slate-300 hover:bg-white focus:outline-none focus:ring-1 focus:ring-slate-300 focus:border-slate-400 transition-all cursor-pointer"
+            return (
+              <button
+                key={chip.value}
+                type="button"
+                aria-label={chip.ariaLabel}
+                onClick={() => onSortChange(chip.value)}
+                className={`min-h-[30px] rounded-full border px-2 py-1 text-[10px] font-black leading-tight transition-all sm:px-2.5 ${
+                  isActive
+                    ? 'border-green-600 bg-gradient-to-b from-green-600 to-green-700 text-white shadow-md shadow-green-100'
+                    : 'border-slate-200 bg-gradient-to-b from-white to-slate-50 text-slate-700 shadow-sm hover:border-green-200 hover:text-green-800'
+                }`}
               >
-                <option value="best-deals">{t('filter.sortOptions.bestDeals')}</option>
-                <option value="price-asc">{t('filter.sortOptions.priceAsc')}</option>
-                <option value="data-desc">{t('filter.sortOptions.dataDesc')}</option>
-                <option value="no-binding">{t('filter.sortOptions.noBinding')}</option>
-                <option value="popular">{t('filter.sortOptions.popular')}</option>
-              </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
+                {chip.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

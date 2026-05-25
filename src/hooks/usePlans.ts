@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { isMobileProviderDisabled } from '@/lib/mobileProviderConfig';
+import { getMobilePlanOverride, isMobileProviderDisabled } from '@/lib/mobileProviderConfig';
 
-// Database types - matches mobile_plans_public view EXACTLY (only columns that exist)
+// Database types - matches mobile_plans_public view columns used by the UI
 export interface MobilePlanDB {
   plan_key: string;
   operator: string;
@@ -12,6 +12,7 @@ export interface MobilePlanDB {
   current_price: number;
   regular_price: number;
   campaign_price: number | null;
+  campaign_months?: number | null;
   binding_months: number;
   is_active: boolean;
   affiliate_url: string | null;
@@ -52,9 +53,11 @@ function transformPlan(dbPlan: MobilePlanDB): Plan {
   }
 
   // Compute dataSortValue: unlimited = 9999, else use data_gb
-  const dataSortValue = dbPlan.unlimited_data || dbPlan.data_gb === null 
-    ? 9999 
+  const dataSortValue = dbPlan.unlimited_data || dbPlan.data_gb === null
+    ? 9999
     : dbPlan.data_gb;
+  const planOverride = getMobilePlanOverride(dbPlan.plan_key);
+  const affiliateUrl = planOverride?.customAffiliateUrl || dbPlan.affiliate_url;
 
   return {
     id: dbPlan.plan_key, // Use plan_key as React key
@@ -70,14 +73,15 @@ function transformPlan(dbPlan: MobilePlanDB): Plan {
     campaign: dbPlan.campaign_price !== null
       ? {
           price: dbPlan.campaign_price,
+          months: dbPlan.campaign_months ?? null,
         }
       : null,
     // Legacy fields - all undefined for now (columns don't exist in view)
     network: undefined,
     esim: undefined,
     euRoaming: undefined,
-    affiliateUrl: dbPlan.affiliate_url,
-    sourceUrl: dbPlan.affiliate_url, // Map affiliate_url to both fields for compatibility
+    affiliateUrl,
+    sourceUrl: affiliateUrl, // Map affiliate_url to both fields for compatibility
   };
 }
 
@@ -92,10 +96,10 @@ export function usePlans() {
       setLoading(true);
       setError(null);
 
-      // Query from mobile_plans_public with specific columns
+      // Query all public view columns so campaign_months can be used when available.
       const { data, error: fetchError } = await supabase
         .from('mobile_plans_public')
-        .select('plan_key, operator, plan_name, data_gb, unlimited_data, current_price, regular_price, campaign_price, binding_months, is_active, affiliate_url, updated_at')
+        .select('*')
         .eq('is_active', true) // Only active plans
         .not('current_price', 'is', null) // current_price must not be null
         .order('current_price', { ascending: true });
@@ -104,44 +108,30 @@ export function usePlans() {
         throw fetchError;
       }
 
-      console.log('🔍 DEBUG: Raw rows from Supabase:', data?.length || 0);
-
       if (data && data.length > 0) {
         // Deduplicate by plan_key ONLY (keep first occurrence)
         const seen = new Set<string>();
-        const uniquePlans = data.filter((plan) => {
+        const uniquePlans = (data as MobilePlanDB[]).filter((plan) => {
           if (seen.has(plan.plan_key)) {
-            console.log('⚠️ Dropping duplicate plan_key:', plan.plan_key);
             return false;
           }
           seen.add(plan.plan_key);
           return true;
         });
 
-        console.log('🔍 DEBUG: After dedupe by plan_key:', uniquePlans.length);
-
         const transformedPlans = uniquePlans
           .map((plan) => transformPlan(plan))
-          .filter((plan) => !isMobileProviderDisabled(plan.title));
-        
-        console.log('🔍 DEBUG: After transformation:', transformedPlans.length);
-        console.log('✅ Final plans to render:', transformedPlans.map(p => ({ 
-          plan_key: p.planKey, 
-          operator: p.title, 
-          data: p.dataLabel, 
-          price: p.price,
-          unlimited: p.isUnlimited
-        })));
-        
+          .filter((plan) => !isMobileProviderDisabled(plan.title))
+          .filter((plan) => !getMobilePlanOverride(plan.planKey)?.hidePlan);
+
         setPlans(transformedPlans);
 
         // Get max updated_at
-        const maxUpdated = data.reduce((max, plan) => {
+        const maxUpdated = uniquePlans.reduce((max, plan) => {
           return plan.updated_at > max ? plan.updated_at : max;
-        }, data[0].updated_at);
+        }, uniquePlans[0].updated_at);
         setLastUpdated(maxUpdated);
       } else {
-        console.log('⚠️ No data returned from Supabase');
         setPlans([]);
         setLastUpdated(null);
       }
