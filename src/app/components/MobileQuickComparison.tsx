@@ -36,46 +36,16 @@ function trackAndOpen(plan: Plan, sortMode: SortOption, position: number) {
   window.open(ctaUrl, '_blank', 'noopener,noreferrer');
 }
 
-function compareHeavyDataDeals(a: Plan, b: Plan) {
-  const priceCompare = a.price - b.price;
-  if (priceCompare !== 0) return priceCompare;
-
-  const dataCompare = b.dataSortValue - a.dataSortValue;
-  if (dataCompare !== 0) return dataCompare;
-
-  const bindingCompare = a.bindingMonths - b.bindingMonths;
-  if (bindingCompare !== 0) return bindingCompare;
-
-  const operatorCompare = a.title.localeCompare(b.title, 'sv');
-  if (operatorCompare !== 0) return operatorCompare;
-
-  return a.id.localeCompare(b.id);
-}
-
-function getHeavyDataComparisonPlans(plans: Plan[]) {
-  const seenOperators = new Set<string>();
-
-  return plans
-    .filter((plan) => plan.isUnlimited || plan.dataSortValue >= 25)
-    .sort(compareHeavyDataDeals)
-    .filter((plan) => {
-      if (seenOperators.has(plan.title)) return false;
-      seenOperators.add(plan.title);
-      return true;
-    })
-    .slice(0, 5);
-}
-
 export function MobileQuickComparison({ plans, sortMode }: MobileQuickComparisonProps) {
-  const comparisonPlans = getHeavyDataComparisonPlans(plans);
+  const comparisonPlans = plans.slice(0, 5);
   if (comparisonPlans.length < 2) return null;
 
   return (
     <section className="mx-auto mt-8 max-w-4xl px-[12px]" dir="rtl">
       <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-black text-slate-900">تبحث عن إنترنت كثير؟</h2>
-          <span className="text-[11px] font-bold text-slate-500">أفضل عروض الباقات ذات الإنترنت الكثير</span>
+          <h2 className="text-lg font-black text-slate-900">مقارنة سريعة</h2>
+          <span className="text-[11px] font-bold text-slate-500">أفضل النتائج الحالية</span>
         </div>
 
         <div className="space-y-2">
