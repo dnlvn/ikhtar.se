@@ -1,4 +1,4 @@
-import { Check, Clock, Phone } from 'lucide-react';
+import { Check, Clock } from 'lucide-react';
 import { t } from '@/i18n';
 import { Logo } from '@/app/components/Logo';
 
@@ -26,11 +26,13 @@ export function Hero({ resultsCount = 0 }: HeroProps) {
           
           {/* Main headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-2 leading-tight">
-            {t('hero.title.part1')}{' '}
-            <span className="bg-gradient-to-r from-green-600 via-green-700 to-green-600 bg-clip-text text-transparent">
-              {t('hero.title.highlight')}
+            <span className="block">
+              {t('hero.title.part1')}{' '}
+              <span className="bg-gradient-to-r from-green-600 via-green-700 to-green-600 bg-clip-text text-transparent">
+                {t('hero.title.highlight')}
+              </span>
             </span>
-            {' '}{t('hero.title.part2')}
+            <span className="block">{t('hero.title.part2')}</span>
           </h1>
           
           {/* Subheadline */}
@@ -50,13 +52,6 @@ export function Hero({ resultsCount = 0 }: HeroProps) {
             <div className="inline-flex items-center gap-1.5">
               <Check className="w-4 h-4 text-green-600" />
               <span className="font-medium text-[12px]">{t('hero.trust.officialPrices')}</span>
-            </div>
-
-            <div className="w-px h-4 bg-slate-200" />
-
-            <div className="inline-flex items-center gap-1.5">
-              <Phone className="w-4 h-4 text-green-600" />
-              <span className="font-medium text-[12px]">جميع الباقات تشمل مكالمات ورسائل مجانية داخل السويد</span>
             </div>
           </div>
         </div>
