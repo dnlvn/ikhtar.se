@@ -2,7 +2,12 @@ import { Lock, Phone, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
-import { getActiveMobileProviderPromotion, getMobilePlanOverride, isMobileProviderHighlighted } from '@/lib/mobileProviderConfig';
+import {
+  getActiveMobileProviderPromotion,
+  getMobilePlanOverride,
+  getMobileProviderSlug,
+  isMobileProviderHighlighted,
+} from '@/lib/mobileProviderConfig';
 import { getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
 
@@ -17,6 +22,8 @@ interface PremiumPlanCardProps {
   isAdditionalPlan?: boolean;
 }
 
+const GOLD_OPERATOR_SLUGS = new Set(['vimla', 'comviq', 'fello']);
+
 export function PremiumPlanCard({
   plan,
   sortMode = 'best-deals',
@@ -29,8 +36,10 @@ export function PremiumPlanCard({
   const ctaText = planOverride?.customCtaText || t('card.viewOffer');
   const costSummary = getPlanCostSummary(plan);
   const operatorName = plan.title.toLowerCase().split(' ')[0];
+  const providerSlug = getMobileProviderSlug(plan.title);
   const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
-  const isBestDeal = plan.price <= 100 || isMobileProviderHighlighted(plan.title);
+  const isTopOperator = GOLD_OPERATOR_SLUGS.has(providerSlug);
+  const isBestDeal = isTopOperator || plan.price <= 100 || isMobileProviderHighlighted(plan.title);
   const badgeText = isBestDeal ? t('card.bestDealBadge') : null;
 
   const handleClick = () => {
