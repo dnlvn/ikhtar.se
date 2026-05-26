@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Hero } from "@/app/components/Hero";
-import { FilterSection } from "@/app/components/FilterSection";
 import { PremiumPlanCard } from "@/app/components/PremiumPlanCard_V1";
 import { PremiumPlanCardSkeleton } from "@/app/components/PremiumPlanCardSkeleton";
 import { SeoContentSection } from "@/app/components/SeoContentSection";
 import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
-import {
-  useFilteredPlans,
-  type SortOption,
-} from "@/hooks/useFilteredPlans";
+import { useFilteredPlans } from "@/hooks/useFilteredPlans";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { t } from "@/i18n";
 
 export function MobileComparison() {
-  const [sortBy, setSortBy] = useState<SortOption>("best-deals");
+  const sortBy = "best-deals" as const;
   const [expandedOperators, setExpandedOperators] = useState<Set<string>>(new Set());
 
   const { plans, loading, error, retry } = usePlans();
@@ -29,26 +25,7 @@ export function MobileComparison() {
     });
 
   const resetFilters = () => {
-    setSortBy("best-deals");
-  };
-
-  const handleSortChange = (nextSort: SortOption) => {
-    setSortBy(nextSort);
     setExpandedOperators(new Set());
-
-    window.setTimeout(() => {
-      const resultsSection = document.getElementById("results-section");
-      if (!resultsSection) return;
-
-      const targetTop = Math.max(
-        resultsSection.getBoundingClientRect().top + window.scrollY - 86,
-        0
-      );
-
-      if (window.scrollY < targetTop - 16) return;
-
-      window.scrollTo({ top: targetTop, behavior: "smooth" });
-    }, 0);
   };
 
   return (
@@ -62,15 +39,6 @@ export function MobileComparison() {
 
       {/* Hero Section */}
       <Hero resultsCount={filteredPlans.length} />
-
-      {/* Filter Section - Sticky */}
-      {!loading && !error && (
-        <FilterSection
-          sortBy={sortBy}
-          onSortChange={handleSortChange}
-          resultsCount={filteredPlans.length}
-        />
-      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-[14px]">
@@ -177,7 +145,7 @@ export function MobileComparison() {
 
                         {/* Show more button if operator has additional plans */}
                         {additionalPlans.length > 0 && (
-                          <div className="mt-1.5 text-center">
+                          <div className="mt-1 text-center">
                             {!isExpanded ? (
                               <button
                                 onClick={() =>
@@ -185,14 +153,14 @@ export function MobileComparison() {
                                     new Set([...prev, operator])
                                   )
                                 }
-                                className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
+                                className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
                               >
                                 شاهد {additionalPlans.length} باقات أخرى من {operator}
                               </button>
                             ) : (
                               <>
                                 {/* Additional plans */}
-                                <div className="space-y-2 mb-1.5">
+                                <div className="space-y-2 mb-1">
                                   {additionalPlans.map((additionalPlan, additionalIndex) => (
                                     <PremiumPlanCard
                                       key={additionalPlan.id}
@@ -213,7 +181,7 @@ export function MobileComparison() {
                                       return next;
                                     })
                                   }
-                                  className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
+                                  className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
                                 >
                                   إخفاء عروض {operator}
                                 </button>

@@ -1,6 +1,6 @@
 export const DISABLED_MOBILE_PROVIDERS = ['hallon'] as const;
 export const HIGHLIGHTED_MOBILE_PROVIDERS = [] as const;
-export const POPULAR_MOBILE_PROVIDERS = ['comviq', 'vimla'] as const;
+export const POPULAR_MOBILE_PROVIDERS = ['vimla', 'comviq'] as const;
 
 export const COMMERCIAL_PRIORITY: Record<string, number> = {
   vimla: 20,

@@ -1,10 +1,14 @@
-import { BadgePercent, CalendarClock, Lock, ReceiptText, Sparkles, Unlock } from 'lucide-react';
+import { Lock, Phone, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
-import { getActiveMobileProviderPromotion, getMobilePlanOverride, isMobileProviderHighlighted } from '@/lib/mobileProviderConfig';
-import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
-import { getBadgeClasses, getPlanBadge } from '@/lib/mobilePlanBadges';
+import {
+  getActiveMobileProviderPromotion,
+  getMobilePlanOverride,
+  getMobileProviderSlug,
+  isMobileProviderHighlighted,
+} from '@/lib/mobileProviderConfig';
+import { getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
 
 interface PremiumPlanCardProps {
@@ -18,15 +22,12 @@ interface PremiumPlanCardProps {
   isAdditionalPlan?: boolean;
 }
 
+const GOLD_OPERATOR_SLUGS = new Set(['vimla', 'comviq', 'fello']);
+
 export function PremiumPlanCard({
   plan,
-  dealRank,
-  dealType,
-  savingsVariant = 'soft-highlight',
-  allPlans = [plan],
   sortMode = 'best-deals',
   cardPosition,
-  isAdditionalPlan = false,
 }: PremiumPlanCardProps) {
   const operatorLogo = getOperatorLogo(plan.title);
   const activePromotion = getActiveMobileProviderPromotion(plan.title);
@@ -34,13 +35,12 @@ export function PremiumPlanCard({
   const ctaUrl = activePromotion?.promotionUrl || planOverride?.customAffiliateUrl || plan.sourceUrl;
   const ctaText = planOverride?.customCtaText || t('card.viewOffer');
   const costSummary = getPlanCostSummary(plan);
-  const badge = getPlanBadge(plan, allPlans, { sortMode, cardPosition, isAdditionalPlan });
-  const hasGoldBadge = badge?.variant === 'gold';
-  const isObjectiveMode = sortMode !== 'best-deals';
-  const isMainTopCard = !isAdditionalPlan && typeof cardPosition === 'number' && cardPosition <= 3;
-  const isBestDeal = isObjectiveMode
-    ? isMainTopCard && hasGoldBadge
-    : hasGoldBadge || (!isAdditionalPlan && (plan.price <= 100 || isMobileProviderHighlighted(plan.title)));
+  const operatorName = plan.title.toLowerCase().split(' ')[0];
+  const providerSlug = getMobileProviderSlug(plan.title);
+  const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
+  const isTopOperator = GOLD_OPERATOR_SLUGS.has(providerSlug);
+  const isBestDeal = isTopOperator || plan.price <= 100 || isMobileProviderHighlighted(plan.title);
+  const badgeText = isBestDeal ? t('card.bestDealBadge') : null;
 
   const handleClick = () => {
     if (!ctaUrl) return;
@@ -55,7 +55,7 @@ export function PremiumPlanCard({
       plan_key: plan.planKey,
       current_price: plan.price,
       effective_monthly_price_12m: costSummary.effectiveMonthlyPrice12m,
-      badge_text: badge?.text ?? null,
+      badge_text: badgeText,
       card_position: cardPosition ?? null,
       is_expanded: false,
     });
@@ -63,23 +63,11 @@ export function PremiumPlanCard({
     window.open(ctaUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const operatorName = plan.title.toLowerCase().split(' ')[0];
-  const hasCampaignPrice = typeof plan.campaign?.price === 'number' && Number.isFinite(plan.campaign.price);
-  const hasCampaignMonths = typeof plan.campaign?.months === 'number' && Number.isFinite(plan.campaign.months);
-  const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
-  const showReliableYearCost = costSummary.hasCampaignPeriod && costSummary.hasReliable12mCost;
-  const showSavingsBadge =
-    hasCampaignPrice &&
-    showRegularPrice &&
-    hasCampaignMonths &&
-    plan.campaign!.price < plan.regularPrice &&
-    costSummary.discountTotal !== null;
-
   return (
-    <div id={`plan-${plan.id}`} className="relative pt-3">
+    <div id={`plan-${plan.id}`} className="relative">
       {isBestDeal && (
         <>
-          <Sparkles className="absolute top-2 -right-1 z-20 h-4 w-4 animate-pulse text-yellow-400 delay-75" />
+          <Sparkles className="absolute -top-1 -right-1 z-20 h-4 w-4 animate-pulse text-yellow-400 delay-75" />
           <Sparkles className="absolute -bottom-1 -left-1 z-20 h-5 w-5 animate-pulse text-orange-400 delay-150" />
         </>
       )}
@@ -96,21 +84,18 @@ export function PremiumPlanCard({
         `}
         style={{ borderRadius: '0.75rem' }}
       >
-        {badge && (
-          <div className="absolute right-4 top-0 z-20 -translate-y-1/2">
-            <div className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-1.5 text-[12px] font-black shadow-md ${getBadgeClasses(badge.variant)}`}>
-              <Sparkles className="h-3 w-3" />
-              {badge.text}
-            </div>
-          </div>
+        {showRegularPrice && (
+          <span className={`absolute left-4 top-0 z-10 -translate-y-1/2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold line-through shadow-sm ${isBestDeal ? 'text-red-700' : 'text-slate-600'}`}>
+            {plan.regularPrice} {t('card.pricePerMonth')}
+          </span>
         )}
 
-        {showSavingsBadge && (
-          <div className="absolute left-4 top-0 z-20 -translate-y-1/2" dir="rtl">
-            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-extrabold leading-none text-emerald-700 shadow-sm shadow-emerald-100">
-              <BadgePercent className="h-3 w-3" strokeWidth={2.5} />
-              وفّر {formatSek(costSummary.discountTotal!)} كرونة
-            </span>
+        {isBestDeal && (
+          <div className="absolute -top-3 right-4 z-20">
+            <div className="flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-50 px-3 py-1 text-[10px] font-semibold text-amber-700 shadow-sm">
+              <Sparkles className="h-2.5 w-2.5" />
+              {t('card.bestDealBadge')}
+            </div>
           </div>
         )}
 
@@ -156,57 +141,43 @@ export function PremiumPlanCard({
                 ) : (
                   <Lock className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
                 )}
-                <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
-                  <strong>مدة الالتزام:</strong> {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
+                <span className="text-[12px] font-regular leading-tight text-slate-900">
+                  {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
-
-              {showReliableYearCost && costSummary.effectiveMonthlyPrice12m !== null && (
-                <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
-                  <ReceiptText className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
-                  <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
-                    <strong>متوسط أول 12 شهر:</strong> {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
-                  </span>
-                </div>
-              )}
-
-              {showRegularPrice && (
-                <div className="mt-0.5 flex items-center gap-1.5 text-right" dir="rtl">
-                  <CalendarClock className="h-3.5 w-3.5 flex-shrink-0 text-slate-900" strokeWidth={2.5} />
-                  <span className="text-[11px] font-regular leading-tight text-slate-900 sm:text-[12px]">
-                    <strong>بعد العرض:</strong> {formatSek(plan.regularPrice)} كرونة/شهر
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
+                <span className="text-[12px] font-regular leading-tight text-slate-900">
+                  {t('card.freeCalls')}
+                </span>
+              </div>
             </div>
 
-            <div className="flex min-w-[108px] flex-col items-end gap-1 sm:min-w-[128px]">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleClick();
-                }}
-                disabled={!ctaUrl}
-                className={`
-                  relative cursor-pointer overflow-hidden rounded-xl px-3.5 py-2.5 text-[12px] font-bold uppercase
-                  shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed sm:px-5 sm:text-[13px]
-                  ${isBestDeal
-                    ? 'text-white shadow-lg hover:brightness-110'
-                    : 'border-2 border-green-700 bg-green-700 text-white hover:bg-green-800'
-                  }
-                `}
-                style={isBestDeal ? {
-                  backgroundImage: 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
-                  backgroundSize: '200% auto',
-                  animation: 'shimmer-slide 3s ease-in-out infinite',
-                  borderRadius: '0.75rem',
-                } : {
-                  borderRadius: '0.75rem',
-                }}
-              >
-                <span className="relative flex items-center gap-1.5">{ctaText}</span>
-              </button>
-            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClick();
+              }}
+              disabled={!ctaUrl}
+              className={`
+                relative cursor-pointer overflow-hidden rounded-xl px-5 py-2.5 text-[13px] font-bold uppercase
+                shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed
+                ${isBestDeal
+                  ? 'text-white shadow-lg hover:brightness-110'
+                  : 'border-2 border-green-700 bg-green-700 text-white hover:bg-green-800'
+                }
+              `}
+              style={isBestDeal ? {
+                backgroundImage: 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
+                backgroundSize: '200% auto',
+                animation: 'shimmer-slide 3s ease-in-out infinite',
+                borderRadius: '0.75rem',
+              } : {
+                borderRadius: '0.75rem',
+              }}
+            >
+              <span className="relative flex items-center gap-1.5">{ctaText}</span>
+            </button>
           </div>
         </div>
       </div>
