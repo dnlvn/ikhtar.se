@@ -201,7 +201,7 @@ export function MobileComparison() {
                   </p>
                 </div>
 
-                <MobileQuickComparison plans={filteredPlans} sortMode={sortBy} />
+                <MobileQuickComparison plans={diverseList} sortMode={sortBy} />
                 <MobileDataUsageGuide />
               </>
             )}
