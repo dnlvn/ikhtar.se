@@ -17,7 +17,7 @@ export function Hero({ resultsCount = 0 }: HeroProps) {
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-100/40 to-teal-100/40 rounded-full blur-3xl opacity-30" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-green-100/40 to-cyan-100/40 rounded-full blur-3xl opacity-30" />
       
-      <div className="relative max-w-7xl mx-auto px-[16px] py-[24px] sm:py-12">
+      <div className="relative max-w-7xl mx-auto px-[16px] pt-[24px] pb-[14px] sm:pt-12 sm:pb-8">
         <div className="text-center max-w-3xl mx-auto">
           {/* Logo */}
           <div className="flex justify-center mb-[14px] mt-[0px] mr-[0px] ml-[0px]">
