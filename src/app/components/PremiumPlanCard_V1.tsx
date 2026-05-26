@@ -2,7 +2,12 @@ import { Lock, Phone, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
-import { getActiveMobileProviderPromotion, getMobilePlanOverride, isMobileProviderHighlighted } from '@/lib/mobileProviderConfig';
+import {
+  getActiveMobileProviderPromotion,
+  getMobilePlanOverride,
+  getMobileProviderSlug,
+  isMobileProviderHighlighted,
+} from '@/lib/mobileProviderConfig';
 import { getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
 
@@ -17,6 +22,8 @@ interface PremiumPlanCardProps {
   isAdditionalPlan?: boolean;
 }
 
+const GOLD_OPERATOR_SLUGS = new Set(['vimla', 'comviq', 'fello']);
+
 export function PremiumPlanCard({
   plan,
   sortMode = 'best-deals',
@@ -29,8 +36,10 @@ export function PremiumPlanCard({
   const ctaText = planOverride?.customCtaText || t('card.viewOffer');
   const costSummary = getPlanCostSummary(plan);
   const operatorName = plan.title.toLowerCase().split(' ')[0];
+  const providerSlug = getMobileProviderSlug(plan.title);
   const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
-  const isBestDeal = plan.price <= 100 || isMobileProviderHighlighted(plan.title);
+  const isTopOperator = GOLD_OPERATOR_SLUGS.has(providerSlug);
+  const isBestDeal = isTopOperator || plan.price <= 100 || isMobileProviderHighlighted(plan.title);
   const badgeText = isBestDeal ? t('card.bestDealBadge') : null;
 
   const handleClick = () => {
@@ -91,8 +100,25 @@ export function PremiumPlanCard({
         )}
 
         <div className="p-[14px]">
-          <div className="mb-[6px] flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+          <div className="mb-[6px] grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2" dir="ltr">
+            <div className="flex min-w-0 flex-col items-start">
+              <div className="flex items-baseline gap-1">
+                <span className="text-[40px] font-black leading-none text-slate-900">
+                  {plan.price}
+                </span>
+                <span className="text-[12px] font-medium leading-tight text-slate-700">
+                  {t('card.pricePerMonth')}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-shrink-0 items-center justify-center text-center">
+              <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} m-0 p-0 font-extrabold leading-none text-slate-900`}>
+                {plan.dataLabel || t('card.unlimitedData')}
+              </span>
+            </div>
+
+            <div className="flex min-w-0 items-center justify-end gap-2.5">
               {operatorLogo ? (
                 <img
                   src={operatorLogo}
@@ -104,23 +130,6 @@ export function PremiumPlanCard({
                   <span className="text-xs font-bold text-slate-700">{plan.title.charAt(0)}</span>
                 </div>
               )}
-            </div>
-
-            <div className="flex-shrink-0">
-              <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} m-0 p-0 font-extrabold leading-none text-slate-900`}>
-                {plan.dataLabel || t('card.unlimitedData')}
-              </span>
-            </div>
-
-            <div className="flex flex-col items-end">
-              <div className="flex items-baseline gap-1">
-                <span className="text-[40px] font-black leading-none text-slate-900">
-                  {plan.price}
-                </span>
-                <span className="text-[12px] font-medium leading-tight text-slate-700">
-                  {t('card.pricePerMonth')}
-                </span>
-              </div>
             </div>
           </div>
 
