@@ -1,10 +1,10 @@
 export const DISABLED_MOBILE_PROVIDERS = ['hallon'] as const;
 export const HIGHLIGHTED_MOBILE_PROVIDERS = [] as const;
-export const POPULAR_MOBILE_PROVIDERS = ['comviq', 'vimla'] as const;
+export const POPULAR_MOBILE_PROVIDERS = ['vimla', 'comviq'] as const;
 
 export const COMMERCIAL_PRIORITY: Record<string, number> = {
-  comviq: 20,
-  vimla: 18,
+  vimla: 20,
+  comviq: 18,
 };
 
 export interface MobileOperatorOverride {
@@ -26,13 +26,13 @@ export interface MobilePlanOverride {
 export const MOBILE_OPERATOR_OVERRIDES: Record<string, MobileOperatorOverride> = {
   // Controls only the default "أفضل العروض" ranking.
   // Lower bestOffersRank appears higher, while max price keeps the ranking honest.
-  comviq: {
+  vimla: {
     priorityBoost: 35,
     bestOffersRank: 1,
     bestOffersMaxCurrentPrice: 100,
     defaultBadgeAr: 'اختيار شائع',
   },
-  vimla: {
+  comviq: {
     priorityBoost: 30,
     bestOffersRank: 2,
     bestOffersMaxCurrentPrice: 100,
