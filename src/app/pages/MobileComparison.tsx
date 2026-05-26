@@ -145,7 +145,7 @@ export function MobileComparison() {
 
                         {/* Show more button if operator has additional plans */}
                         {additionalPlans.length > 0 && (
-                          <div className="mt-1.5 text-center">
+                          <div className="mt-1 text-center">
                             {!isExpanded ? (
                               <button
                                 onClick={() =>
@@ -153,14 +153,14 @@ export function MobileComparison() {
                                     new Set([...prev, operator])
                                   )
                                 }
-                                className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
+                                className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
                               >
                                 شاهد {additionalPlans.length} باقات أخرى من {operator}
                               </button>
                             ) : (
                               <>
                                 {/* Additional plans */}
-                                <div className="space-y-2 mb-1.5">
+                                <div className="space-y-2 mb-1">
                                   {additionalPlans.map((additionalPlan, additionalIndex) => (
                                     <PremiumPlanCard
                                       key={additionalPlan.id}
@@ -181,7 +181,7 @@ export function MobileComparison() {
                                       return next;
                                     })
                                   }
-                                  className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
+                                  className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
                                 >
                                   إخفاء عروض {operator}
                                 </button>
