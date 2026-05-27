@@ -24,38 +24,9 @@ interface PremiumPlanCardProps {
 
 const GOLD_OPERATOR_SLUGS = new Set(['vimla', 'comviq', 'fello']);
 
-function getContextualBadgeText(
-  plan: Plan,
-  sortMode: SortOption,
-  cardPosition: number | undefined,
-  discountTotal: number | null,
-) {
-  const isFirstCard = cardPosition === 1;
-  const hasHighData = plan.isUnlimited || plan.dataSortValue >= 50;
-
-  if (sortMode === 'yearly-cost') {
-    if (isFirstCard) return 'أفضل قيمة خلال السنة';
-    if (plan.bindingMonths === 0) return 'بدون التزام';
-    return 'تكلفة شهرية منخفضة';
-  }
-
-  if (sortMode === 'heavy-data') {
-    if (isFirstCard) return 'أفضل سعر مع بيانات كثيرة';
-    if (hasHighData) return 'إنترنت أكثر بسعر أقل';
-    return 'تكلفة شهرية منخفضة';
-  }
-
-  if (isFirstCard) return 'الأكثر توفيرًا اليوم';
-  if (plan.bindingMonths === 0) return 'بدون التزام';
-  if (discountTotal !== null && discountTotal >= 600) return 'تكلفة شهرية منخفضة';
-  if (hasHighData) return 'إنترنت أكثر بسعر أقل';
-
-  return 'خيار شائع';
-}
-
 export function PremiumPlanCard({
   plan,
-  sortMode = 'best-deals',
+  sortMode = 'yearly-cost',
   cardPosition,
 }: PremiumPlanCardProps) {
   const operatorLogo = getOperatorLogo(plan.title);
@@ -70,9 +41,6 @@ export function PremiumPlanCard({
   const providerSlug = getMobileProviderSlug(plan.title);
   const isTopOperator = GOLD_OPERATOR_SLUGS.has(providerSlug);
   const isBestDeal = isTopOperator || plan.price <= 100 || isMobileProviderHighlighted(plan.title);
-  const badgeText = isBestDeal
-    ? getContextualBadgeText(plan, sortMode, cardPosition, savingsAmount)
-    : null;
 
   const handleClick = () => {
     if (!ctaUrl) return;
@@ -87,7 +55,7 @@ export function PremiumPlanCard({
       plan_key: plan.planKey,
       current_price: plan.price,
       effective_monthly_price_12m: costSummary.effectiveMonthlyPrice12m,
-      badge_text: badgeText,
+      badge_text: null,
       card_position: cardPosition ?? null,
       is_expanded: false,
     });
@@ -99,7 +67,6 @@ export function PremiumPlanCard({
     <div id={`plan-${plan.id}`} className="relative">
       {isBestDeal && (
         <>
-          <Sparkles className="absolute -top-1 -right-1 z-20 h-4 w-4 animate-pulse text-yellow-400 delay-75" />
           <Sparkles className="absolute -bottom-1 -left-1 z-20 h-5 w-5 animate-pulse text-orange-400 delay-150" />
         </>
       )}
@@ -117,22 +84,13 @@ export function PremiumPlanCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {savingsAmount !== null && savingsAmount > 0 && (
-          <span className="absolute left-4 top-0 z-20 flex -translate-y-1/2 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-extrabold text-emerald-800 shadow-md shadow-emerald-100">
-            <BadgePercent className="h-3 w-3" strokeWidth={2.6} />
+          <span className="absolute left-1/2 top-0 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-[11px] font-extrabold text-emerald-800 shadow-md shadow-emerald-100">
+            <BadgePercent className="h-3.5 w-3.5" strokeWidth={2.6} />
             وفّر {formatSek(savingsAmount)} كرونة
           </span>
         )}
 
-        {badgeText && (
-          <div className="absolute -top-3 right-4 z-20">
-            <div className="flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-50 px-3 py-1 text-[10px] font-semibold text-amber-700 shadow-sm">
-              <Sparkles className="h-2.5 w-2.5" />
-              {badgeText}
-            </div>
-          </div>
-        )}
-
-        <div className="p-4">
+        <div className="p-4 pt-5">
           <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               {operatorLogo ? (
@@ -148,7 +106,7 @@ export function PremiumPlanCard({
               )}
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 pt-1.5">
               <span className={`${plan.isUnlimited ? 'text-[18px]' : 'text-[22px]'} m-0 p-0 font-extrabold leading-none text-slate-900`}>
                 {plan.dataLabel || t('card.unlimitedData')}
               </span>
