@@ -13,6 +13,7 @@ export type SortOption =
   | 'yearly-cost'
   | 'heavy-data'
   | 'no-binding'
+  | 'surf-value'
   | 'popular';
 
 interface UseFilteredPlansParams {
@@ -40,6 +41,10 @@ function getYearlyCost(plan: Plan): number | null {
   return summary.hasReliable12mCost && summary.effectiveMonthlyPrice12m !== null
     ? summary.effectiveMonthlyPrice12m
     : null;
+}
+
+function getCostForValue(plan: Plan): number {
+  return getYearlyCost(plan) ?? plan.price;
 }
 
 function compareBestOffersRank(a: Plan, b: Plan): number {
@@ -120,17 +125,56 @@ function compareByHeavyData(a: Plan, b: Plan): number {
 }
 
 function compareNoBinding(a: Plan, b: Plan): number {
-  const priceCompare = a.price - b.price;
-  if (priceCompare !== 0) return priceCompare;
+  const aNoBinding = a.bindingMonths === 0;
+  const bNoBinding = b.bindingMonths === 0;
+  if (aNoBinding && !bNoBinding) return -1;
+  if (!aNoBinding && bNoBinding) return 1;
 
   const yearlyCompare = compareYearlyCostValue(a, b);
   if (yearlyCompare !== 0) return yearlyCompare;
 
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
+
   const dataCompare = b.dataSortValue - a.dataSortValue;
   if (dataCompare !== 0) return dataCompare;
 
-  const regularPriceCompare = a.regularPrice - b.regularPrice;
-  if (regularPriceCompare !== 0) return regularPriceCompare;
+  return compareStable(a, b);
+}
+
+function getEffectiveDataGb(plan: Plan): number | null {
+  if (plan.isUnlimited) return 100;
+  if (plan.dataSortValue > 0) return plan.dataSortValue;
+  return null;
+}
+
+function compareSurfValue(a: Plan, b: Plan): number {
+  const aData = getEffectiveDataGb(a);
+  const bData = getEffectiveDataGb(b);
+
+  if (aData !== null && bData === null) return -1;
+  if (aData === null && bData !== null) return 1;
+
+  if (aData !== null && bData !== null) {
+    const aCost = getCostForValue(a);
+    const bCost = getCostForValue(b);
+    const aScore = aData / Math.max(aCost, 1);
+    const bScore = bData / Math.max(bCost, 1);
+    const scoreCompare = bScore - aScore;
+    if (scoreCompare !== 0) return scoreCompare;
+  }
+
+  const yearlyCompare = compareYearlyCostValue(a, b);
+  if (yearlyCompare !== 0) return yearlyCompare;
+
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
+
+  const dataCompare = b.dataSortValue - a.dataSortValue;
+  if (dataCompare !== 0) return dataCompare;
+
+  const bindingCompare = a.bindingMonths - b.bindingMonths;
+  if (bindingCompare !== 0) return bindingCompare;
 
   return compareStable(a, b);
 }
@@ -293,8 +337,11 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
         break;
 
       case 'no-binding':
-        filtered = filtered.filter((p) => p.bindingMonths === 0);
         filtered.sort(compareNoBinding);
+        break;
+
+      case 'surf-value':
+        filtered.sort(compareSurfValue);
         break;
 
       case 'popular':
