@@ -104,11 +104,11 @@ function compareByYearlyCost(a: Plan, b: Plan): number {
 }
 
 function compareByHeavyData(a: Plan, b: Plan): number {
-  const priceCompare = a.price - b.price;
-  if (priceCompare !== 0) return priceCompare;
-
   const yearlyCompare = compareYearlyCostValue(a, b);
   if (yearlyCompare !== 0) return yearlyCompare;
+
+  const priceCompare = a.price - b.price;
+  if (priceCompare !== 0) return priceCompare;
 
   const dataCompare = b.dataSortValue - a.dataSortValue;
   if (dataCompare !== 0) return dataCompare;
