@@ -118,14 +118,46 @@ export function ElectricityComparison() {
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
   const [showPostcodeCta, setShowPostcodeCta] = useState(false);
+  const [postcodeError, setPostcodeError] = useState('');
+  const [hasRequestedResults, setHasRequestedResults] = useState(false);
+  const [showSearchTransition, setShowSearchTransition] = useState(false);
   const postcodeInputRef = useRef<HTMLInputElement>(null);
   const searchSectionRef = useRef<HTMLElement>(null);
+  const resultsSectionRef = useRef<HTMLDivElement>(null);
   const trackedResultsViews = useRef<Set<string>>(new Set());
   const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
+  const cleanPostcode = postcode.replace(/\D/g, '');
 
   const scrollToPostcodeInput = () => {
     postcodeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     window.setTimeout(() => postcodeInputRef.current?.focus(), 450);
+  };
+
+  const scrollToResults = () => {
+    resultsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handlePostcodeChange = (value: string) => {
+    setPostcode(value);
+    setPostcodeError('');
+    setHasRequestedResults(false);
+  };
+
+  const handleShowResults = () => {
+    if (!canSearch) {
+      setPostcodeError('أدخل رمزًا بريديًا صحيحًا من 5 أرقام');
+      scrollToPostcodeInput();
+      return;
+    }
+
+    setPostcodeError('');
+    setHasRequestedResults(true);
+    setShowSearchTransition(true);
+
+    window.setTimeout(() => {
+      setShowSearchTransition(false);
+      window.setTimeout(scrollToResults, 80);
+    }, 750);
   };
 
   useEffect(() => {
@@ -155,9 +187,10 @@ export function ElectricityComparison() {
     customAnnualUsage: customAnnualUsage > 0 ? customAnnualUsage : undefined,
     agreementFilter,
   });
+  const shouldShowResults = canSearch && hasRequestedResults && !showSearchTransition;
 
   useEffect(() => {
-    if (!canSearch || loading || error || offers.length === 0) return;
+    if (!hasRequestedResults || showSearchTransition || !canSearch || loading || error || offers.length === 0) return;
 
     const resultSignature = [
       postcode.replace(/\D/g, ''),
@@ -175,7 +208,7 @@ export function ElectricityComparison() {
       vertical: 'electricity',
       results_count: offers.length,
     });
-  }, [agreementFilter, annualUsage, canSearch, error, loading, offers, postcode]);
+  }, [agreementFilter, annualUsage, canSearch, error, hasRequestedResults, loading, offers, postcode, showSearchTransition]);
 
   useEffect(() => {
     const updatePostcodeCtaVisibility = () => {
@@ -277,7 +310,14 @@ export function ElectricityComparison() {
                   </span>
                   <span className="text-[13px] font-extrabold text-blue-700">نتائج بسرعة البرق</span>
                 </div>
-                <div className="group flex min-h-[62px] items-center gap-3 rounded-[22px] border border-blue-600 bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
+                <p className="mb-2 text-[12px] font-semibold text-slate-500">
+                  الأسعار تختلف حسب منطقتك
+                </p>
+                <div className={`group flex min-h-[62px] items-center gap-3 rounded-[22px] border bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:bg-white focus-within:ring-4 ${
+                  postcodeError
+                    ? 'border-red-500 focus-within:ring-red-100'
+                    : 'border-blue-600 focus-within:ring-blue-100'
+                }`}>
                   <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm transition-transform duration-200 group-focus-within:scale-105">
                     <MapPin className="h-5 w-5" />
                   </span>
@@ -285,12 +325,15 @@ export function ElectricityComparison() {
                     ref={postcodeInputRef}
                     inputMode="numeric"
                     value={postcode}
-                    onChange={(event) => setPostcode(event.target.value)}
+                    onChange={(event) => handlePostcodeChange(event.target.value)}
                     maxLength={6}
                     placeholder="12345"
                     className="w-full bg-transparent text-[22px] font-black tracking-wide text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
+                {postcodeError && (
+                  <p className="mt-2 text-[12px] font-bold text-red-600">{postcodeError}</p>
+                )}
               </label>
 
               <div>
@@ -361,20 +404,26 @@ export function ElectricityComparison() {
                         }}
                         className={`min-h-[56px] rounded-[20px] border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
+                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
                             : 'border-blue-200 bg-white text-slate-700 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
                         }`}
                       >
-                        <span className={`mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-2xl ${usageIconClasses[option.value]}`}>
+                        <span className={`mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-2xl ${
+                          isSelected ? 'bg-white/15 text-white' : usageIconClasses[option.value]
+                        }`}>
                           <Icon className="h-5 w-5" />
                         </span>
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
                         </span>
-                        <span className="mt-0.5 block text-[11px] font-medium leading-tight text-blue-800">
+                        <span className={`mt-0.5 block text-[11px] font-medium leading-tight ${
+                          isSelected ? 'text-blue-100' : 'text-blue-800'
+                        }`}>
                           {option.hints[housingType]}
                         </span>
-                        <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
+                        <span className={`mt-0.5 block text-[9px] font-semibold leading-tight ${
+                          isSelected ? 'text-blue-100/90' : 'text-slate-500'
+                        }`}>
                           {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh / سنة
                         </span>
                       </button>
@@ -401,6 +450,15 @@ export function ElectricityComparison() {
                   </div>
                 )}
               </div>
+
+              <button
+                type="button"
+                onClick={handleShowResults}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-[22px] bg-blue-700 px-5 py-4 text-[15px] font-black text-white shadow-lg shadow-blue-700/20 ring-1 ring-blue-600 transition duration-200 hover:bg-blue-800 active:scale-[0.98]"
+              >
+                <Zap className="h-5 w-5" />
+                اعرض أرخص عقود الكهرباء في منطقتي
+              </button>
 
             </div>
           </div>
@@ -440,7 +498,7 @@ export function ElectricityComparison() {
           </div>
         )}
 
-        {canSearch && !error && (
+        {shouldShowResults && !error && (
           <div className="mb-3 overflow-x-auto py-0.5">
             <div className="flex min-w-max items-center gap-2">
               {agreementFilterOptions.map((option) => {
@@ -465,7 +523,21 @@ export function ElectricityComparison() {
           </div>
         )}
 
-        {loading && (
+        {hasRequestedResults && canSearch && showSearchTransition && (
+          <div ref={resultsSectionRef} className="mb-4 rounded-[24px] bg-white p-5 text-center shadow-sm ring-1 ring-blue-100">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+              <RefreshCw className="h-5 w-5 animate-spin" />
+            </div>
+            <p className="text-[15px] font-black text-slate-900">
+              نبحث عن أرخص عقود الكهرباء في منطقتك...
+            </p>
+            <div className="mx-auto mt-4 h-2 max-w-xs overflow-hidden rounded-full bg-blue-50">
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-blue-200" />
+            </div>
+          </div>
+        )}
+
+        {hasRequestedResults && canSearch && !showSearchTransition && loading && (
           <div className="grid grid-cols-1 gap-4">
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <PremiumPlanCardSkeleton key={item} />
@@ -473,7 +545,7 @@ export function ElectricityComparison() {
           </div>
         )}
 
-        {canSearch && !loading && !error && offers.length === 0 && (
+        {shouldShowResults && !loading && !error && offers.length === 0 && (
           <div className="text-center py-12 px-4">
             <RefreshCw className="w-8 h-8 text-blue-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
@@ -485,8 +557,17 @@ export function ElectricityComparison() {
           </div>
         )}
 
-        {offers.length > 0 && (
+        {shouldShowResults && offers.length > 0 && (
           <>
+            <div ref={resultsSectionRef} className="mb-3 rounded-[22px] bg-blue-50/70 px-4 py-3 text-right ring-1 ring-blue-100">
+              <h2 className="text-[18px] font-black text-slate-950">
+                {offers.length} شركة كهرباء متاحة في منطقتك
+              </h2>
+              <p className="mt-1 text-[12px] font-bold text-blue-800">
+                عروض متاحة للرمز البريدي {cleanPostcode}
+              </p>
+            </div>
+
             <div className="text-center mb-7">
               <p className="text-xs text-slate-500 text-[10px]">
                 إعلان – عند النقر على عرض قد نحصل على عمولة دون تكلفة إضافية عليك.
