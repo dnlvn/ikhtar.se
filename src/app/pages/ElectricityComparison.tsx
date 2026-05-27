@@ -111,7 +111,6 @@ export function ElectricityComparison() {
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
   const [showPostcodeCta, setShowPostcodeCta] = useState(false);
-  const [showStickyUsageTabs, setShowStickyUsageTabs] = useState(false);
   const [postcodeError, setPostcodeError] = useState('');
   const [hasRequestedResults, setHasRequestedResults] = useState(false);
   const [showSearchTransition, setShowSearchTransition] = useState(false);
@@ -571,7 +570,11 @@ export function ElectricityComparison() {
       )}
     
 
-  function ElectricitySeoSection() {
+    </>
+      );
+}
+
+function ElectricitySeoSection() {
         const agreementTypeCards = [
     {
       title: 'عقود الكهرباء ذات السعر المتغير',
