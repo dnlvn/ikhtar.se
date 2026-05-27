@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Hero } from "@/app/components/Hero";
 import { PremiumPlanCard } from "@/app/components/PremiumPlanCard_V1";
@@ -7,13 +7,20 @@ import { SeoContentSection } from "@/app/components/SeoContentSection";
 import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
-import { useFilteredPlans } from "@/hooks/useFilteredPlans";
+import { type SortOption, useFilteredPlans } from "@/hooks/useFilteredPlans";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { t } from "@/i18n";
 
+const COMPARISON_CHIPS: Array<{ label: string; sortBy: SortOption }> = [
+  { label: "أفضل العروض", sortBy: "best-deals" },
+  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost" },
+  { label: "الأرخص مع +20 GB", sortBy: "heavy-data" },
+];
+
 export function MobileComparison() {
-  const sortBy = "best-deals" as const;
+  const [sortBy, setSortBy] = useState<SortOption>("best-deals");
   const [expandedOperators, setExpandedOperators] = useState<Set<string>>(new Set());
+  const resultsTopRef = useRef<HTMLDivElement | null>(null);
 
   const { plans, loading, error, retry } = usePlans();
 
@@ -25,7 +32,19 @@ export function MobileComparison() {
     });
 
   const resetFilters = () => {
+    setSortBy("best-deals");
     setExpandedOperators(new Set());
+  };
+
+  const handleSortChange = (nextSortBy: SortOption) => {
+    setSortBy(nextSortBy);
+    setExpandedOperators(new Set());
+
+    if (window.scrollY > 260) {
+      window.requestAnimationFrame(() => {
+        resultsTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   };
 
   return (
@@ -103,6 +122,32 @@ export function MobileComparison() {
                   <p className="text-xs text-slate-500 text-[10px]">
                     {t("home.disclaimer")}
                   </p>
+                </div>
+
+                <div ref={resultsTopRef} className="scroll-mt-24" />
+
+                {/* Sticky comparison chips */}
+                <div className="sticky top-0 z-30 -mx-[12px] mb-3 border-b border-slate-200/70 bg-white/95 px-[12px] py-2 shadow-sm backdrop-blur md:mx-0 md:rounded-full md:border md:px-2">
+                  <div className="flex items-center justify-center gap-1.5" dir="rtl">
+                    {COMPARISON_CHIPS.map((chip) => {
+                      const isActive = sortBy === chip.sortBy;
+
+                      return (
+                        <button
+                          key={chip.sortBy}
+                          type="button"
+                          onClick={() => handleSortChange(chip.sortBy)}
+                          className={`rounded-full px-2.5 py-1.5 text-[10px] font-extrabold leading-tight transition-all sm:text-xs ${
+                            isActive
+                              ? "bg-green-700 text-white shadow-sm"
+                              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                          }`}
+                        >
+                          {chip.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Plan Cards Grid */}
