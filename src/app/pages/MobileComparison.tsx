@@ -8,15 +8,15 @@ import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
 import { type SortOption, useFilteredPlans } from "@/hooks/useFilteredPlans";
-import { AlertCircle, CalendarDays, RefreshCw, Unlock, Wifi } from "lucide-react";
+import { AlertCircle, PiggyBank, RefreshCw, Unlock, Wifi } from "lucide-react";
 import { t } from "@/i18n";
 
 const COMPARISON_CHIPS: Array<{
   label: string;
   sortBy: SortOption;
-  icon: typeof CalendarDays;
+  icon: typeof PiggyBank;
 }> = [
-  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost", icon: CalendarDays },
+  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost", icon: PiggyBank },
   { label: "بدون التزام", sortBy: "no-binding", icon: Unlock },
   { label: "أفضل قيمة للإنترنت", sortBy: "surf-value", icon: Wifi },
 ];
@@ -121,17 +121,10 @@ export function MobileComparison() {
               </div>
             ) : (
               <>
-                {/* Disclaimer - Top */}
-                <div className="text-center mb-4">
-                  <p className="text-xs text-slate-500 text-[10px]">
-                    {t("home.disclaimer")}
-                  </p>
-                </div>
-
                 <div ref={resultsTopRef} className="scroll-mt-28" />
 
                 {/* Sticky comparison chips */}
-                <div className="sticky top-0 z-30 -mx-[12px] mb-4 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2.5 backdrop-blur md:mx-0 md:rounded-3xl">
+                <div className="sticky top-0 z-30 -mx-[12px] mb-3 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2.5 backdrop-blur md:mx-0 md:rounded-3xl">
                   <div className="mx-auto grid max-w-2xl grid-cols-3 gap-2" dir="rtl">
                     {COMPARISON_CHIPS.map((chip) => {
                       const isActive = sortBy === chip.sortBy;
@@ -144,8 +137,8 @@ export function MobileComparison() {
                           onClick={() => handleSortChange(chip.sortBy)}
                           className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border px-2 py-2 text-center text-[9.5px] font-extrabold leading-tight shadow-sm transition-all sm:text-xs ${
                             isActive
-                              ? "border-emerald-300 bg-emerald-50 text-emerald-800 shadow-emerald-100"
-                              : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/60 hover:text-emerald-800"
+                              ? "border-sky-200 bg-sky-50 text-sky-900 shadow-sky-100"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-sky-200 hover:bg-sky-50/70 hover:text-sky-900"
                           }`}
                         >
                           <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.4} />
@@ -154,6 +147,12 @@ export function MobileComparison() {
                       );
                     })}
                   </div>
+                </div>
+
+                <div className="mb-4 text-center">
+                  <p className="text-[10px] leading-relaxed text-slate-500">
+                    Annons – Vi jämför mobilabonnemang och mobiltelefonabonnemang. När du klickar på ett erbjudande kan vi få provision från operatören utan extra kostnad för dig.
+                  </p>
                 </div>
 
                 {/* Plan Cards Grid */}
