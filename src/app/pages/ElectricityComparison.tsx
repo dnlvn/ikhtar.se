@@ -111,6 +111,7 @@ export function ElectricityComparison() {
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
   const [showPostcodeCta, setShowPostcodeCta] = useState(false);
+  const [showStickyUsageTabs, setShowStickyUsageTabs] = useState(false);
   const [postcodeError, setPostcodeError] = useState('');
   const [hasRequestedResults, setHasRequestedResults] = useState(false);
   const [showSearchTransition, setShowSearchTransition] = useState(false);
@@ -224,6 +225,24 @@ export function ElectricityComparison() {
       window.removeEventListener('resize', updatePostcodeCtaVisibility);
     };
   }, [canSearch]);
+
+  useEffect(() => {
+    const updateStickyUsageTabsVisibility = () => {
+      const sectionRect = searchSectionRef.current?.getBoundingClientRect();
+      const hasScrolledPastForm = sectionRect ? sectionRect.bottom < -24 : false;
+
+      setShowStickyUsageTabs(shouldShowResults && offers.length > 0 && hasScrolledPastForm);
+    };
+
+    updateStickyUsageTabsVisibility();
+    window.addEventListener('scroll', updateStickyUsageTabsVisibility, { passive: true });
+    window.addEventListener('resize', updateStickyUsageTabsVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', updateStickyUsageTabsVisibility);
+      window.removeEventListener('resize', updateStickyUsageTabsVisibility);
+    };
+  }, [offers.length, shouldShowResults]);
 
   return (
     <>
@@ -567,7 +586,39 @@ export function ElectricityComparison() {
           </button>
         </div>
       )}
-    </>
+    
+
+      {showStickyUsageTabs && (
+        <div className="fixed inset-x-0 top-0 z-40 border-b border-blue-100 bg-white/95 px-3 py-2 shadow-sm backdrop-blur sm:hidden">
+          <div className="grid grid-cols-3 gap-2" dir="rtl">
+            {usageOptions.map((option) => {
+              const Icon = option.icon;
+              const isSelected = usageLevel === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    setUsageLevel(option.value);
+                    setCustomUsage('');
+                  }}
+                  className={`flex min-h-[46px] items-center justify-center gap-1.5 rounded-[16px] border px-2 text-[12px] font-black transition active:scale-[0.98] ${
+                    isSelected
+                      ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_4px_14px_rgba(37,99,235,0.12)] ring-1 ring-blue-600/15'
+                      : 'border-blue-100 bg-white text-slate-700'
+                  }`}
+                >
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-2xl ${usageIconClasses[option.value]}`}>
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}</>
   );
 }
 
