@@ -35,11 +35,10 @@ export function PremiumPlanCard({
   const ctaUrl = activePromotion?.promotionUrl || planOverride?.customAffiliateUrl || plan.sourceUrl;
   const ctaText = planOverride?.customCtaText || t('card.viewOffer');
   const costSummary = getPlanCostSummary(plan);
+  const savingsAmount = costSummary.discountTotal;
+  const averageMonthlyCost = costSummary.effectiveMonthlyPrice12m;
   const operatorName = plan.title.toLowerCase().split(' ')[0];
   const providerSlug = getMobileProviderSlug(plan.title);
-  const showSavingsBadge = costSummary.discountTotal !== null && costSummary.discountTotal > 0;
-  const showAverageCost =
-    costSummary.hasReliable12mCost && costSummary.effectiveMonthlyPrice12m !== null;
   const isTopOperator = GOLD_OPERATOR_SLUGS.has(providerSlug);
   const isBestDeal = isTopOperator || plan.price <= 100 || isMobileProviderHighlighted(plan.title);
   const badgeText = isBestDeal ? t('card.bestDealBadge') : null;
@@ -86,10 +85,10 @@ export function PremiumPlanCard({
         `}
         style={{ borderRadius: '0.75rem' }}
       >
-        {showSavingsBadge && (
+        {savingsAmount !== null && savingsAmount > 0 && (
           <span className="absolute left-4 top-0 z-20 flex -translate-y-1/2 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-[11px] font-extrabold text-emerald-800 shadow-md shadow-emerald-100">
             <BadgePercent className="h-3.5 w-3.5" strokeWidth={2.6} />
-            وفّر {formatSek(costSummary.discountTotal)} كرونة
+            وفّر {formatSek(savingsAmount)} كرونة
           </span>
         )}
 
@@ -148,11 +147,11 @@ export function PremiumPlanCard({
                   {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
-              {showAverageCost && (
+              {costSummary.hasReliable12mCost && averageMonthlyCost !== null && (
                 <div className="flex items-center gap-1.5">
                   <ReceiptText className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
                   <span className="text-[12px] font-regular leading-tight text-slate-900">
-                    متوسط 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                    متوسط 12 شهر: {formatSek(averageMonthlyCost)} كرونة/شهر
                   </span>
                 </div>
               )}
