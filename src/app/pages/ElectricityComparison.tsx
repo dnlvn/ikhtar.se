@@ -351,7 +351,7 @@ export function ElectricityComparison() {
                         onClick={() => setHousingType(option.value)}
                         className={`group min-h-[56px] rounded-[20px] border px-3 py-2.5 text-right transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
+                            ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
                             : 'border-blue-200 bg-white text-slate-800 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
                         }`}
                       >
@@ -359,7 +359,7 @@ export function ElectricityComparison() {
                           <span
                             className={`flex h-8 w-8 items-center justify-center rounded-2xl transition-all duration-200 ${
                               isSelected
-                                ? 'bg-white/15 text-white'
+                                ? 'bg-white text-blue-700'
                                 : 'bg-blue-50 text-blue-700 group-hover:bg-white'
                             }`}
                           >
@@ -371,7 +371,7 @@ export function ElectricityComparison() {
                             </span>
                             <span
                               className={`mt-0.5 block text-[10px] font-semibold leading-tight ${
-                                isSelected ? 'text-blue-100' : 'text-slate-500'
+                                isSelected ? 'text-blue-700' : 'text-slate-500'
                               }`}
                             >
                               {option.hint}
@@ -404,26 +404,20 @@ export function ElectricityComparison() {
                         }}
                         className={`min-h-[56px] rounded-[20px] border px-2 py-2.5 text-center transition-all duration-200 active:scale-[0.98] ${
                           isSelected
-                            ? 'border-blue-700 bg-blue-700 text-white shadow-[0_10px_24px_rgba(29,78,216,0.22)]'
+                            ? 'border-blue-700 bg-blue-50 text-blue-800 shadow-[0_8px_20px_rgba(37,99,235,0.14)] ring-2 ring-blue-600/15'
                             : 'border-blue-200 bg-white text-slate-700 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
                         }`}
                       >
-                        <span className={`mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-2xl ${
-                          isSelected ? 'bg-white/15 text-white' : usageIconClasses[option.value]
-                        }`}>
+                        <span className={`mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-2xl ${usageIconClasses[option.value]}`}>
                           <Icon className="h-5 w-5" />
                         </span>
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
                         </span>
-                        <span className={`mt-0.5 block text-[11px] font-medium leading-tight ${
-                          isSelected ? 'text-blue-100' : 'text-blue-800'
-                        }`}>
+                        <span className="mt-0.5 block text-[11px] font-medium leading-tight text-blue-800">
                           {option.hints[housingType]}
                         </span>
-                        <span className={`mt-0.5 block text-[9px] font-semibold leading-tight ${
-                          isSelected ? 'text-blue-100/90' : 'text-slate-500'
-                        }`}>
+                        <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
                           {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh / سنة
                         </span>
                       </button>
@@ -615,7 +609,7 @@ function ElectricitySeoSection() {
     },
     {
       title: 'عقود الكهرباء ذات السعر الثابت',
-      text: 'مع عقد الكهرباء ذي السعر الثابت، تدفع السعر نفسه طوال مدة العقد. وقد يكون هذا خياراً جيداً لمن يريد تكاليف كهرباء أكثر استقراراً ويمكن التنبؤ بها بسهولة.',
+      text: 'مع عقد الكهرباء ذي السعر الثابت، تدفع السعر نفسه طوال مدة العقد. وقد يكون هذا خياراً جيداً لمن يريد تكاليف كهرباء أكثر استقراراً وتوقعاً.',
     },
     {
       title: 'عقود الكهرباء بالتسعير بالساعة',
