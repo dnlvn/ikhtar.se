@@ -110,8 +110,8 @@ export function ElectricityOfferCard({
   const isBestDeal = rank <= 3;
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
-    1: 'أفضل عرض لك',
-    2: 'خيار قوي',
+    1: 'أفضل سعر اليوم',
+    2: 'خيار شائع',
     3: 'خيار ذكي',
   };
   const badgeLabel = badgeLabelByRank[rank];
