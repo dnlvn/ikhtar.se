@@ -8,7 +8,7 @@ import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
 import { type SortOption, useFilteredPlans } from "@/hooks/useFilteredPlans";
-import { AlertCircle, CalendarDays, RefreshCw, Tags, Unlock, Wifi } from "lucide-react";
+import { AlertCircle, CalendarDays, RefreshCw, Unlock, Wifi } from "lucide-react";
 import { t } from "@/i18n";
 
 const COMPARISON_CHIPS: Array<{
