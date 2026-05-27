@@ -59,13 +59,6 @@ const usageIconClasses: Record<UsageLevel, string> = {
   high: 'bg-red-50 text-red-600',
 };
 
-const agreementFilterOptions: Array<{ value: AgreementFilter; label: string }> = [
-  { value: 'all', label: 'كل العقود' },
-  { value: 'variable', label: 'سعر متغير' },
-  { value: 'fixed', label: 'سعر ثابت' },
-  { value: 'hourly', label: 'بالساعة/الربع' },
-];
-
 const electricityFaqItems = [
   {
     question: 'كيف يمكن العثور على أرخص عقد كهرباء؟',
@@ -114,7 +107,7 @@ export function ElectricityComparison() {
   const [postcode, setPostcode] = useState('');
   const [housingType, setHousingType] = useState<HousingType>('apartment');
   const [usageLevel, setUsageLevel] = useState<UsageLevel>('normal');
-  const [agreementFilter, setAgreementFilter] = useState<AgreementFilter>('all');
+  const [agreementFilter] = useState<AgreementFilter>('all');
   const [showCustomUsage, setShowCustomUsage] = useState(false);
   const [customUsage, setCustomUsage] = useState('');
   const [showPostcodeCta, setShowPostcodeCta] = useState(false);
@@ -308,12 +301,11 @@ export function ElectricityComparison() {
                   <span className="text-[16px] font-extrabold text-slate-900">
                     الرمز البريدي
                   </span>
-                  <span className="text-[13px] font-extrabold text-blue-700">نتائج بسرعة البرق</span>
                 </div>
                 <p className="mb-2 text-[12px] font-semibold text-slate-500">
                   الأسعار تختلف حسب منطقتك
                 </p>
-                <div className={`group flex min-h-[62px] items-center gap-3 rounded-[22px] border bg-blue-50/50 px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:bg-white focus-within:ring-4 ${
+                <div className={`group flex min-h-[62px] items-center gap-3 rounded-[22px] border bg-white px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:ring-4 ${
                   postcodeError
                     ? 'border-red-500 focus-within:ring-red-100'
                     : 'border-blue-600 focus-within:ring-blue-100'
@@ -427,7 +419,7 @@ export function ElectricityComparison() {
                 <button
                   type="button"
                   onClick={() => setShowCustomUsage((current) => !current)}
-                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[13px] font-bold text-slate-400 transition-colors duration-200 hover:text-slate-600"
+                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[12px] font-normal text-slate-400 transition-colors duration-200 hover:text-slate-600"
                 >
                   أو اضغط هنا لإدخال استهلاكك السنوي بنفسك
                 </button>
@@ -448,10 +440,11 @@ export function ElectricityComparison() {
               <button
                 type="button"
                 onClick={handleShowResults}
+                dir="ltr"
                 className="mt-1 flex w-full items-center justify-center gap-2 rounded-[22px] bg-blue-700 px-5 py-4 text-[15px] font-black text-white shadow-lg shadow-blue-700/20 ring-1 ring-blue-600 transition duration-200 hover:bg-blue-800 active:scale-[0.98]"
               >
                 <Zap className="h-5 w-5" />
-                اعرض أرخص عقود الكهرباء في منطقتي
+                <span dir="rtl">اعثر على أفضل عقد كهرباء لمنطقتك</span>
               </button>
 
             </div>
@@ -492,41 +485,18 @@ export function ElectricityComparison() {
           </div>
         )}
 
-        {shouldShowResults && !error && (
-          <div className="mb-3 overflow-x-auto py-0.5">
-            <div className="flex min-w-max items-center gap-2">
-              {agreementFilterOptions.map((option) => {
-                const isSelected = agreementFilter === option.value;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setAgreementFilter(option.value)}
-                    className={`rounded-[14px] px-3.5 py-2 text-[12px] font-bold transition-all duration-200 active:scale-[0.98] ${
-                      isSelected
-                        ? 'bg-blue-50 text-blue-800 shadow-sm ring-1 ring-blue-200'
-                        : 'bg-white/80 text-slate-600 ring-1 ring-blue-100/70 hover:bg-blue-50 hover:text-blue-800'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {hasRequestedResults && canSearch && showSearchTransition && (
-          <div ref={resultsSectionRef} className="mb-4 rounded-[24px] bg-white p-5 text-center shadow-sm ring-1 ring-blue-100">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-              <RefreshCw className="h-5 w-5 animate-spin" />
-            </div>
-            <p className="text-[15px] font-black text-slate-900">
-              نبحث عن أرخص عقود الكهرباء في منطقتك...
-            </p>
-            <div className="mx-auto mt-4 h-2 max-w-xs overflow-hidden rounded-full bg-blue-50">
-              <div className="h-full w-2/3 animate-pulse rounded-full bg-blue-200" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/25 px-4 backdrop-blur-[2px]">
+            <div className="w-full max-w-sm rounded-[28px] bg-white p-6 text-center shadow-2xl shadow-blue-950/20 ring-1 ring-blue-100">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-700">
+                <RefreshCw className="h-6 w-6 animate-spin" />
+              </div>
+              <p className="text-[17px] font-black leading-7 text-slate-950">
+                نبحث عن أرخص عقود الكهرباء في منطقتك...
+              </p>
+              <div className="mx-auto mt-5 h-2.5 max-w-xs overflow-hidden rounded-full bg-blue-50">
+                <div className="h-full w-2/3 animate-pulse rounded-full bg-blue-300" />
+              </div>
             </div>
           </div>
         )}
@@ -553,12 +523,12 @@ export function ElectricityComparison() {
 
         {shouldShowResults && offers.length > 0 && (
           <>
-            <div ref={resultsSectionRef} className="mb-3 rounded-[22px] bg-blue-50/70 px-4 py-3 text-right ring-1 ring-blue-100">
-              <h2 className="text-[18px] font-black text-slate-950">
+            <div ref={resultsSectionRef} className="mb-3 rounded-[22px] bg-blue-50/70 px-4 py-4 text-center ring-1 ring-blue-100">
+              <h2 className="text-[22px] font-black text-slate-950">
                 {offers.length} شركة كهرباء متاحة في منطقتك
               </h2>
-              <p className="mt-1 text-[12px] font-bold text-blue-800">
-                عروض متاحة للرمز البريدي {cleanPostcode}
+              <p className="mt-1.5 text-[15px] font-extrabold text-blue-800">
+                أفضل الأسعار المتاحة اليوم في {cleanPostcode}
               </p>
             </div>
 
