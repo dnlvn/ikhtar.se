@@ -2,10 +2,7 @@ export const DISABLED_MOBILE_PROVIDERS = ['hallon'] as const;
 export const HIGHLIGHTED_MOBILE_PROVIDERS = [] as const;
 export const POPULAR_MOBILE_PROVIDERS = ['vimla', 'comviq'] as const;
 
-export const COMMERCIAL_PRIORITY: Record<string, number> = {
-  vimla: 20,
-  comviq: 18,
-};
+export const COMMERCIAL_PRIORITY: Record<string, number> = {};
 
 export interface MobileOperatorOverride {
   priorityBoost?: number;
@@ -23,27 +20,7 @@ export interface MobilePlanOverride {
   notes?: string;
 }
 
-export const MOBILE_OPERATOR_OVERRIDES: Record<string, MobileOperatorOverride> = {
-  // Controls only the default "أفضل العروض" ranking.
-  // Lower bestOffersRank appears higher, while max price keeps the ranking honest.
-  vimla: {
-    priorityBoost: 35,
-    bestOffersRank: 1,
-    bestOffersMaxCurrentPrice: 100,
-    defaultBadgeAr: 'اختيار شائع',
-  },
-  comviq: {
-    priorityBoost: 30,
-    bestOffersRank: 2,
-    bestOffersMaxCurrentPrice: 100,
-    defaultBadgeAr: 'اختيار شائع',
-  },
-  fello: {
-    priorityBoost: 0,
-    bestOffersRank: 3,
-    bestOffersMaxCurrentPrice: 100,
-  },
-};
+export const MOBILE_OPERATOR_OVERRIDES: Record<string, MobileOperatorOverride> = {};
 
 // Future-friendly frontend override layer. This can later move to Supabase.
 export const MOBILE_PLAN_OVERRIDES: Record<string, MobilePlanOverride> = {};
