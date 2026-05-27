@@ -67,6 +67,7 @@ export function PremiumPlanCard({
     <div id={`plan-${plan.id}`} className="relative">
       {isBestDeal && (
         <>
+          <Sparkles className="absolute -top-1 -right-1 z-20 h-4 w-4 animate-pulse text-yellow-400 delay-75" />
           <Sparkles className="absolute -bottom-1 -left-1 z-20 h-5 w-5 animate-pulse text-orange-400 delay-150" />
         </>
       )}
