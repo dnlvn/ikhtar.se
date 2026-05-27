@@ -60,7 +60,7 @@ export function MobileComparison() {
       <Hero resultsCount={filteredPlans.length} />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-[14px]">
+      <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-4">
         {/* Error State */}
         {error && (
           <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl shadow-md">
@@ -118,17 +118,20 @@ export function MobileComparison() {
             ) : (
               <>
                 {/* Disclaimer - Top */}
-                <div className="text-center mb-3">
+                <div className="text-center mb-4">
                   <p className="text-xs text-slate-500 text-[10px]">
                     {t("home.disclaimer")}
                   </p>
                 </div>
 
-                <div ref={resultsTopRef} className="scroll-mt-24" />
+                <div ref={resultsTopRef} className="scroll-mt-28" />
 
                 {/* Sticky comparison chips */}
-                <div className="sticky top-0 z-30 -mx-[12px] mb-3 border-b border-slate-200/70 bg-white/95 px-[12px] py-2 shadow-sm backdrop-blur md:mx-0 md:rounded-full md:border md:px-2">
-                  <div className="flex items-center justify-center gap-1.5" dir="rtl">
+                <div className="sticky top-0 z-30 -mx-[12px] mb-4 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2.5 backdrop-blur md:mx-0 md:rounded-3xl">
+                  <div
+                    className="mx-auto grid max-w-xl grid-cols-3 gap-1 rounded-2xl border border-slate-200/80 bg-slate-50/90 p-1 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
+                    dir="rtl"
+                  >
                     {COMPARISON_CHIPS.map((chip) => {
                       const isActive = sortBy === chip.sortBy;
 
@@ -137,10 +140,10 @@ export function MobileComparison() {
                           key={chip.sortBy}
                           type="button"
                           onClick={() => handleSortChange(chip.sortBy)}
-                          className={`rounded-full px-2.5 py-1.5 text-[10px] font-extrabold leading-tight transition-all sm:text-xs ${
+                          className={`min-h-[34px] rounded-xl px-1.5 py-1.5 text-center text-[9.5px] font-extrabold leading-tight transition-all sm:text-xs ${
                             isActive
-                              ? "bg-green-700 text-white shadow-sm"
-                              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                              ? "bg-white text-green-800 shadow-sm ring-1 ring-green-200"
+                              : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                           }`}
                         >
                           {chip.label}
@@ -151,7 +154,7 @@ export function MobileComparison() {
                 </div>
 
                 {/* Plan Cards Grid */}
-                <div id="results-section" className="grid grid-cols-1 gap-2">
+                <div id="results-section" className="grid grid-cols-1 gap-3">
                   {diverseList.map((plan, index) => {
                     const operator = plan.title;
                     const additionalPlans =
@@ -190,7 +193,7 @@ export function MobileComparison() {
 
                         {/* Show more button if operator has additional plans */}
                         {additionalPlans.length > 0 && (
-                          <div className="mt-1 text-center">
+                          <div className="mt-2 text-center">
                             {!isExpanded ? (
                               <button
                                 onClick={() =>
@@ -205,7 +208,7 @@ export function MobileComparison() {
                             ) : (
                               <>
                                 {/* Additional plans */}
-                                <div className="space-y-2 mb-1">
+                                <div className="space-y-3 mb-2">
                                   {additionalPlans.map((additionalPlan, additionalIndex) => (
                                     <PremiumPlanCard
                                       key={additionalPlan.id}
@@ -240,7 +243,7 @@ export function MobileComparison() {
                 </div>
 
                 {/* Disclaimer - Bottom */}
-                <div className="text-center mt-4">
+                <div className="text-center mt-5">
                   <p className="text-xs text-slate-500 text-[10px]">
                     {t("home.disclaimer")}
                   </p>
