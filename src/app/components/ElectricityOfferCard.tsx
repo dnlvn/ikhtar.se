@@ -111,7 +111,7 @@ export function ElectricityOfferCard({
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
     1: 'أفضل سعر اليوم',
-    2: 'خيار قوي',
+    2: 'خيار شائع',
     3: 'خيار ذكي',
   };
   const badgeLabel = badgeLabelByRank[rank];
