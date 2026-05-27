@@ -1,4 +1,4 @@
-import { Lock, Phone, Sparkles, Unlock } from 'lucide-react';
+import { BadgePercent, Lock, ReceiptText, Sparkles, Unlock } from 'lucide-react';
 import type { Plan } from '@/hooks/usePlans';
 import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getOperatorLogo } from '@/lib/operatorLogos';
@@ -8,7 +8,7 @@ import {
   getMobileProviderSlug,
   isMobileProviderHighlighted,
 } from '@/lib/mobileProviderConfig';
-import { getPlanCostSummary } from '@/lib/mobilePlanCost';
+import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
 
 interface PremiumPlanCardProps {
@@ -37,7 +37,9 @@ export function PremiumPlanCard({
   const costSummary = getPlanCostSummary(plan);
   const operatorName = plan.title.toLowerCase().split(' ')[0];
   const providerSlug = getMobileProviderSlug(plan.title);
-  const showRegularPrice = Number.isFinite(plan.regularPrice) && plan.regularPrice > plan.price;
+  const showSavingsBadge = costSummary.discountTotal !== null && costSummary.discountTotal > 0;
+  const showAverageCost =
+    costSummary.hasReliable12mCost && costSummary.effectiveMonthlyPrice12m !== null;
   const isTopOperator = GOLD_OPERATOR_SLUGS.has(providerSlug);
   const isBestDeal = isTopOperator || plan.price <= 100 || isMobileProviderHighlighted(plan.title);
   const badgeText = isBestDeal ? t('card.bestDealBadge') : null;
@@ -84,9 +86,10 @@ export function PremiumPlanCard({
         `}
         style={{ borderRadius: '0.75rem' }}
       >
-        {showRegularPrice && (
-          <span className={`absolute left-4 top-0 z-10 -translate-y-1/2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold line-through shadow-sm ${isBestDeal ? 'text-red-700' : 'text-slate-600'}`}>
-            {plan.regularPrice} {t('card.pricePerMonth')}
+        {showSavingsBadge && (
+          <span className="absolute left-4 top-0 z-20 flex -translate-y-1/2 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-[11px] font-extrabold text-emerald-800 shadow-md shadow-emerald-100">
+            <BadgePercent className="h-3.5 w-3.5" strokeWidth={2.6} />
+            وفّر {formatSek(costSummary.discountTotal)} كرونة
           </span>
         )}
 
@@ -145,12 +148,14 @@ export function PremiumPlanCard({
                   {plan.bindingMonths === 0 ? t('card.noBinding') : `${plan.bindingMonths} ${t('card.bindingMonths')}`}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
-                <span className="text-[12px] font-regular leading-tight text-slate-900">
-                  {t('card.freeCalls')}
-                </span>
-              </div>
+              {showAverageCost && (
+                <div className="flex items-center gap-1.5">
+                  <ReceiptText className="h-3.5 w-3.5 text-slate-900" strokeWidth={2.5} />
+                  <span className="text-[12px] font-regular leading-tight text-slate-900">
+                    متوسط 12 شهر: {formatSek(costSummary.effectiveMonthlyPrice12m)} كرونة/شهر
+                  </span>
+                </div>
+              )}
             </div>
 
             <button
