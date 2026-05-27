@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Hero } from "@/app/components/Hero";
 import { PremiumPlanCard } from "@/app/components/PremiumPlanCard_V1";
@@ -7,13 +7,24 @@ import { SeoContentSection } from "@/app/components/SeoContentSection";
 import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
-import { useFilteredPlans } from "@/hooks/useFilteredPlans";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { type SortOption, useFilteredPlans } from "@/hooks/useFilteredPlans";
+import { AlertCircle, Coins, RefreshCw, Unlock, Wifi } from "lucide-react";
 import { t } from "@/i18n";
 
+const COMPARISON_CHIPS: Array<{
+  label: string;
+  sortBy: SortOption;
+  icon: typeof Coins;
+}> = [
+  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost", icon: Coins },
+  { label: "بدون التزام", sortBy: "no-binding", icon: Unlock },
+  { label: "أفضل قيمة للإنترنت", sortBy: "surf-value", icon: Wifi },
+];
+
 export function MobileComparison() {
-  const sortBy = "best-deals" as const;
+  const [sortBy, setSortBy] = useState<SortOption>("yearly-cost");
   const [expandedOperators, setExpandedOperators] = useState<Set<string>>(new Set());
+  const resultsTopRef = useRef<HTMLDivElement | null>(null);
 
   const { plans, loading, error, retry } = usePlans();
 
@@ -25,7 +36,19 @@ export function MobileComparison() {
     });
 
   const resetFilters = () => {
+    setSortBy("yearly-cost");
     setExpandedOperators(new Set());
+  };
+
+  const handleSortChange = (nextSortBy: SortOption) => {
+    setSortBy(nextSortBy);
+    setExpandedOperators(new Set());
+
+    if (window.scrollY > 260) {
+      window.requestAnimationFrame(() => {
+        resultsTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   };
 
   return (
@@ -41,7 +64,7 @@ export function MobileComparison() {
       <Hero resultsCount={filteredPlans.length} />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-[14px]">
+      <main className="max-w-7xl mx-auto px-[12px] md:px-4 pt-2 pb-4">
         {/* Error State */}
         {error && (
           <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl shadow-md">
@@ -98,15 +121,42 @@ export function MobileComparison() {
               </div>
             ) : (
               <>
-                {/* Disclaimer - Top */}
-                <div className="text-center mb-3">
-                  <p className="text-xs text-slate-500 text-[10px]">
-                    {t("home.disclaimer")}
+                <div ref={resultsTopRef} className="scroll-mt-28" />
+
+                {/* Sticky comparison chips */}
+                <div className="sticky top-0 z-30 -mx-[12px] mb-2 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2 backdrop-blur md:mx-0 md:rounded-3xl">
+                  <div className="mx-auto grid max-w-2xl grid-cols-3 gap-2" dir="rtl">
+                    {COMPARISON_CHIPS.map((chip) => {
+                      const isActive = sortBy === chip.sortBy;
+                      const Icon = chip.icon;
+
+                      return (
+                        <button
+                          key={chip.sortBy}
+                          type="button"
+                          onClick={() => handleSortChange(chip.sortBy)}
+                          className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border px-2 py-2 text-center text-[9.5px] font-extrabold leading-tight shadow-sm transition-all sm:text-xs ${
+                            isActive
+                              ? "border-sky-200 bg-sky-50 text-sky-900 shadow-sky-100"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-sky-200 hover:bg-sky-50/70 hover:text-sky-900"
+                          }`}
+                        >
+                          <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.4} />
+                          <span>{chip.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mb-4 text-center" dir="rtl">
+                  <p className="text-[10px] leading-relaxed text-slate-500">
+                    إعلان – نقارن باقات الجوال واشتراكات الهاتف المحمول. عند النقر على عرض، قد نحصل على عمولة من المشغل دون تكلفة إضافية عليك.
                   </p>
                 </div>
 
                 {/* Plan Cards Grid */}
-                <div id="results-section" className="grid grid-cols-1 gap-2">
+                <div id="results-section" className="grid grid-cols-1 gap-3">
                   {diverseList.map((plan, index) => {
                     const operator = plan.title;
                     const additionalPlans =
@@ -145,7 +195,7 @@ export function MobileComparison() {
 
                         {/* Show more button if operator has additional plans */}
                         {additionalPlans.length > 0 && (
-                          <div className="mt-1 text-center">
+                          <div className="mt-2 text-center">
                             {!isExpanded ? (
                               <button
                                 onClick={() =>
@@ -153,14 +203,14 @@ export function MobileComparison() {
                                     new Set([...prev, operator])
                                   )
                                 }
-                                className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
+                                className="inline-flex -translate-y-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
                               >
                                 شاهد {additionalPlans.length} باقات أخرى من {operator}
                               </button>
                             ) : (
                               <>
                                 {/* Additional plans */}
-                                <div className="space-y-2 mb-1">
+                                <div className="space-y-3 mb-2">
                                   {additionalPlans.map((additionalPlan, additionalIndex) => (
                                     <PremiumPlanCard
                                       key={additionalPlan.id}
@@ -181,7 +231,7 @@ export function MobileComparison() {
                                       return next;
                                     })
                                   }
-                                  className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
+                                  className="inline-flex -translate-y-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
                                 >
                                   إخفاء عروض {operator}
                                 </button>
@@ -195,7 +245,7 @@ export function MobileComparison() {
                 </div>
 
                 {/* Disclaimer - Bottom */}
-                <div className="text-center mt-4">
+                <div className="text-center mt-5">
                   <p className="text-xs text-slate-500 text-[10px]">
                     {t("home.disclaimer")}
                   </p>
