@@ -8,17 +8,21 @@ import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
 import { type SortOption, useFilteredPlans } from "@/hooks/useFilteredPlans";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, CalendarDays, RefreshCw, Tags, Unlock, Wifi } from "lucide-react";
 import { t } from "@/i18n";
 
-const COMPARISON_CHIPS: Array<{ label: string; sortBy: SortOption }> = [
-  { label: "أفضل العروض", sortBy: "best-deals" },
-  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost" },
-  { label: "الأرخص مع +20 GB", sortBy: "heavy-data" },
+const COMPARISON_CHIPS: Array<{
+  label: string;
+  sortBy: SortOption;
+  icon: typeof CalendarDays;
+}> = [
+  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost", icon: CalendarDays },
+  { label: "بدون التزام", sortBy: "no-binding", icon: Unlock },
+  { label: "أفضل قيمة للإنترنت", sortBy: "surf-value", icon: Wifi },
 ];
 
 export function MobileComparison() {
-  const [sortBy, setSortBy] = useState<SortOption>("best-deals");
+  const [sortBy, setSortBy] = useState<SortOption>("yearly-cost");
   const [expandedOperators, setExpandedOperators] = useState<Set<string>>(new Set());
   const resultsTopRef = useRef<HTMLDivElement | null>(null);
 
@@ -32,7 +36,7 @@ export function MobileComparison() {
     });
 
   const resetFilters = () => {
-    setSortBy("best-deals");
+    setSortBy("yearly-cost");
     setExpandedOperators(new Set());
   };
 
@@ -128,25 +132,24 @@ export function MobileComparison() {
 
                 {/* Sticky comparison chips */}
                 <div className="sticky top-0 z-30 -mx-[12px] mb-4 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2.5 backdrop-blur md:mx-0 md:rounded-3xl">
-                  <div
-                    className="mx-auto grid max-w-xl grid-cols-3 gap-1 rounded-2xl border border-slate-200/80 bg-slate-50/90 p-1 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
-                    dir="rtl"
-                  >
+                  <div className="mx-auto grid max-w-2xl grid-cols-3 gap-2" dir="rtl">
                     {COMPARISON_CHIPS.map((chip) => {
                       const isActive = sortBy === chip.sortBy;
+                      const Icon = chip.icon;
 
                       return (
                         <button
                           key={chip.sortBy}
                           type="button"
                           onClick={() => handleSortChange(chip.sortBy)}
-                          className={`min-h-[34px] rounded-xl px-1.5 py-1.5 text-center text-[9.5px] font-extrabold leading-tight transition-all sm:text-xs ${
+                          className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border px-2 py-2 text-center text-[9.5px] font-extrabold leading-tight shadow-sm transition-all sm:text-xs ${
                             isActive
-                              ? "bg-white text-green-800 shadow-sm ring-1 ring-green-200"
-                              : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+                              ? "border-emerald-300 bg-emerald-50 text-emerald-800 shadow-emerald-100"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/60 hover:text-emerald-800"
                           }`}
                         >
-                          {chip.label}
+                          <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.4} />
+                          <span>{chip.label}</span>
                         </button>
                       );
                     })}
