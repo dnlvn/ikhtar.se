@@ -337,6 +337,7 @@ export function useFilteredPlans({ plans, activeFilters, sortBy }: UseFilteredPl
         break;
 
       case 'no-binding':
+        filtered = filtered.filter((p) => p.bindingMonths === 0);
         filtered.sort(compareNoBinding);
         break;
 
