@@ -8,15 +8,15 @@ import { MobileQuickComparison } from "@/app/components/MobileQuickComparison";
 import { MobileDataUsageGuide } from "@/app/components/MobileDataUsageGuide";
 import { usePlans } from "@/hooks/usePlans";
 import { type SortOption, useFilteredPlans } from "@/hooks/useFilteredPlans";
-import { AlertCircle, PiggyBank, RefreshCw, Unlock, Wifi } from "lucide-react";
+import { AlertCircle, Coins, RefreshCw, Unlock, Wifi } from "lucide-react";
 import { t } from "@/i18n";
 
 const COMPARISON_CHIPS: Array<{
   label: string;
   sortBy: SortOption;
-  icon: typeof PiggyBank;
+  icon: typeof Coins;
 }> = [
-  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost", icon: PiggyBank },
+  { label: "أفضل سعر خلال 12 شهرًا", sortBy: "yearly-cost", icon: Coins },
   { label: "بدون التزام", sortBy: "no-binding", icon: Unlock },
   { label: "أفضل قيمة للإنترنت", sortBy: "surf-value", icon: Wifi },
 ];
@@ -64,7 +64,7 @@ export function MobileComparison() {
       <Hero resultsCount={filteredPlans.length} />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-[12px] md:px-4 py-4">
+      <main className="max-w-7xl mx-auto px-[12px] md:px-4 pt-2 pb-4">
         {/* Error State */}
         {error && (
           <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl shadow-md">
@@ -124,7 +124,7 @@ export function MobileComparison() {
                 <div ref={resultsTopRef} className="scroll-mt-28" />
 
                 {/* Sticky comparison chips */}
-                <div className="sticky top-0 z-30 -mx-[12px] mb-3 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2.5 backdrop-blur md:mx-0 md:rounded-3xl">
+                <div className="sticky top-0 z-30 -mx-[12px] mb-2 bg-gradient-to-b from-white via-white to-white/95 px-[12px] py-2 backdrop-blur md:mx-0 md:rounded-3xl">
                   <div className="mx-auto grid max-w-2xl grid-cols-3 gap-2" dir="rtl">
                     {COMPARISON_CHIPS.map((chip) => {
                       const isActive = sortBy === chip.sortBy;
@@ -149,9 +149,9 @@ export function MobileComparison() {
                   </div>
                 </div>
 
-                <div className="mb-4 text-center">
+                <div className="mb-4 text-center" dir="rtl">
                   <p className="text-[10px] leading-relaxed text-slate-500">
-                    Annons – Vi jämför mobilabonnemang och mobiltelefonabonnemang. När du klickar på ett erbjudande kan vi få provision från operatören utan extra kostnad för dig.
+                    إعلان – نقارن باقات الجوال واشتراكات الهاتف المحمول. عند النقر على عرض، قد نحصل على عمولة من المشغل دون تكلفة إضافية عليك.
                   </p>
                 </div>
 
@@ -203,7 +203,7 @@ export function MobileComparison() {
                                     new Set([...prev, operator])
                                   )
                                 }
-                                className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
+                                className="inline-flex -translate-y-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-green-800 hover:decoration-green-300"
                               >
                                 شاهد {additionalPlans.length} باقات أخرى من {operator}
                               </button>
@@ -231,7 +231,7 @@ export function MobileComparison() {
                                       return next;
                                     })
                                   }
-                                  className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
+                                  className="inline-flex -translate-y-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-slate-900"
                                 >
                                   إخفاء عروض {operator}
                                 </button>
