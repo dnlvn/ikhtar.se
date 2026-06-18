@@ -17,7 +17,7 @@ const internalLinks = [
   { label: "قارن جميع باقات الجوال", href: "/mobilabonnemang" },
   { label: "أرخص اشتراك جوال", href: "/mobilabonnemang/billigaste" },
   { label: "باقات بدون التزام", href: "/mobilabonnemang/utan-bindningstid" },
-  { label: "كم إنترنت أحتاج؟", href: "/guider/hur-mycket-surf" },
+  { label: "كم إنترنت أحتاج؟", href: "/mobilabonnemang/hur-mycket-surf" },
 ];
 
 export function ComviqMobileSeoPage() {
