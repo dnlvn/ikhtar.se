@@ -8,6 +8,11 @@ import { getActiveMobileProviderPromotion } from "@/lib/mobileProviderConfig";
 type MobilePlansTeaserWidgetProps = {
   intent?: "cheapest" | "operator" | "no-binding" | "data-guide";
   operatorSlug?: string;
+  title?: string;
+  subtitle?: string;
+  showAllOperatorPlans?: boolean;
+  showDetailedPricing?: boolean;
+  fallbackMessage?: string;
 };
 
 function getOperatorKey(plan: Plan) {
@@ -24,6 +29,36 @@ function matchesOperator(plan: Plan, operatorSlug?: string) {
   }
 
   return title.includes(operatorSlug);
+}
+
+function getAverage12MonthPrice(plan: Plan) {
+  const campaignPrice = plan.campaign?.price;
+  const campaignMonths = plan.campaign?.months;
+
+  if (
+    campaignPrice == null ||
+    campaignMonths == null ||
+    campaignMonths <= 0 ||
+    plan.regularPrice == null ||
+    plan.regularPrice <= 0
+  ) {
+    return null;
+  }
+
+  const cappedCampaignMonths = Math.min(campaignMonths, 12);
+  const totalCost =
+    campaignPrice * cappedCampaignMonths +
+    plan.regularPrice * (12 - cappedCampaignMonths);
+
+  return Math.round(totalCost / 12);
+}
+
+function getPostCampaignPrice(plan: Plan) {
+  if (plan.campaign?.price == null || plan.regularPrice == null) {
+    return null;
+  }
+
+  return plan.regularPrice > plan.price ? plan.regularPrice : null;
 }
 
 function selectCheapestUniqueOperatorPlans(plans: Plan[]) {
@@ -52,8 +87,18 @@ function selectCheapestUniqueOperatorPlans(plans: Plan[]) {
   return plans.slice(0, 3);
 }
 
-function selectOperatorPlans(plans: Plan[], operatorSlug?: string) {
-  const operatorPlan = plans.find((plan) => matchesOperator(plan, operatorSlug));
+function selectOperatorPlans(
+  plans: Plan[],
+  operatorSlug?: string,
+  showAllOperatorPlans = false
+) {
+  const operatorPlans = plans.filter((plan) => matchesOperator(plan, operatorSlug));
+
+  if (showAllOperatorPlans) {
+    return operatorPlans;
+  }
+
+  const operatorPlan = operatorPlans[0];
   const alternatives = selectCheapestUniqueOperatorPlans(
     plans.filter((plan) => !matchesOperator(plan, operatorSlug))
   );
@@ -78,10 +123,11 @@ function selectDataGuidePlans(plans: Plan[]) {
 function selectTeaserPlans(
   plans: Plan[],
   intent: MobilePlansTeaserWidgetProps["intent"],
-  operatorSlug?: string
+  operatorSlug?: string,
+  showAllOperatorPlans = false
 ) {
   if (intent === "operator") {
-    return selectOperatorPlans(plans, operatorSlug);
+    return selectOperatorPlans(plans, operatorSlug, showAllOperatorPlans);
   }
 
   if (intent === "no-binding") {
@@ -112,11 +158,11 @@ function trackAndOpenOffer(plan: Plan) {
   window.open(ctaUrl, "_blank", "noopener,noreferrer");
 }
 
-function FallbackCtaCard() {
+function FallbackCtaCard({ message }: { message?: string }) {
   return (
     <div className="rounded-[16px] border border-emerald-200/70 bg-emerald-50 p-5 text-center">
       <p className="mb-4 text-sm leading-relaxed text-emerald-900">
-        انتقل إلى صفحة المقارنة لمشاهدة العروض الحالية المحدثة من المشغّلين.
+        {message || "انتقل إلى صفحة المقارنة لمشاهدة العروض الحالية المحدثة من المشغّلين."}
       </p>
       <Link
         to="/mobilabonnemang"
@@ -129,9 +175,17 @@ function FallbackCtaCard() {
   );
 }
 
-function TeaserPlanCard({ plan }: { plan: Plan }) {
+function TeaserPlanCard({
+  plan,
+  showDetailedPricing = false,
+}: {
+  plan: Plan;
+  showDetailedPricing?: boolean;
+}) {
   const operatorLogo = getOperatorLogo(plan.title);
   const hasOfferLink = Boolean(plan.sourceUrl || getActiveMobileProviderPromotion(plan.title)?.promotionUrl);
+  const average12MonthPrice = getAverage12MonthPrice(plan);
+  const postCampaignPrice = getPostCampaignPrice(plan);
 
   return (
     <div className="rounded-[14px] border border-slate-200 bg-white p-4 shadow-sm">
@@ -176,6 +230,17 @@ function TeaserPlanCard({ plan }: { plan: Plan }) {
         </div>
       </div>
 
+      {showDetailedPricing && (average12MonthPrice || postCampaignPrice) && (
+        <div className="mb-4 space-y-1 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 text-right text-xs font-bold text-slate-600">
+          {average12MonthPrice && (
+            <p>متوسط 12 شهر: {average12MonthPrice} كرونة/شهر</p>
+          )}
+          {postCampaignPrice && (
+            <p>بعد العرض: {postCampaignPrice} كرونة/شهر</p>
+          )}
+        </div>
+      )}
+
       <button
         type="button"
         onClick={() => trackAndOpenOffer(plan)}
@@ -197,6 +262,11 @@ function TeaserPlanCard({ plan }: { plan: Plan }) {
 export function MobilePlansTeaserWidget({
   intent = "cheapest",
   operatorSlug,
+  title = "أرخص الباقات حالياً",
+  subtitle = "عروض محدّثة من مواقع المشغّلين",
+  showAllOperatorPlans = false,
+  showDetailedPricing = false,
+  fallbackMessage,
 }: MobilePlansTeaserWidgetProps) {
   const { plans, loading, error } = usePlans();
   const { filteredPlans } = useFilteredPlans({
@@ -205,17 +275,22 @@ export function MobilePlansTeaserWidget({
     sortBy: "price-asc",
   });
 
-  const teaserPlans = selectTeaserPlans(filteredPlans, intent, operatorSlug);
+  const teaserPlans = selectTeaserPlans(
+    filteredPlans,
+    intent,
+    operatorSlug,
+    showAllOperatorPlans
+  );
 
   return (
     <section className="mx-auto max-w-4xl px-4 pb-8">
       <div className="rounded-[18px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="mb-5 flex flex-col gap-2 text-right sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-black text-slate-900">أرخص الباقات حالياً</h2>
+            <h2 className="text-2xl font-black text-slate-900">{title}</h2>
             <p className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
               <RefreshCw className="h-4 w-4 text-green-600" />
-              عروض محدّثة من مواقع المشغّلين
+              {subtitle}
             </p>
           </div>
         </div>
@@ -228,15 +303,27 @@ export function MobilePlansTeaserWidget({
           </div>
         )}
 
-        {!loading && (error || teaserPlans.length === 0) && <FallbackCtaCard />}
+        {!loading && (error || teaserPlans.length === 0) && (
+          <FallbackCtaCard message={fallbackMessage} />
+        )}
 
         {!loading && !error && teaserPlans.length > 0 && (
           <>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               {teaserPlans.map((plan) => (
-                <TeaserPlanCard key={plan.id} plan={plan} />
+                <TeaserPlanCard
+                  key={plan.id}
+                  plan={plan}
+                  showDetailedPricing={showDetailedPricing}
+                />
               ))}
             </div>
+
+            {showAllOperatorPlans && teaserPlans.length <= 1 && fallbackMessage && (
+              <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-right text-sm font-semibold text-amber-900">
+                {fallbackMessage}
+              </p>
+            )}
 
             <div className="mt-5 flex justify-center sm:justify-end">
               <Link
