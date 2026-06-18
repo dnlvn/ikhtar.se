@@ -2,9 +2,9 @@ import { createBrowserRouter } from "react-router";
 import { Layout } from "@/app/components/Layout";
 import { LandingPage } from "@/app/pages/LandingPage";
 import { MobileComparison } from "@/app/pages/MobileComparison";
+import { ComviqMobileSeoPage } from "@/app/pages/ComviqMobileSeoPage";
 import {
   CheapestMobileSubscriptionPage,
-  ComviqMobileSeoPage,
   FelloMobileSeoPage,
   NoBindingMobileSeoPage,
   SurfGuideMobileSeoPage,
