@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import { Layout } from "@/app/components/Layout";
 import { LandingPage } from "@/app/pages/LandingPage";
 import { MobileComparison } from "@/app/pages/MobileComparison";
@@ -73,7 +73,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "guider/hur-mycket-surf",
-        Component: SurfGuideMobileSeoPage,
+        loader: () => redirect("/mobilabonnemang/hur-mycket-surf"),
       },
       {
         path: "elavtal",
