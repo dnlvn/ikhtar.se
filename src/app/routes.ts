@@ -68,6 +68,10 @@ export const router = createBrowserRouter([
         Component: NoBindingMobileSeoPage,
       },
       {
+        path: "mobilabonnemang/hur-mycket-surf",
+        Component: SurfGuideMobileSeoPage,
+      },
+      {
         path: "guider/hur-mycket-surf",
         Component: SurfGuideMobileSeoPage,
       },
