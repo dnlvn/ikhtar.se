@@ -1,10 +1,10 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import { Layout } from "@/app/components/Layout";
 import { LandingPage } from "@/app/pages/LandingPage";
 import { MobileComparison } from "@/app/pages/MobileComparison";
+import { ComviqMobileSeoPage } from "@/app/pages/ComviqMobileSeoPage";
 import {
   CheapestMobileSubscriptionPage,
-  ComviqMobileSeoPage,
   FelloMobileSeoPage,
   NoBindingMobileSeoPage,
   SurfGuideMobileSeoPage,
@@ -68,8 +68,12 @@ export const router = createBrowserRouter([
         Component: NoBindingMobileSeoPage,
       },
       {
-        path: "guider/hur-mycket-surf",
+        path: "mobilabonnemang/hur-mycket-surf",
         Component: SurfGuideMobileSeoPage,
+      },
+      {
+        path: "guider/hur-mycket-surf",
+        loader: () => redirect("/mobilabonnemang/hur-mycket-surf"),
       },
       {
         path: "elavtal",

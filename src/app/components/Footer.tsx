@@ -12,7 +12,7 @@ export function Footer() {
     { href: '/mobilabonnemang/telenor', label: 'عروض Telenor' },
     { href: '/mobilabonnemang/telia', label: 'عروض Telia' },
     { href: '/mobilabonnemang/utan-bindningstid', label: 'باقات بدون التزام' },
-    { href: '/guider/hur-mycket-surf', label: 'كم إنترنت أحتاج؟' },
+    { href: '/mobilabonnemang/hur-mycket-surf', label: 'كم إنترنت أحتاج؟' },
   ];
 
   return (
