@@ -47,12 +47,6 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   },
   {
     vertical: 'electricity',
-    provider: 'Cheap Energy',
-    affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756&u=https%3A%2F%2Fwww.cheapenergy.se%2Fteckna-elavtal%2F',
-    aliases: ['Cheap Energy AB'],
-  },
-  {
-    vertical: 'electricity',
     provider: 'Kärnfull Energi',
     affiliateUrl: 'https://addrevenue.io/t?a=984789&c=3467756&u=https%3A%2F%2Fwww.karnfull.se%2Fsignup%2F',
     aliases: ['Karnfull Energi'],
