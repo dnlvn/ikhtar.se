@@ -31,6 +31,22 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   },
   {
     vertical: 'electricity',
+    provider: 'Eon',
+    affiliateUrl: 'https://go.adt256.com/t/t?a=2028688348&as=2043693860&t=2&tk=1',
+    aliases: ['E.ON', 'E.ON Energi', 'E.ON Energilösningar', 'E.ON Försäljning'],
+  },
+  {
+    vertical: 'electricity',
+    provider: 'Telinet Energi',
+    affiliateUrl: 'https://at.telinet.se/t/t?a=1870484942&as=2043693860&t=2&tk=1',
+  },
+  {
+    vertical: 'electricity',
+    provider: 'Bixia',
+    affiliateUrl: 'https://to.bixia.se/t/t?a=1934384583&as=2043693860&t=2&tk=1',
+  },
+  {
+    vertical: 'electricity',
     provider: 'Cheap Energy',
     affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756&u=https%3A%2F%2Fwww.cheapenergy.se%2Fteckna-elavtal%2F',
     aliases: ['Cheap Energy AB'],
