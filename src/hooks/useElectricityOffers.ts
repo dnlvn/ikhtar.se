@@ -309,8 +309,8 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
   const agreementType = agreementTypeValue ? String(agreementTypeValue) : undefined;
   const agreementCategory = classifyAgreement(row, agreementName, agreementType);
   const cancellationPeriod = getValue(row, CANCELLATION_PERIOD_KEYS);
-  const affiliateUrl = getEffectiveAffiliateUrl({ vertical: 'electricity', provider });
-  const affiliateUrlType = getEffectiveAffiliateUrlType({ vertical: 'electricity', provider });
+  const affiliateUrl = getEffectiveAffiliateUrl({ vertical: 'electricity', provider, annualUsage });
+  const affiliateUrlType = getEffectiveAffiliateUrlType({ vertical: 'electricity', provider, annualUsage });
 
   if (!affiliateUrl || !affiliateUrlType) {
     if (import.meta.env.DEV) {
@@ -365,97 +365,57 @@ export function useElectricityOffers({
 
     const controller = new AbortController();
 
-    async function fetchOffers() {
-      try {
-        setLoading(true);
-        setError(null);
+    async function loadOffers() {
+      setLoading(true);
+      setError(null);
 
+      try {
         const params = new URLSearchParams({
           postNummer: cleanPostcode,
           forbrukning: String(annualUsage),
         });
-
         const response = await fetch(`/api/elpriskollen?${params.toString()}`, {
           signal: controller.signal,
         });
 
-        console.info('[Ikhtar elavtal] Hämtar Elpriskollen-data', {
-          postNummer: cleanPostcode,
-          forbrukning: annualUsage,
-          url: `/api/elpriskollen?${params.toString()}`,
-        });
-
-        if (!response.ok) {
-          throw new Error('تعذّر تحميل عروض الكهرباء الآن.');
-        }
+        if (!response.ok) throw new Error('Kunde inte hämta elavtal');
 
         const payload = await response.json();
         const rows = flattenRows(payload);
-        const bestOfferByProvider = new Map<string, ElectricityOffer>();
-        const providerNames = rows
-          .map((row) => getProviderName(row))
-          .filter(Boolean);
-        const unmatchedProviders = new Set<string>();
-        let matchedOffers = 0;
-        let monetizedOffers = 0;
+        const transformed = rows
+          .map((row, index) => transformOffer(row, annualUsage, index))
+          .filter((offer): offer is ElectricityOffer => Boolean(offer));
 
-        rows.forEach((row, index) => {
-          const offer = transformOffer(row, annualUsage, index);
-          if (!offer) {
-            const providerName = getProviderName(row);
-            if (providerName) unmatchedProviders.add(providerName);
-            return;
-          }
-
-          if (agreementFilter !== 'all' && offer.agreementCategory !== agreementFilter) {
-            return;
-          }
-
-          matchedOffers += 1;
-          monetizedOffers += 1;
-
+        const cheapestByProvider = new Map<string, ElectricityOffer>();
+        for (const offer of transformed) {
           const providerSlug = getProviderSlug(offer.provider);
-          const currentBest = bestOfferByProvider.get(providerSlug);
-          if (
-            !currentBest ||
-            offer.estimatedMonthlyCost < currentBest.estimatedMonthlyCost ||
-            (
-              offer.estimatedMonthlyCost === currentBest.estimatedMonthlyCost &&
-              offer.comparisonPriceOre < currentBest.comparisonPriceOre
-            )
-          ) {
-            bestOfferByProvider.set(providerSlug, offer);
+          const existingOffer = cheapestByProvider.get(providerSlug);
+          const existingPrice = existingOffer?.estimatedMonthlyCost ?? Number.POSITIVE_INFINITY;
+
+          if (!existingOffer || offer.estimatedMonthlyCost < existingPrice) {
+            cheapestByProvider.set(providerSlug, offer);
           }
-        });
+        }
 
-        console.info('[Ikhtar elavtal] Elpriskollen-resultat', {
-          totalRows: rows.length,
-          providerNames: Array.from(new Set(providerNames)).slice(0, 40),
-          matchedOffers,
-          monetizedOffers,
-          agreementFilter,
-          displayedProviders: bestOfferByProvider.size,
-          unmatchedProviders: Array.from(unmatchedProviders).slice(0, 40),
-        });
+        const sortedOffers = Array.from(cheapestByProvider.values())
+          .filter((offer) => agreementFilter === 'all' || offer.agreementCategory === agreementFilter)
+          .sort((a, b) => a.estimatedMonthlyCost - b.estimatedMonthlyCost);
 
-        setOffers(
-          Array.from(bestOfferByProvider.values()).sort(
-            (a, b) => a.estimatedMonthlyCost - b.estimatedMonthlyCost
-          )
-        );
+        setOffers(sortedOffers);
       } catch (err) {
         if (controller.signal.aborted) return;
+        console.error('[Ikhtar elavtal] Kunde inte hämta avtal', err);
         setOffers([]);
-        setError(err instanceof Error ? err.message : 'تعذّر تحميل عروض الكهرباء الآن.');
+        setError('Kunde inte hämta elavtal just nu. Försök igen om en liten stund.');
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
     }
 
-    fetchOffers();
+    loadOffers();
 
     return () => controller.abort();
-  }, [agreementFilter, annualUsage, canSearch, cleanPostcode]);
+  }, [annualUsage, canSearch, cleanPostcode, agreementFilter]);
 
   return useMemo(
     () => ({
