@@ -11,6 +11,7 @@ interface AffiliateLink {
   provider: string;
   affiliateUrl: string;
   aliases?: string[];
+  maxExclusiveAnnualUsageKwh?: number;
 }
 
 const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
@@ -47,6 +48,13 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   },
   {
     vertical: 'electricity',
+    provider: 'Cheap Energy',
+    affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756&u=https%3A%2F%2Fwww.cheapenergy.se%2Fteckna-elavtal%2F',
+    aliases: ['Cheap Energy AB'],
+    maxExclusiveAnnualUsageKwh: 1900,
+  },
+  {
+    vertical: 'electricity',
     provider: 'Kärnfull Energi',
     affiliateUrl: 'https://addrevenue.io/t?a=984789&c=3467756&u=https%3A%2F%2Fwww.karnfull.se%2Fsignup%2F',
     aliases: ['Karnfull Energi'],
@@ -69,6 +77,12 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   },
   {
     vertical: 'electricity',
+    provider: 'Svekraft',
+    affiliateUrl: 'https://addrevenue.io/t?a=985245&c=3467756',
+    maxExclusiveAnnualUsageKwh: 1900,
+  },
+  {
+    vertical: 'electricity',
     provider: 'Dalakraft',
     affiliateUrl: 'https://dot.dalakraft.se/t/t?a=1970530769&as=2043693860&t=2&tk=1&url=www.dalakraft.se/elavtal/affiliate-jamforelse/?nav_id=24900&ttl=30#blikund',
     aliases: ['Dala Kraft'],
@@ -84,16 +98,28 @@ function matchesProvider(link: AffiliateLink, provider: string): boolean {
   );
 }
 
+function matchesAnnualUsage(link: AffiliateLink, annualUsage?: number): boolean {
+  if (link.maxExclusiveAnnualUsageKwh === undefined) return true;
+  if (annualUsage === undefined) return false;
+
+  return annualUsage < link.maxExclusiveAnnualUsageKwh;
+}
+
 export function getAffiliateUrl({
   vertical,
   provider,
+  annualUsage,
 }: {
   vertical: AffiliateVertical;
   provider: string;
+  annualUsage?: number;
 }): string | null {
   return (
     ELECTRICITY_AFFILIATE_LINKS.find(
-      (link) => link.vertical === vertical && matchesProvider(link, provider)
+      (link) =>
+        link.vertical === vertical &&
+        matchesProvider(link, provider) &&
+        matchesAnnualUsage(link, annualUsage)
     )?.affiliateUrl ?? null
   );
 }
@@ -101,29 +127,33 @@ export function getAffiliateUrl({
 export function getEffectiveAffiliateUrl({
   vertical,
   provider,
+  annualUsage,
   date = new Date(),
 }: {
   vertical: AffiliateVertical;
   provider: string;
+  annualUsage?: number;
   date?: Date;
 }): string | null {
   const activePromotion = getActivePromotion({ vertical, provider, date });
   if (activePromotion?.campaignUrl) return activePromotion.campaignUrl;
 
-  return getAffiliateUrl({ vertical, provider });
+  return getAffiliateUrl({ vertical, provider, annualUsage });
 }
 
 export function getEffectiveAffiliateUrlType({
   vertical,
   provider,
+  annualUsage,
   date = new Date(),
 }: {
   vertical: AffiliateVertical;
   provider: string;
+  annualUsage?: number;
   date?: Date;
 }): AffiliateUrlType | null {
   const activePromotion = getActivePromotion({ vertical, provider, date });
   if (activePromotion?.campaignUrl) return 'campaign';
 
-  return getAffiliateUrl({ vertical, provider }) ? 'standard' : null;
+  return getAffiliateUrl({ vertical, provider, annualUsage }) ? 'standard' : null;
 }
