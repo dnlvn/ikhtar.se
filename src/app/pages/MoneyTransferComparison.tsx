@@ -72,12 +72,12 @@ export function MoneyTransferComparison() {
         <link rel="canonical" href="https://ikhtar.se/money-transfer" />
       </Helmet>
 
-      <div dir="rtl" className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-stone-50 text-stone-950">
-        <section className="relative overflow-hidden bg-gradient-to-br from-stone-50 via-white to-amber-50/50 px-4 pb-5 pt-7 sm:pb-8 sm:pt-10">
+      <div dir="rtl" className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-stone-50 text-stone-950">
+        <section className="relative overflow-hidden bg-gradient-to-br from-rose-50 via-white to-amber-50/60 px-4 pb-5 pt-7 sm:pb-8 sm:pt-10">
           <div className="mx-auto max-w-4xl">
             <div className="mb-5 flex justify-center">
               <div className="flex items-center gap-2.5" dir="ltr">
-                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-stone-100 text-[#302B27] ring-1 ring-stone-200 shadow-sm">
+                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-rose-50 text-[#710627] ring-1 ring-rose-100 shadow-sm">
                   <ArrowLeftRight className="h-8 w-8" strokeWidth={2.5} />
                 </div>
                 <div className="flex items-baseline leading-none">
@@ -90,7 +90,7 @@ export function MoneyTransferComparison() {
             <div className="mx-auto mb-5 max-w-3xl text-center">
               <h1 className="mb-3 text-4xl font-black leading-tight text-stone-950 sm:text-5xl lg:text-6xl">
                 قارن أسعار{' '}
-                <span className="bg-gradient-to-r from-[#302B27] via-stone-700 to-amber-700 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#710627] via-rose-800 to-[#F2B84B] bg-clip-text text-transparent">
                   تحويل الأموال
                 </span>
               </h1>
@@ -100,12 +100,12 @@ export function MoneyTransferComparison() {
 
               <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-stone-600">
                 <div className="inline-flex items-center gap-1.5">
-                  <RefreshCw className="h-4 w-4 text-[#302B27]" />
+                  <RefreshCw className="h-4 w-4 text-[#710627]" />
                   <span className="text-[12px] font-bold">تحديث منتظم للأسعار والرسوم</span>
                 </div>
                 <div className="h-4 w-px bg-stone-200" />
                 <div className="inline-flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-[#302B27]" />
+                  <ShieldCheck className="h-4 w-4 text-[#710627]" />
                   <span className="text-[12px] font-bold">نقارن مزودي تحويل الأموال</span>
                 </div>
               </div>
@@ -127,8 +127,8 @@ export function MoneyTransferComparison() {
         </section>
 
         <main className="mx-auto max-w-4xl px-4 py-5">
-          <div className="mb-4 rounded-[22px] bg-white px-4 py-4 text-center shadow-sm ring-1 ring-stone-200/70">
-            <div className="mb-1 flex items-center justify-center gap-1.5 text-[13px] font-black text-[#302B27]">
+          <div className="mb-4 rounded-[22px] bg-white px-4 py-4 text-center shadow-sm ring-1 ring-rose-100/80">
+            <div className="mb-1 flex items-center justify-center gap-1.5 text-[13px] font-black text-[#710627]">
               <Check className="h-4 w-4" />
               مقارنة تجريبية للرسوم والأسعار
             </div>
@@ -147,8 +147,8 @@ export function MoneyTransferComparison() {
             {loading && (
               <div className="grid grid-cols-1 gap-3">
                 {[0, 1, 2].map((item) => (
-                  <div key={item} className="h-[214px] animate-pulse rounded-xl border border-stone-200 bg-white shadow-sm">
-                    <div className="h-full rounded-xl bg-gradient-to-r from-stone-100 via-white to-stone-100" />
+                  <div key={item} className="h-[214px] animate-pulse rounded-xl border border-rose-100 bg-white shadow-sm">
+                    <div className="h-full rounded-xl bg-gradient-to-r from-rose-50 via-white to-stone-100" />
                   </div>
                 ))}
               </div>
@@ -171,9 +171,9 @@ export function MoneyTransferComparison() {
             )}
           </section>
 
-          <div className="mt-6 rounded-[24px] bg-[#302B27] p-5 text-center text-white shadow-[0_18px_42px_rgba(48,43,39,0.22)]">
+          <div className="mt-6 rounded-[24px] bg-[#710627] p-5 text-center text-white shadow-[0_18px_42px_rgba(113,6,39,0.24)]">
             <h2 className="mb-2 text-xl font-black">حوّل المال بثقة</h2>
-            <p className="text-[13px] leading-7 text-stone-200">
+            <p className="text-[13px] leading-7 text-rose-50">
               نقارن الرسوم وسعر الصرف ووقت التحويل حتى تختار العرض الأنسب بسرعة.
             </p>
           </div>
