@@ -58,11 +58,11 @@ export function MoneyTransferOfferCard({
           <div
             className={`inline-flex items-center justify-center gap-1.5 rounded-full border text-center leading-tight shadow-sm ${
               isBestDeal
-                ? 'border-amber-500 bg-gradient-to-r from-amber-100 via-orange-50 to-stone-50 px-5 py-2 text-[13px] font-black text-[#302B27] shadow-[0_10px_28px_rgba(180,83,9,0.22)]'
-                : 'border-amber-200 bg-white px-3.5 py-1.5 text-[11px] font-bold text-amber-700'
+                ? 'border-[#F2B84B] bg-gradient-to-r from-[#F2B84B]/35 via-white to-rose-50 px-5 py-2 text-[13px] font-black text-[#710627] shadow-[0_10px_28px_rgba(113,6,39,0.18)]'
+                : 'border-[#F2B84B]/60 bg-white px-3.5 py-1.5 text-[11px] font-bold text-[#710627]'
             }`}
           >
-            <Sparkles className={isBestDeal ? 'h-4 w-4 text-amber-600' : 'h-3 w-3 text-amber-500'} />
+            <Sparkles className={isBestDeal ? 'h-4 w-4 text-[#F2B84B]' : 'h-3 w-3 text-[#F2B84B]'} />
             {quote.badgeTextAr}
           </div>
         </div>
@@ -72,14 +72,14 @@ export function MoneyTransferOfferCard({
         onClick={handleClick}
         className={`relative overflow-visible rounded-xl border bg-white p-[14px] shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
           isTopDeal
-            ? 'border-amber-300 bg-gradient-to-br from-amber-50/70 via-white to-stone-50/80 shadow-amber-100/50'
+            ? 'border-[#F2B84B] bg-gradient-to-br from-rose-50/60 via-white to-amber-50/50 shadow-rose-100/50'
             : 'border-stone-200/70'
         }`}
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col items-end text-right">
             <div className="mb-1 flex h-[42px] items-center justify-end">
-              <div className="flex h-10 min-w-10 items-center justify-center rounded-xl bg-stone-100 px-2 text-[13px] font-black text-[#302B27] ring-1 ring-stone-200">
+              <div className="flex h-10 min-w-10 items-center justify-center rounded-xl bg-rose-50 px-2 text-[13px] font-black text-[#710627] ring-1 ring-rose-100">
                 {quote.provider.logoText}
               </div>
             </div>
@@ -115,7 +115,7 @@ export function MoneyTransferOfferCard({
           <div className="rounded-[16px] bg-stone-50 px-3 py-2 ring-1 ring-stone-100">
             <span className="block text-[10px] font-bold text-stone-500">المدة</span>
             <span className="inline-flex items-center gap-1 text-[14px] font-black text-stone-950">
-              <Clock3 className="h-4 w-4 text-[#302B27]" />
+              <Clock3 className="h-4 w-4 text-[#710627]" />
               {quote.transferTimeAr}
             </span>
           </div>
@@ -134,11 +134,27 @@ export function MoneyTransferOfferCard({
             event.stopPropagation();
             handleClick();
           }}
-          className={`mt-4 flex min-h-[50px] w-full items-center justify-center rounded-[18px] px-5 text-[16px] font-black text-white transition active:scale-[0.99] ${
-            isBestDeal
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_12px_26px_rgba(245,158,11,0.28)]'
-              : 'bg-[#302B27] hover:bg-[#1f1b18]'
-          }`}
+          className={`
+            mt-4 min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl font-bold uppercase sm:px-5
+            transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
+            cursor-pointer relative overflow-hidden
+            ${isTopDeal
+              ? rank === 1
+                ? 'text-[14px] sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
+                : 'text-[12px] sm:text-[13px] text-white shadow-lg hover:brightness-110'
+              : 'w-full text-[12px] sm:text-[13px] bg-[#710627] text-white border-2 border-[#710627] hover:bg-[#52041d]'
+            }
+          `}
+          style={isTopDeal ? {
+            backgroundImage: rank === 1
+              ? 'linear-gradient(to right, #f97316 0%, #facc15 48%, #f97316 100%)'
+              : 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
+            backgroundSize: rank === 1 ? '200% auto' : undefined,
+            animation: rank === 1 ? 'shimmer-slide 3s ease-in-out infinite' : undefined,
+            borderRadius: '0.75rem',
+          } : {
+            borderRadius: '0.75rem',
+          }}
         >
           شاهد العرض
         </button>
