@@ -188,7 +188,7 @@ export function getMoneyTransferQuotes({
   const amountInSek = amount * (CURRENCY_TO_SEK[currency] ?? 1);
   const destinationBaseRate = DESTINATION_RATE_FROM_SEK[targetCountry.code] ?? 1;
 
-  return MONEY_TRANSFER_PROVIDERS.map((provider, index) => {
+  return MONEY_TRANSFER_PROVIDERS.map((provider) => {
     const feeInInputCurrency = provider.baseFeeSek / (CURRENCY_TO_SEK[currency] ?? 1);
     const exchangeRate = destinationBaseRate * (CURRENCY_TO_SEK[currency] ?? 1) * provider.rateAdjustment;
     const recipientGets = Math.max(0, (amountInSek - provider.baseFeeSek) * destinationBaseRate * provider.rateAdjustment);
@@ -204,9 +204,14 @@ export function getMoneyTransferQuotes({
       exchangeRate,
       transferTimeAr: provider.transferTimeAr,
       deliveryMethod,
-      badgeTextAr: index === 0 ? 'أفضل سعر' : provider.recommended ? 'موصى به' : provider.transferTimeAr.includes('دقائق') ? 'سريع' : 'موصى به',
+      badgeTextAr: 'موصى به',
     };
-  }).sort((a, b) => b.recipientGets - a.recipientGets);
+  })
+    .sort((a, b) => b.recipientGets - a.recipientGets)
+    .map((quote, index) => ({
+      ...quote,
+      badgeTextAr: index === 0 ? 'أفضل سعر' : quote.transferTimeAr.includes('دقائق') ? 'سريع' : 'موصى به',
+    }));
 }
 
 export function formatMoneyTransferNumber(value: number): string {
