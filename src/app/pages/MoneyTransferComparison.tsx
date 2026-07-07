@@ -11,8 +11,6 @@ import {
   getSendCountry,
 } from '@/lib/moneyTransferData';
 
-const MONEY_TRANSFER_PRIMARY = '#302B27';
-
 export function MoneyTransferComparison() {
   const [fromCountry, setFromCountry] = useState('se');
   const [toCountry, setToCountry] = useState('sy');
