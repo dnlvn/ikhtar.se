@@ -3,7 +3,6 @@ import {
   MONEY_TRANSFER_CURRENCIES,
   RECEIVE_COUNTRIES,
   SEND_COUNTRIES,
-  type MoneyTransferCountry,
 } from '@/lib/moneyTransferData';
 
 interface MoneyTransferSearchProps {
@@ -17,14 +16,6 @@ interface MoneyTransferSearchProps {
   onAmountChange: (value: string) => void;
   onCurrencyChange: (value: string) => void;
   onSearch: () => void;
-}
-
-function CountryOptionLabel({ country }: { country: MoneyTransferCountry }) {
-  return (
-    <>
-      {country.flag} {country.nameAr}
-    </>
-  );
 }
 
 export function MoneyTransferSearch({
@@ -79,7 +70,7 @@ export function MoneyTransferSearch({
             >
               {RECEIVE_COUNTRIES.map((country) => (
                 <option key={country.code} value={country.code}>
-                  <CountryOptionLabel country={country} />
+                  {country.flag} {country.nameAr}
                 </option>
               ))}
             </select>
