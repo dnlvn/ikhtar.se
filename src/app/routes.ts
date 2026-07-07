@@ -15,6 +15,7 @@ import {
   VimlaMobileSeoPage,
 } from "@/app/pages/MobileSeoPage";
 import { ElectricityComparison } from "@/app/pages/ElectricityComparison";
+import { MoneyTransferComparison } from "@/app/pages/MoneyTransferComparison";
 import { Integritetspolicy } from "@/app/pages/Integritetspolicy";
 import { Cookies } from "@/app/pages/Cookies";
 
@@ -78,6 +79,10 @@ export const router = createBrowserRouter([
       {
         path: "elavtal",
         Component: ElectricityComparison,
+      },
+      {
+        path: "money-transfer",
+        Component: MoneyTransferComparison,
       },
       {
         path: "integritetspolicy",
