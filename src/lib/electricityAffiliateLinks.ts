@@ -48,6 +48,12 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   },
   {
     vertical: 'electricity',
+    provider: 'Göteborg Energi',
+    affiliateUrl: 'https://goteborgenergi.se/alkompis',
+    aliases: ['Goteborg Energi', 'Göteborg Energi Din El', 'Göteborg Energi Din El AB'],
+  },
+  {
+    vertical: 'electricity',
     provider: 'Cheap Energy',
     affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756&u=https%3A%2F%2Fwww.cheapenergy.se%2Fteckna-elavtal%2F',
     aliases: ['Cheap Energy AB'],
