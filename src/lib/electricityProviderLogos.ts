@@ -6,6 +6,7 @@ export type ElectricityProviderSlug =
   | 'greenely'
   | 'eon'
   | 'bixia'
+  | 'goteborg-energi'
   | 'tibber'
   | 'dalakraft'
   | 'enkla-elbolaget'
@@ -24,6 +25,7 @@ export const ELECTRICITY_PROVIDER_LOGOS: Record<ElectricityProviderSlug, string>
   greenely: '/assets/electricity-providers/greenly.png',
   eon: '/assets/electricity-providers/eon.png',
   bixia: '/assets/electricity-providers/bixia.png',
+  'goteborg-energi': '/assets/electricity-providers/goteborg-energi.png',
   tibber: '/assets/electricity-providers/tibber.png',
   dalakraft: '/assets/electricity-providers/dalakraft.png',
   'enkla-elbolaget': '/assets/electricity-providers/enkla-elbolaget.png',
@@ -47,6 +49,7 @@ function slugifyElectricityProvider(input?: string | null): ElectricityProviderS
   if (value.includes('greenely') || value.includes('greenly')) return 'greenely';
   if (value.includes('e.on') || value.includes('eon')) return 'eon';
   if (value.includes('bixia')) return 'bixia';
+  if (value.includes('göteborg energi') || value.includes('goteborg energi')) return 'goteborg-energi';
   if (value.includes('tibber')) return 'tibber';
   if (value.includes('dalakraft') || value.includes('dala kraft')) return 'dalakraft';
   if (value.includes('enkla elbolaget')) return 'enkla-elbolaget';
