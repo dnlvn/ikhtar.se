@@ -101,6 +101,14 @@ function TopCardBadgeIcon({ rank, className }: { rank: number; className: string
   return <Check className={`h-3 w-3 ${className}`} strokeWidth={2.6} />;
 }
 
+function isGoteborgEnergi(provider: string): boolean {
+  return provider
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .includes('goteborg energi');
+}
+
 export function ElectricityOfferCard({
   offer,
   rank,
@@ -108,13 +116,17 @@ export function ElectricityOfferCard({
   postcode,
 }: ElectricityOfferCardProps) {
   const isBestDeal = rank <= 3;
+  const isGoteborgEnergiOffer = isGoteborgEnergi(offer.provider);
+  const hasGoteborgGreenTreatment = isGoteborgEnergiOffer && !isBestDeal;
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
     1: 'أفضل سعر اليوم',
     2: 'خيار شائع',
     3: 'خيار ذكي',
   };
-  const badgeLabel = badgeLabelByRank[rank];
+  const badgeLabel = isGoteborgEnergiOffer
+    ? rank === 1 ? 'أفضل سعر اليوم' : 'خيار موثوق'
+    : badgeLabelByRank[rank];
   const badgeVariant = getSelectedTopCardBadgeVariant();
   const badgeClasses = badgeLabel ? getTopCardBadgeClasses(rank, badgeVariant) : null;
   const agreementTypeLabel = getArabicAgreementTypeLabel(offer);
@@ -163,7 +175,9 @@ export function ElectricityOfferCard({
         onClick={handleClick}
         className={`
           relative overflow-visible rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer
-          ${isBestDeal
+          ${hasGoteborgGreenTreatment
+            ? 'bg-gradient-to-br from-emerald-50/90 via-white to-lime-50/60 border-2 border-[#278700] shadow-[0_0_24px_rgba(39,135,0,0.28)] hover:shadow-[0_0_34px_rgba(39,135,0,0.42)]'
+            : isBestDeal
             ? `bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/60 border-2 border-amber-400 shadow-amber-200/40 shadow-lg hover:shadow-xl hover:shadow-amber-300/50 ${rank === 1 ? 'animate-pulse-subtle' : ''}`
             : 'bg-white border border-slate-200/60'
           }
@@ -171,9 +185,22 @@ export function ElectricityOfferCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {badgeLabel && (
-          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${badgeClasses?.wrapper}`}>
-            <div className={badgeClasses?.badge}>
-              <TopCardBadgeIcon rank={rank} className={badgeClasses?.accent ?? ''} />
+          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${isGoteborgEnergiOffer ? '-top-4' : badgeClasses?.wrapper}`}>
+            <div
+              className={isGoteborgEnergiOffer
+                ? 'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#278700] bg-gradient-to-r from-lime-50 via-white to-emerald-50 px-5 py-2 text-center text-[12px] font-black leading-tight text-[#1d6500] shadow-[0_0_24px_rgba(39,135,0,0.42)]'
+                : badgeClasses?.badge
+              }
+            >
+              {isGoteborgEnergiOffer ? (
+                rank === 1 ? (
+                  <Zap className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
+                ) : (
+                  <Check className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
+                )
+              ) : (
+                <TopCardBadgeIcon rank={rank} className={badgeClasses?.accent ?? ''} />
+              )}
               {badgeLabel}
             </div>
           </div>
