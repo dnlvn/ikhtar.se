@@ -42,6 +42,7 @@ const SUPPORTED_PROVIDERS = [
   'Greenely',
   'Eon',
   'Bixia',
+  'Göteborg Energi',
   'Tibber',
   'Dalakraft',
   'Enkla Elbolaget',
@@ -57,6 +58,7 @@ export const SUPPORTED_ELECTRICITY_PROVIDERS_COUNT = SUPPORTED_PROVIDERS.length;
 
 const PROVIDER_ALIASES: Record<string, string[]> = {
   'Skellefteå kraft': ['Skellefteå Kraft AB'],
+  'Göteborg Energi': ['Goteborg Energi', 'Göteborg Energi Din El', 'Göteborg Energi Din El AB'],
   Eon: ['E.ON', 'E.ON Energi', 'E.ON Energilösningar', 'E.ON Försäljning'],
 };
 
