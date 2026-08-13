@@ -44,7 +44,7 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   {
     vertical: 'electricity',
     provider: 'Bixia',
-    affiliateUrl: 'https://to.bixia.se/t/t?a=1934384583&as=2043693860&t=2&tk=1',
+    affiliateUrl: 'https://to.bixia.se/t/t?a=1934384583&as=2043693860&t=2&tk=1&url=bixia.se/privat/elavtal/teckna-elavtal#/',
   },
   {
     vertical: 'electricity',
