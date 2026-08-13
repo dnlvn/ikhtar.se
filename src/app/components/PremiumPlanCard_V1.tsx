@@ -8,6 +8,7 @@ import {
   getMobileProviderSlug,
   isMobileProviderHighlighted,
 } from '@/lib/mobileProviderConfig';
+import { buildMobileOutboundUrl } from '@/lib/mobileOutboundTracking';
 import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
 
@@ -60,7 +61,11 @@ export function PremiumPlanCard({
       is_expanded: false,
     });
 
-    window.open(ctaUrl, '_blank', 'noopener,noreferrer');
+    window.open(
+      buildMobileOutboundUrl(ctaUrl, plan.title, cardPosition),
+      '_blank',
+      'noopener,noreferrer'
+    );
   };
 
   return (
