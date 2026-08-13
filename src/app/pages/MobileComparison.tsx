@@ -159,6 +159,7 @@ export function MobileComparison() {
                 <div id="results-section" className="grid grid-cols-1 gap-3">
                   {diverseList.map((plan, index) => {
                     const operator = plan.title;
+                    const operatorPosition = index + 1;
                     const additionalPlans =
                       additionalPlansByOperator.get(operator) || [];
                     const isExpanded = expandedOperators.has(operator);
@@ -191,6 +192,7 @@ export function MobileComparison() {
                           allPlans={filteredPlans}
                           sortMode={sortBy}
                           cardPosition={index + 1}
+                          operatorPosition={operatorPosition}
                         />
 
                         {/* Show more button if operator has additional plans */}
@@ -218,6 +220,7 @@ export function MobileComparison() {
                                       allPlans={filteredPlans}
                                       sortMode={sortBy}
                                       cardPosition={index + additionalIndex + 2}
+                                      operatorPosition={operatorPosition}
                                       isAdditionalPlan
                                     />
                                   ))}

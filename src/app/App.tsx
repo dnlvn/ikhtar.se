@@ -5,12 +5,14 @@ import { EnvErrorBoundary } from "@/app/components/EnvErrorBoundary";
 import { hasSupabaseCredentials } from "@/lib/supabase";
 import { router } from "@/app/routes";
 import { useEffect } from "react";
+import { captureMobileAttribution } from "@/lib/mobileAttribution";
 
 export default function App() {
   // Set document language and direction for RTL
   useEffect(() => {
     document.documentElement.lang = "ar";
     document.documentElement.dir = "rtl";
+    captureMobileAttribution();
   }, []);
 
   // Check for environment variables first

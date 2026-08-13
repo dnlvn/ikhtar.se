@@ -20,6 +20,7 @@ interface PremiumPlanCardProps {
   allPlans?: Plan[];
   sortMode?: SortOption;
   cardPosition?: number;
+  operatorPosition?: number;
   isAdditionalPlan?: boolean;
 }
 
@@ -29,6 +30,7 @@ export function PremiumPlanCard({
   plan,
   sortMode = 'yearly-cost',
   cardPosition,
+  operatorPosition,
 }: PremiumPlanCardProps) {
   const operatorLogo = getOperatorLogo(plan.title);
   const activePromotion = getActiveMobileProviderPromotion(plan.title);
@@ -62,7 +64,7 @@ export function PremiumPlanCard({
     });
 
     window.open(
-      buildMobileOutboundUrl(ctaUrl, plan.title, cardPosition),
+      buildMobileOutboundUrl(ctaUrl, plan, operatorPosition, sortMode),
       '_blank',
       'noopener,noreferrer'
     );
