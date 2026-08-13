@@ -535,7 +535,7 @@ export function ElectricityComparison() {
 
             <div className="text-center mb-7">
               <p className="text-xs text-slate-500 text-[10px]">
-                إعلان – عند النقر على عرض قد نحصل على عمولة دون تكلفة إضافية عليك.
+                إعلان – قد نحصل على تعويض من بعض شركات الكهرباء المعروضة، دون تكلفة إضافية عليك.
               </p>
             </div>
 
