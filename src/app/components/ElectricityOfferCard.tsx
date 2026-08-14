@@ -111,9 +111,7 @@ export function ElectricityOfferCard({
     2: 'يستحق المقارنة',
     3: 'سعر جيد',
   };
-  const badgeLabel = isGoteborgEnergiOffer
-    ? badgeLabelByRank[rank] ?? 'خيار موثوق'
-    : badgeLabelByRank[rank];
+  const badgeLabel = isGoteborgEnergiOffer ? 'خيار موثوق' : badgeLabelByRank[rank];
   const badgeVariant = getSelectedTopCardBadgeVariant();
   const badgeClasses = badgeLabel ? getTopCardBadgeClasses(rank, badgeVariant) : null;
   const agreementTypeLabel = getArabicAgreementTypeLabel(offer);
@@ -176,14 +174,14 @@ export function ElectricityOfferCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {badgeLabel && (
-          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${hasGoteborgGreenTreatment ? '-top-4' : badgeClasses?.wrapper}`}>
+          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${isGoteborgEnergiOffer ? '-top-4' : badgeClasses?.wrapper}`}>
             <div
-              className={hasGoteborgGreenTreatment
+              className={isGoteborgEnergiOffer
                 ? 'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#278700] bg-gradient-to-r from-lime-50 via-white to-emerald-50 px-5 py-2 text-center text-[12px] font-black leading-tight text-[#1d6500] shadow-[0_0_24px_rgba(39,135,0,0.42)]'
                 : badgeClasses?.badge
               }
             >
-              {hasGoteborgGreenTreatment ? (
+              {isGoteborgEnergiOffer ? (
                 <Check className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
               ) : (
                 <TopCardBadgeIcon rank={rank} className={badgeClasses?.accent ?? ''} />
