@@ -5,6 +5,7 @@ import {
   getEffectiveAffiliateUrl,
   getEffectiveAffiliateUrlType,
 } from '@/lib/electricityAffiliateLinks';
+import { getBottomOnlyProviderName } from '@/lib/electricityBottomOnlyProviders';
 import { rankElectricityOffersCommercially } from '@/lib/electricityCommercialRanking';
 
 export type HousingType = 'apartment' | 'house';
@@ -23,8 +24,9 @@ export interface ElectricityOffer {
   estimatedMonthlyCost: number;
   cancellationPeriod?: string;
   newCustomersOnly: boolean;
-  affiliateUrl: string;
-  affiliateUrlType: AffiliateUrlType;
+  affiliateUrl?: string;
+  affiliateUrlType?: AffiliateUrlType;
+  isBottomOnly?: boolean;
   raw: Record<string, any>;
 }
 
@@ -63,6 +65,8 @@ const PROVIDER_ALIASES: Record<string, string[]> = {
   'Göteborg Energi': ['Goteborg Energi', 'Göteborg Energi Din El', 'Göteborg Energi Din El AB'],
   Eon: ['E.ON', 'E.ON Energi', 'E.ON Energilösningar', 'E.ON Försäljning'],
 };
+
+const MAX_VISIBLE_ELECTRICITY_OFFERS = 14;
 
 const PROVIDER_NAME_KEYS = [
   'ElLeverantorNamn',
@@ -248,6 +252,13 @@ function getProviderSlug(provider: string): string {
   return normalizeName(provider);
 }
 
+function compareOffersByCost(a: ElectricityOffer, b: ElectricityOffer): number {
+  return (
+    a.estimatedMonthlyCost - b.estimatedMonthlyCost ||
+    a.comparisonPriceOre - b.comparisonPriceOre
+  );
+}
+
 function classifyAgreement(row: Record<string, any>, agreementName: string, agreementType?: string): AgreementCategory {
   const candidates = [
     agreementName,
@@ -302,7 +313,8 @@ function getAgreementTypeLabel(category: AgreementCategory, agreementName: strin
 }
 
 function transformOffer(row: Record<string, any>, annualUsage: number, index: number): ElectricityOffer | null {
-  const provider = findProvider(row);
+  const rawProvider = getProviderName(row);
+  const provider = findProvider(row) ?? getBottomOnlyProviderName(rawProvider);
   if (!provider) return null;
 
   const comparisonPriceOre = toNumber(getValue(row, COMPARISON_PRICE_KEYS));
@@ -315,8 +327,9 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
   const cancellationPeriod = getValue(row, CANCELLATION_PERIOD_KEYS);
   const affiliateUrl = getEffectiveAffiliateUrl({ vertical: 'electricity', provider, annualUsage });
   const affiliateUrlType = getEffectiveAffiliateUrlType({ vertical: 'electricity', provider, annualUsage });
+  const isBottomOnly = !affiliateUrl || !affiliateUrlType;
 
-  if (!affiliateUrl || !affiliateUrlType) {
+  if (isBottomOnly && !getBottomOnlyProviderName(provider)) {
     if (import.meta.env.DEV) {
       console.warn('[Ikhtar elavtal] Leverantör saknar affiliate-länk och filtreras bort', {
         provider,
@@ -339,6 +352,7 @@ function transformOffer(row: Record<string, any>, annualUsage: number, index: nu
     newCustomersOnly: toBoolean(getValue(row, NEW_CUSTOMERS_ONLY_KEYS)),
     affiliateUrl,
     affiliateUrlType,
+    isBottomOnly,
     raw: row,
   };
 }
@@ -403,9 +417,20 @@ export function useElectricityOffers({
 
         const filteredOffers = Array.from(cheapestByProvider.values())
           .filter((offer) => agreementFilter === 'all' || offer.agreementCategory === agreementFilter)
-          .sort((a, b) => a.estimatedMonthlyCost - b.estimatedMonthlyCost);
+          .sort(compareOffersByCost);
 
-        setOffers(rankElectricityOffersCommercially(filteredOffers));
+        const commercialOffers = rankElectricityOffersCommercially(
+          filteredOffers.filter((offer) => !offer.isBottomOnly)
+        );
+        const lastCommercialOffer = commercialOffers[commercialOffers.length - 1];
+        const bottomOnlyOffers = lastCommercialOffer
+          ? filteredOffers
+              .filter((offer) => offer.isBottomOnly && compareOffersByCost(offer, lastCommercialOffer) > 0)
+              .sort(compareOffersByCost)
+              .slice(0, Math.max(0, MAX_VISIBLE_ELECTRICITY_OFFERS - commercialOffers.length))
+          : [];
+
+        setOffers([...commercialOffers, ...bottomOnlyOffers]);
       } catch (err) {
         if (controller.signal.aborted) return;
         console.error('[Ikhtar elavtal] Kunde inte hämta avtal', err);

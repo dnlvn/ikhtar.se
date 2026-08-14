@@ -105,6 +105,7 @@ export function ElectricityOfferCard({
   const isBestDeal = rank <= 3;
   const isGoteborgEnergiOffer = isGoteborgEnergi(offer.provider);
   const hasGoteborgGreenTreatment = isGoteborgEnergiOffer && !isBestDeal;
+  const hasAffiliateLink = Boolean(offer.affiliateUrl && offer.affiliateUrlType);
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
     1: 'خيار شائع',
@@ -122,6 +123,8 @@ export function ElectricityOfferCard({
   ].filter(Boolean);
 
   const handleClick = () => {
+    if (!hasAffiliateLink) return;
+
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: 'electricity_cta_click',
@@ -145,7 +148,7 @@ export function ElectricityOfferCard({
     });
 
     window.open(
-      buildElectricityOutboundUrl(offer.affiliateUrl, offer, rank, annualUsage),
+      buildElectricityOutboundUrl(offer.affiliateUrl!, offer, rank, annualUsage),
       '_blank',
       'noopener,noreferrer'
     );
@@ -161,9 +164,9 @@ export function ElectricityOfferCard({
       )}
 
       <div
-        onClick={handleClick}
+        onClick={hasAffiliateLink ? handleClick : undefined}
         className={`
-          relative overflow-visible rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer
+          relative overflow-visible rounded-xl shadow-sm transition-all duration-200 ${hasAffiliateLink ? 'cursor-pointer hover:shadow-lg' : 'cursor-default'}
           ${hasGoteborgGreenTreatment
             ? 'bg-gradient-to-br from-emerald-50/90 via-white to-lime-50/60 border-2 border-[#278700] shadow-[0_0_24px_rgba(39,135,0,0.28)] hover:shadow-[0_0_34px_rgba(39,135,0,0.42)]'
             : isBestDeal
@@ -197,7 +200,13 @@ export function ElectricityOfferCard({
               dir="ltr"
               className="flex min-w-0 w-[220px] max-w-[58%] flex-col items-end gap-1.5 text-right"
             >
-              {providerLogo ? (
+              {offer.isBottomOnly ? (
+                <div className={`flex w-full items-center justify-end overflow-visible ${isBestDeal ? 'min-h-[50px]' : 'min-h-[42px]'}`}>
+                  <span dir="ltr" className="ml-auto max-w-full truncate text-right text-[22px] font-black leading-tight text-slate-900">
+                    {offer.provider.replace(/\s+AB$/i, '')}
+                  </span>
+                </div>
+              ) : providerLogo ? (
                 <div className={`flex w-full items-center justify-end overflow-visible ${isBestDeal ? 'min-h-[50px]' : 'min-h-[42px]'}`}>
                   <img
                     src={providerLogo}
@@ -262,35 +271,37 @@ export function ElectricityOfferCard({
               </p>
             </div>
 
-            <button
-              onClick={(event) => {
-                event.stopPropagation();
-                handleClick();
-              }}
-              className={`
-                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl uppercase sm:px-5
-                transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
-                cursor-pointer relative overflow-hidden
-                ${isBestDeal
-                  ? rank === 1
-                    ? 'text-[14px] font-bold sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
-                    : 'text-[12px] font-bold sm:text-[13px] text-white shadow-lg hover:brightness-110'
-                  : 'text-[12px] font-medium sm:text-[13px] border border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
-                }
-              `}
-              style={isBestDeal ? {
-                backgroundImage: rank === 1
-                  ? 'linear-gradient(to right, #f97316 0%, #facc15 48%, #f97316 100%)'
-                  : 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
-                backgroundSize: rank === 1 ? '200% auto' : undefined,
-                animation: rank === 1 ? 'shimmer-slide 3s ease-in-out infinite' : undefined,
-                borderRadius: '0.75rem',
-              } : {
-                borderRadius: '0.75rem',
-              }}
-            >
-              {isBestDeal ? 'شاهد العرض' : 'اقرأ المزيد'}
-            </button>
+            {hasAffiliateLink && (
+              <button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleClick();
+                }}
+                className={`
+                  min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl uppercase sm:px-5
+                  transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
+                  cursor-pointer relative overflow-hidden
+                  ${isBestDeal
+                    ? rank === 1
+                      ? 'text-[14px] font-bold sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
+                      : 'text-[12px] font-bold sm:text-[13px] text-white shadow-lg hover:brightness-110'
+                    : 'text-[12px] font-medium sm:text-[13px] border border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
+                  }
+                `}
+                style={isBestDeal ? {
+                  backgroundImage: rank === 1
+                    ? 'linear-gradient(to right, #f97316 0%, #facc15 48%, #f97316 100%)'
+                    : 'linear-gradient(to right, #F7971E 0%, #FFD200 51%, #F7971E 100%)',
+                  backgroundSize: rank === 1 ? '200% auto' : undefined,
+                  animation: rank === 1 ? 'shimmer-slide 3s ease-in-out infinite' : undefined,
+                  borderRadius: '0.75rem',
+                } : {
+                  borderRadius: '0.75rem',
+                }}
+              >
+                {isBestDeal ? 'شاهد العرض' : 'اقرأ المزيد'}
+              </button>
+            )}
           </div>
         </div>
       </div>

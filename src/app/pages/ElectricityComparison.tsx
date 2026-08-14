@@ -113,6 +113,7 @@ export function ElectricityComparison() {
   const [postcodeError, setPostcodeError] = useState('');
   const [hasRequestedResults, setHasRequestedResults] = useState(false);
   const [showSearchTransition, setShowSearchTransition] = useState(false);
+  const [showAllOffers, setShowAllOffers] = useState(false);
   const postcodeInputRef = useRef<HTMLInputElement>(null);
   const searchSectionRef = useRef<HTMLElement>(null);
   const resultsSectionRef = useRef<HTMLDivElement>(null);
@@ -178,6 +179,15 @@ export function ElectricityComparison() {
     agreementFilter,
   });
   const shouldShowResults = canSearch && hasRequestedResults && !showSearchTransition;
+  const collapsedOfferCount = 8;
+  const hasHiddenOffers = offers.length > collapsedOfferCount;
+  const visibleOffers = showAllOffers || !hasHiddenOffers
+    ? offers
+    : offers.slice(0, collapsedOfferCount + 1);
+
+  useEffect(() => {
+    setShowAllOffers(false);
+  }, [annualUsage, postcode, housingType]);
 
   useEffect(() => {
     if (!hasRequestedResults || showSearchTransition || !canSearch || loading || error || offers.length === 0) return;
@@ -527,21 +537,45 @@ export function ElectricityComparison() {
             </div>
 
             <div id="results-section" className="grid grid-cols-1 gap-3">
-              {offers.map((offer, index) => (
-                <Fragment key={offer.id}>
-                  {index === 3 && (
-                    <h2 className="px-1 pt-2 text-center text-[15px] font-black text-slate-700">
-                      المزيد من عقود الكهرباء للمقارنة
-                    </h2>
-                  )}
-                  <ElectricityOfferCard
-                    offer={offer}
-                    rank={index + 1}
-                    annualUsage={annualUsage}
-                    postcode={postcode}
-                  />
-                </Fragment>
-              ))}
+              {visibleOffers.map((offer, index) => {
+                const isFadeCard = hasHiddenOffers && !showAllOffers && index === collapsedOfferCount;
+
+                return (
+                  <Fragment key={offer.id}>
+                    {index === 3 && (
+                      <h2 className="px-1 pt-2 text-center text-[15px] font-black text-slate-700">
+                        المزيد من عقود الكهرباء للمقارنة
+                      </h2>
+                    )}
+                    {isFadeCard ? (
+                      <div className="relative max-h-[94px] overflow-hidden rounded-xl">
+                        <ElectricityOfferCard
+                          offer={offer}
+                          rank={index + 1}
+                          annualUsage={annualUsage}
+                          postcode={postcode}
+                        />
+                        <div className="absolute inset-x-0 bottom-0 top-0 flex items-center justify-center bg-gradient-to-b from-white/10 via-white/75 to-white">
+                          <button
+                            type="button"
+                            onClick={() => setShowAllOffers(true)}
+                            className="px-3 py-2 text-[14px] font-black text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                          >
+                            اعرض المزيد من العقود
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <ElectricityOfferCard
+                        offer={offer}
+                        rank={index + 1}
+                        annualUsage={annualUsage}
+                        postcode={postcode}
+                      />
+                    )}
+                  </Fragment>
+                );
+              })}
             </div>
           </>
         )}
