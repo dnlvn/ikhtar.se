@@ -5,6 +5,7 @@ import {
   getEffectiveAffiliateUrl,
   getEffectiveAffiliateUrlType,
 } from '@/lib/electricityAffiliateLinks';
+import { rankElectricityOffersCommercially } from '@/lib/electricityCommercialRanking';
 
 export type HousingType = 'apartment' | 'house';
 export type UsageLevel = 'low' | 'normal' | 'high';
@@ -400,11 +401,11 @@ export function useElectricityOffers({
           }
         }
 
-        const sortedOffers = Array.from(cheapestByProvider.values())
+        const filteredOffers = Array.from(cheapestByProvider.values())
           .filter((offer) => agreementFilter === 'all' || offer.agreementCategory === agreementFilter)
           .sort((a, b) => a.estimatedMonthlyCost - b.estimatedMonthlyCost);
 
-        setOffers(sortedOffers);
+        setOffers(rankElectricityOffersCommercially(filteredOffers));
       } catch (err) {
         if (controller.signal.aborted) return;
         console.error('[Ikhtar elavtal] Kunde inte hämta avtal', err);
