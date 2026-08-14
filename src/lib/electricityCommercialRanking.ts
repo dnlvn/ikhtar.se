@@ -5,6 +5,7 @@ type ProviderRankingStatus = 'priority' | 'normal' | 'special';
 interface ElectricityRankingOffer {
   provider: string;
   estimatedMonthlyCost: number;
+  comparisonPriceOre: number;
 }
 
 interface SpecialProviderRule {
@@ -41,8 +42,28 @@ function getProviderRankingStatus(offer: ElectricityRankingOffer): ProviderRanki
   return 'normal';
 }
 
+function getRankingStatusWeight(offer: ElectricityRankingOffer): number {
+  const rankingStatus = getProviderRankingStatus(offer);
+
+  if (rankingStatus === 'priority') return 0;
+  if (rankingStatus === 'special') return 1;
+
+  return 2;
+}
+
+function compareOffersByCost(a: ElectricityRankingOffer, b: ElectricityRankingOffer): number {
+  return (
+    a.estimatedMonthlyCost - b.estimatedMonthlyCost ||
+    a.comparisonPriceOre - b.comparisonPriceOre
+  );
+}
+
+function compareOffersForDisplay(a: ElectricityRankingOffer, b: ElectricityRankingOffer): number {
+  return compareOffersByCost(a, b) || getRankingStatusWeight(a) - getRankingStatusWeight(b);
+}
+
 function sortByEstimatedMonthlyCost<T extends ElectricityRankingOffer>(offers: T[]): T[] {
-  return [...offers].sort((a, b) => a.estimatedMonthlyCost - b.estimatedMonthlyCost);
+  return [...offers].sort(compareOffersForDisplay);
 }
 
 function findProviderIndex<T extends ElectricityRankingOffer>(offers: T[], providerSlug: string): number {
@@ -128,7 +149,7 @@ export function rankElectricityOffersCommercially<T extends ElectricityRankingOf
 
         return (
           rankingStatus !== 'normal' ||
-          offer.estimatedMonthlyCost >= priorityAnchor.estimatedMonthlyCost
+          compareOffersByCost(offer, priorityAnchor) >= 0
         );
       })
     : baseSortedOffers;
