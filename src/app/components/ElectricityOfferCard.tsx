@@ -177,7 +177,7 @@ export function ElectricityOfferCard({
           <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${isGoteborgEnergiOffer ? '-top-4' : badgeClasses?.wrapper}`}>
             <div
               className={isGoteborgEnergiOffer
-                ? 'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#278700] bg-gradient-to-r from-lime-50 via-white to-emerald-50 px-5 py-2 text-center text-[12px] font-black leading-tight text-[#1d6500] shadow-[0_0_24px_rgba(39,135,0,0.42)]'
+                ? 'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#278700] bg-gradient-to-r from-lime-50 via-white to-emerald-50 px-5 py-1.5 text-center text-[12px] font-black leading-tight text-[#1d6500] shadow-[0_0_24px_rgba(39,135,0,0.42)]'
                 : badgeClasses?.badge
               }
             >
