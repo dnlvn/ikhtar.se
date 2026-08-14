@@ -190,19 +190,15 @@ export function ElectricityOfferCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {badgeLabel && (
-          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${isGoteborgEnergiOffer ? '-top-4' : badgeClasses?.wrapper}`}>
+          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${hasGoteborgGreenTreatment ? '-top-4' : badgeClasses?.wrapper}`}>
             <div
-              className={isGoteborgEnergiOffer
+              className={hasGoteborgGreenTreatment
                 ? 'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#278700] bg-gradient-to-r from-lime-50 via-white to-emerald-50 px-5 py-2 text-center text-[12px] font-black leading-tight text-[#1d6500] shadow-[0_0_24px_rgba(39,135,0,0.42)]'
                 : badgeClasses?.badge
               }
             >
-              {isGoteborgEnergiOffer ? (
-                rank === 1 ? (
-                  <Zap className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
-                ) : (
-                  <Check className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
-                )
+              {hasGoteborgGreenTreatment ? (
+                <Check className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
               ) : (
                 <TopCardBadgeIcon rank={rank} className={badgeClasses?.accent ?? ''} />
               )}
@@ -248,8 +244,8 @@ export function ElectricityOfferCard({
             </div>
 
             <div className="flex flex-col items-end text-right">
-              <span className="mb-[-1px] block w-full text-right text-[10px] font-bold text-slate-500">
-                تقدير من
+              <span className="mb-[-1px] block w-full text-right text-[10px] font-normal text-slate-500">
+                السعر التقديري
               </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-[40px] font-black text-slate-900 leading-none">
@@ -278,7 +274,7 @@ export function ElectricityOfferCard({
                 </div>
               )}
               <p className="mt-1 max-w-[220px] text-right text-[9px] leading-snug text-slate-500">
-                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف
+                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف.
               </p>
             </div>
 
@@ -295,7 +291,7 @@ export function ElectricityOfferCard({
                   ? rank === 1
                     ? 'text-[14px] sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
                     : 'text-[12px] sm:text-[13px] text-white shadow-lg hover:brightness-110'
-                  : 'text-[12px] sm:text-[13px] bg-blue-700 text-white border-2 border-blue-700 hover:bg-blue-800'
+                  : 'text-[12px] sm:text-[13px] border-2 border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
                 }
               `}
               style={isBestDeal ? {
@@ -309,7 +305,7 @@ export function ElectricityOfferCard({
                 borderRadius: '0.75rem',
               }}
             >
-              شاهد العرض
+              {isBestDeal ? 'شاهد العرض' : 'اقرأ المزيد'}
             </button>
           </div>
         </div>

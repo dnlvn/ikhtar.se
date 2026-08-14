@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
   Building2,
-  Check,
   Clock,
   Gauge,
   House,
@@ -22,9 +21,9 @@ import {
   useElectricityOffers,
 } from '@/hooks/useElectricityOffers';
 
-const housingOptions: Array<{ value: HousingType; label: string; hint: string; icon: LucideIcon }> = [
-  { value: 'apartment', label: 'شقة', hint: 'استهلاك أقل', icon: Building2 },
-  { value: 'house', label: 'فيلا', hint: 'استهلاك أعلى', icon: House },
+const housingOptions: Array<{ value: HousingType; label: string; icon: LucideIcon }> = [
+  { value: 'apartment', label: 'شقة', icon: Building2 },
+  { value: 'house', label: 'فيلا', icon: House },
 ];
 
 const usageOptions: Array<{
@@ -36,19 +35,19 @@ const usageOptions: Array<{
   {
     value: 'low',
     label: 'منخفض',
-    hints: { apartment: 'شقة صغيرة', house: 'فيلا بدون تدفئة كهربائية' },
+    hints: { apartment: 'شقة صغيرة', house: 'بدون تدفئة كهربائية' },
     icon: Gauge,
   },
   {
     value: 'normal',
     label: 'عادي',
-    hints: { apartment: 'عائلة عادية', house: 'فيلا عادية' },
+    hints: { apartment: 'شقة متوسطة', house: 'استهلاك عادي' },
     icon: Gauge,
   },
   {
     value: 'high',
     label: 'مرتفع',
-    hints: { apartment: 'سكن كبير', house: 'فيلا كبيرة / تدفئة كهربائية' },
+    hints: { apartment: 'شقة كبيرة', house: 'استهلاك مرتفع' },
     icon: Gauge,
   },
 ];
@@ -266,18 +265,13 @@ export function ElectricityComparison() {
             </h1>
 
             <p className="sm:text-xl text-slate-600 mb-3 leading-relaxed text-[15px]">
-              أدخل الرمز البريدي والاستهلاك وقارن عقود الكهرباء الحالية خلال أقل من دقيقة.
+              أدخل الرمز البريدي واستهلاكك وقارن عقود الكهرباء المتاحة خلال أقل من دقيقة.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-600">
               <div className="inline-flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-[12px]">أسعار محدثة</span>
-              </div>
-              <div className="w-px h-4 bg-slate-200" />
-              <div className="inline-flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-[12px]">عدة شركات كهرباء</span>
+                <span className="font-medium text-[12px]">محدّث اليوم</span>
               </div>
               <div className="w-px h-4 bg-slate-200" />
               <div className="inline-flex items-center gap-1.5">
@@ -344,7 +338,7 @@ export function ElectricityComparison() {
                             : 'border-blue-200 bg-white text-slate-800 shadow-sm hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex min-h-[34px] items-center gap-2.5">
                           <span
                             className={`flex h-8 w-8 items-center justify-center rounded-2xl transition-all duration-200 ${
                               isSelected
@@ -354,17 +348,8 @@ export function ElectricityComparison() {
                           >
                             <Icon className="h-5 w-5" />
                           </span>
-                          <span className="min-w-0">
-                            <span className="block text-[14px] font-black leading-tight">
-                              {option.label}
-                            </span>
-                            <span
-                              className={`mt-0.5 block text-[10px] font-semibold leading-tight ${
-                                isSelected ? 'text-blue-700' : 'text-slate-500'
-                              }`}
-                            >
-                              {option.hint}
-                            </span>
+                          <span className="block min-w-0 text-[14px] font-black leading-tight">
+                            {option.label}
                           </span>
                         </div>
                       </button>
@@ -403,11 +388,11 @@ export function ElectricityComparison() {
                         <span className="block text-[13px] font-black leading-tight">
                           {option.label}
                         </span>
-                        <span className="mt-0.5 block text-[11px] font-medium leading-tight text-blue-800">
+                        <span className="mt-0.5 block text-[11px] font-normal leading-tight text-slate-500">
                           {option.hints[housingType]}
                         </span>
-                        <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-500">
-                          {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh / سنة
+                        <span className="mt-0.5 block text-[9px] font-semibold leading-tight text-slate-600">
+                          {ELECTRICITY_USAGE_KWH[housingType][option.value].toLocaleString('sv-SE')} kWh/سنة
                         </span>
                       </button>
                     );
@@ -416,7 +401,7 @@ export function ElectricityComparison() {
                 <button
                   type="button"
                   onClick={() => setShowCustomUsage((current) => !current)}
-                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[12px] font-normal text-slate-400 transition-colors duration-200 hover:text-slate-600"
+                  className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[12px] font-medium text-blue-800 underline underline-offset-4 transition-colors duration-200 hover:text-blue-950"
                 >
                   أدخل استهلاكك السنوي بنفسك
                 </button>
@@ -524,18 +509,18 @@ export function ElectricityComparison() {
               <h2 className="text-[22px] font-black text-slate-950">
                 إليك {offers.length} عقود كهرباء لمقارنتها
               </h2>
-              <p className="mt-1.5 text-[15px] font-extrabold text-blue-800">
-                قارن الأسعار واختر الخيار الذي يناسبك.
+              <p className="mt-1.5 text-[15px] font-semibold text-slate-600">
+                قارن الأسعار واختر العقد الذي يناسبك.
               </p>
             </div>
 
-            <div className="text-center mb-7">
-              <p className="mx-auto max-w-3xl text-[10px] leading-5 text-slate-500">
-                إعلان – قد نحصل على تعويض من شركات الكهرباء دون تكلفة إضافية عليك.
+            <div className="mb-6 text-center">
+              <p className="mx-auto max-w-3xl text-[10px] leading-4 text-slate-500">
+                إعلان – قد نحصل على تعويض من شركات الكهرباء. لن يكلفك ذلك أي مبلغ إضافي.
               </p>
               <a
                 href="#electricity-comparison-disclosure"
-                className="mt-1.5 inline-flex text-[10px] font-semibold text-slate-600 underline-offset-4 hover:underline"
+                className="mt-0.5 inline-flex text-[10px] font-semibold leading-4 text-slate-600 underline-offset-4 hover:underline"
               >
                 كيف تعمل مقارنتنا
               </a>
