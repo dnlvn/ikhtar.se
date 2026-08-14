@@ -121,12 +121,12 @@ export function ElectricityOfferCard({
   const hasGoteborgGreenTreatment = isGoteborgEnergiOffer && !isBestDeal;
   const providerLogo = getElectricityProviderLogo(offer.provider);
   const badgeLabelByRank: Record<number, string> = {
-    1: 'أفضل سعر اليوم',
-    2: 'خيار شائع',
-    3: 'خيار ذكي',
+    1: 'خيار شائع',
+    2: 'يستحق المقارنة',
+    3: 'سعر جيد',
   };
   const badgeLabel = isGoteborgEnergiOffer
-    ? rank === 1 ? 'أفضل سعر اليوم' : 'خيار موثوق'
+    ? badgeLabelByRank[rank] ?? 'خيار موثوق'
     : badgeLabelByRank[rank];
   const badgeVariant = getSelectedTopCardBadgeVariant();
   const badgeClasses = badgeLabel ? getTopCardBadgeClasses(rank, badgeVariant) : null;

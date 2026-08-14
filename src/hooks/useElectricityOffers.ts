@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  getActiveElectricityAffiliateProviderCount,
   type AffiliateUrlType,
   getEffectiveAffiliateUrl,
   getEffectiveAffiliateUrlType,
@@ -426,7 +427,7 @@ export function useElectricityOffers({
       error,
       annualUsage,
       canSearch,
-      supportedProvidersCount: SUPPORTED_ELECTRICITY_PROVIDERS_COUNT,
+      supportedProvidersCount: getActiveElectricityAffiliateProviderCount(annualUsage),
     }),
     [annualUsage, canSearch, error, loading, offers]
   );

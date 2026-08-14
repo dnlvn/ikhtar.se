@@ -1,7 +1,9 @@
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { t, tr } from '@/i18n';
 
 export function Footer() {
+  const location = useLocation();
+  const isElectricityPage = location.pathname === '/elavtal';
   const seoLinks = [
     { href: '/mobilabonnemang/billigaste', label: 'أرخص اشتراك جوال' },
     { href: '/mobilabonnemang/comviq', label: 'عروض Comviq' },
@@ -24,7 +26,9 @@ export function Footer() {
           <div className="text-center md:text-left">
             <h3 className="text-white font-semibold mb-3">{t('footer.siteName')}</h3>
             <p className="text-sm text-slate-400 leading-relaxed mb-3">
-              {t('footer.siteDescription')}
+              {isElectricityPage
+                ? 'قارن عروضًا مختارة في السويد واعثر على خيار يناسب احتياجك وميزانيتك.'
+                : t('footer.siteDescription')}
             </p>
             <div className="text-sm text-slate-400">
               <p>{t('footer.company.name')}</p>
@@ -70,10 +74,16 @@ export function Footer() {
         {/* Disclosures */}
         <div className="border-t border-slate-800 pt-6 space-y-3 text-center">
           <p className="text-xs text-slate-400 leading-relaxed">
-            <strong className="text-slate-300">{t('footer.disclosures.affiliateTitle')}</strong> {t('footer.disclosures.affiliateText')}
+            <strong className="text-slate-300">{t('footer.disclosures.affiliateTitle')}</strong>{' '}
+            {isElectricityPage
+              ? 'قد نحصل على تعويض عند النقر على بعض الروابط أو إتمام طلب لدى إحدى الشركات، دون تكلفة إضافية عليك.'
+              : t('footer.disclosures.affiliateText')}
           </p>
           <p className="text-xs text-slate-400 leading-relaxed">
-            <strong className="text-slate-300">{t('footer.disclosures.transparencyTitle')}</strong> {t('footer.disclosures.transparencyText')}
+            <strong className="text-slate-300">{t('footer.disclosures.transparencyTitle')}</strong>{' '}
+            {isElectricityPage
+              ? 'نقارن مجموعة مختارة من العروض، وقد تؤثر علاقاتنا التجارية على ما يتم عرضه وترتيبه.'
+              : t('footer.disclosures.transparencyText')}
           </p>
         </div>
 

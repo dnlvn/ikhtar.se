@@ -130,6 +130,16 @@ export function getAffiliateUrl({
   );
 }
 
+export function getActiveElectricityAffiliateProviderCount(annualUsage?: number): number {
+  const activeProviders = new Set(
+    ELECTRICITY_AFFILIATE_LINKS
+      .filter((link) => link.vertical === 'electricity' && matchesAnnualUsage(link, annualUsage))
+      .map((link) => normalizeAffiliateProviderName(link.provider))
+  );
+
+  return activeProviders.size;
+}
+
 export function getEffectiveAffiliateUrl({
   vertical,
   provider,
