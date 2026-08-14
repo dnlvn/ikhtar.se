@@ -43,54 +43,33 @@ function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
 }
 
 function getTopCardBadgeClasses(rank: number, variant: TopCardBadgeVariant) {
-  const isTopRank = rank === 1;
   const base = 'inline-flex items-center justify-center gap-1.5 text-center leading-tight whitespace-nowrap';
 
   const variants: Record<TopCardBadgeVariant, { wrapper: string; badge: string; accent: string }> = {
     'floating-pill': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full ${
-        isTopRank
-          ? 'bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]'
-          : 'bg-amber-50 border border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-full bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]`,
+      accent: 'text-orange-600',
     },
     'premium-medal': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full ${
-        isTopRank
-          ? 'bg-white border-2 border-orange-400 px-5 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]'
-          : 'bg-white border border-amber-200 px-3.5 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-full bg-white border-2 border-orange-400 px-5 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]`,
+      accent: 'text-orange-600',
     },
     'soft-ribbon': {
       wrapper: '-top-3',
-      badge: `${base} rounded-lg ${
-        isTopRank
-          ? 'bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]'
-          : 'bg-amber-50 border border-amber-200 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-lg bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]`,
+      accent: 'text-orange-600',
     },
     'top-tab': {
       wrapper: '-top-px',
-      badge: `${base} rounded-b-xl ${
-        isTopRank
-          ? 'bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]'
-          : 'bg-amber-50 border-x border-b border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-b-xl bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]`,
+      accent: 'text-orange-600',
     },
     'glow-label': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full ${
-        isTopRank
-          ? 'bg-yellow-50 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]'
-          : 'bg-amber-50 border border-yellow-300 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-[0_0_14px_rgba(251,191,36,0.18)]'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-full bg-yellow-50 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]`,
+      accent: 'text-orange-600',
     },
   };
 
@@ -190,19 +169,15 @@ export function ElectricityOfferCard({
         style={{ borderRadius: '0.75rem' }}
       >
         {badgeLabel && (
-          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${isGoteborgEnergiOffer ? '-top-4' : badgeClasses?.wrapper}`}>
+          <div className={`absolute left-1/2 z-20 -translate-x-1/2 ${hasGoteborgGreenTreatment ? '-top-4' : badgeClasses?.wrapper}`}>
             <div
-              className={isGoteborgEnergiOffer
+              className={hasGoteborgGreenTreatment
                 ? 'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#278700] bg-gradient-to-r from-lime-50 via-white to-emerald-50 px-5 py-2 text-center text-[12px] font-black leading-tight text-[#1d6500] shadow-[0_0_24px_rgba(39,135,0,0.42)]'
                 : badgeClasses?.badge
               }
             >
-              {isGoteborgEnergiOffer ? (
-                rank === 1 ? (
-                  <Zap className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
-                ) : (
-                  <Check className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
-                )
+              {hasGoteborgGreenTreatment ? (
+                <Check className="h-3.5 w-3.5 text-[#278700]" strokeWidth={2.8} />
               ) : (
                 <TopCardBadgeIcon rank={rank} className={badgeClasses?.accent ?? ''} />
               )}
@@ -248,8 +223,8 @@ export function ElectricityOfferCard({
             </div>
 
             <div className="flex flex-col items-end text-right">
-              <span className="mb-[-1px] block w-full text-right text-[10px] font-bold text-slate-500">
-                تقدير من
+              <span className="mb-[-1px] block w-full text-right text-[10px] font-normal text-slate-500">
+                السعر التقديري
               </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-[40px] font-black text-slate-900 leading-none">
@@ -278,7 +253,7 @@ export function ElectricityOfferCard({
                 </div>
               )}
               <p className="mt-1 max-w-[220px] text-right text-[9px] leading-snug text-slate-500">
-                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف
+                بناءً على الاستهلاك المختار. رسوم شبكة الكهرباء تُضاف.
               </p>
             </div>
 
@@ -288,14 +263,14 @@ export function ElectricityOfferCard({
                 handleClick();
               }}
               className={`
-                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl font-bold uppercase sm:px-5
+                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl uppercase sm:px-5
                 transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
                 cursor-pointer relative overflow-hidden
                 ${isBestDeal
                   ? rank === 1
-                    ? 'text-[14px] sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
-                    : 'text-[12px] sm:text-[13px] text-white shadow-lg hover:brightness-110'
-                  : 'text-[12px] sm:text-[13px] bg-blue-700 text-white border-2 border-blue-700 hover:bg-blue-800'
+                    ? 'text-[14px] font-bold sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
+                    : 'text-[12px] font-bold sm:text-[13px] text-white shadow-lg hover:brightness-110'
+                  : 'text-[12px] font-medium sm:text-[13px] border border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
                 }
               `}
               style={isBestDeal ? {
@@ -309,7 +284,7 @@ export function ElectricityOfferCard({
                 borderRadius: '0.75rem',
               }}
             >
-              شاهد العرض
+              {isBestDeal ? 'شاهد العرض' : 'اقرأ المزيد'}
             </button>
           </div>
         </div>
