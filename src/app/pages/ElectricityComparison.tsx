@@ -237,7 +237,7 @@ export function ElectricityComparison() {
       </Helmet>
 
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/40">
-        <div className="relative max-w-7xl mx-auto px-[16px] py-[24px] sm:py-12">
+        <div className="relative max-w-7xl mx-auto px-[16px] pt-[22px] pb-[16px] sm:pt-10 sm:pb-7">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex justify-center mb-[14px]">
               <div className="flex items-center gap-2.5" dir="ltr">
@@ -264,7 +264,7 @@ export function ElectricityComparison() {
               في السويد
             </h1>
 
-            <p className="sm:text-xl text-slate-600 mb-3 leading-relaxed text-[15px]">
+            <p className="sm:whitespace-nowrap sm:text-xl text-slate-600 mb-3 leading-relaxed text-[15px]">
               أدخل الرمز البريدي واستهلاكك وقارن عقود الكهرباء المتاحة خلال أقل من دقيقة.
             </p>
 
@@ -520,7 +520,7 @@ export function ElectricityComparison() {
               </p>
               <a
                 href="#electricity-comparison-disclosure"
-                className="mt-0.5 inline-flex text-[10px] font-semibold leading-4 text-slate-600 underline-offset-4 hover:underline"
+                className="mt-0 inline-flex text-[10px] font-normal leading-4 text-slate-600 underline underline-offset-4 hover:text-slate-700"
               >
                 كيف تعمل مقارنتنا
               </a>

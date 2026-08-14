@@ -43,54 +43,33 @@ function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
 }
 
 function getTopCardBadgeClasses(rank: number, variant: TopCardBadgeVariant) {
-  const isTopRank = rank === 1;
   const base = 'inline-flex items-center justify-center gap-1.5 text-center leading-tight whitespace-nowrap';
 
   const variants: Record<TopCardBadgeVariant, { wrapper: string; badge: string; accent: string }> = {
     'floating-pill': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full ${
-        isTopRank
-          ? 'bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]'
-          : 'bg-amber-50 border border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-full bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]`,
+      accent: 'text-orange-600',
     },
     'premium-medal': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full ${
-        isTopRank
-          ? 'bg-white border-2 border-orange-400 px-5 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]'
-          : 'bg-white border border-amber-200 px-3.5 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-full bg-white border-2 border-orange-400 px-5 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]`,
+      accent: 'text-orange-600',
     },
     'soft-ribbon': {
       wrapper: '-top-3',
-      badge: `${base} rounded-lg ${
-        isTopRank
-          ? 'bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]'
-          : 'bg-amber-50 border border-amber-200 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-lg bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]`,
+      accent: 'text-orange-600',
     },
     'top-tab': {
       wrapper: '-top-px',
-      badge: `${base} rounded-b-xl ${
-        isTopRank
-          ? 'bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]'
-          : 'bg-amber-50 border-x border-b border-amber-300/70 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-sm'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-b-xl bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]`,
+      accent: 'text-orange-600',
     },
     'glow-label': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full ${
-        isTopRank
-          ? 'bg-yellow-50 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]'
-          : 'bg-amber-50 border border-yellow-300 px-4 py-1.5 text-[11px] font-bold text-amber-700 shadow-[0_0_14px_rgba(251,191,36,0.18)]'
-      }`,
-      accent: isTopRank ? 'text-orange-600' : 'text-amber-500',
+      badge: `${base} rounded-full bg-yellow-50 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]`,
+      accent: 'text-orange-600',
     },
   };
 
@@ -284,14 +263,14 @@ export function ElectricityOfferCard({
                 handleClick();
               }}
               className={`
-                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl font-bold uppercase sm:px-5
+                min-h-[46px] min-w-[140px] whitespace-nowrap px-4 py-2.5 rounded-xl uppercase sm:px-5
                 transition-all duration-500 shadow-sm hover:shadow-md hover:-translate-y-0.5
                 cursor-pointer relative overflow-hidden
                 ${isBestDeal
                   ? rank === 1
-                    ? 'text-[14px] sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
-                    : 'text-[12px] sm:text-[13px] text-white shadow-lg hover:brightness-110'
-                  : 'text-[12px] sm:text-[13px] border-2 border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
+                    ? 'text-[14px] font-bold sm:text-[15px] text-white shadow-xl ring-2 ring-amber-300/50 hover:brightness-110'
+                    : 'text-[12px] font-bold sm:text-[13px] text-white shadow-lg hover:brightness-110'
+                  : 'text-[12px] font-medium sm:text-[13px] border border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100'
                 }
               `}
               style={isBestDeal ? {
