@@ -44,31 +44,38 @@ function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
 
 function getTopCardBadgeClasses(rank: number, variant: TopCardBadgeVariant) {
   const base = 'inline-flex items-center justify-center gap-1.5 text-center leading-tight whitespace-nowrap';
+  const isTopRank = rank === 1;
+  const floatingPillSize = isTopRank
+    ? 'px-6 py-2.5 text-[14px]'
+    : 'px-4 py-1.5 text-[11px]';
+  const compactSize = isTopRank
+    ? 'px-6 py-2 text-[14px]'
+    : 'px-4 py-1.5 text-[11px]';
 
   const variants: Record<TopCardBadgeVariant, { wrapper: string; badge: string; accent: string }> = {
     'floating-pill': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]`,
+      badge: `${base} rounded-full bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-400 ${floatingPillSize} font-black text-orange-800 shadow-[0_10px_30px_rgba(245,158,11,0.38)]`,
       accent: 'text-orange-600',
     },
     'premium-medal': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full bg-white border-2 border-orange-400 px-5 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]`,
+      badge: `${base} rounded-full bg-white border-2 border-orange-400 ${floatingPillSize} font-black text-orange-800 shadow-[0_12px_30px_rgba(217,119,6,0.30)]`,
       accent: 'text-orange-600',
     },
     'soft-ribbon': {
       wrapper: '-top-3',
-      badge: `${base} rounded-lg bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]`,
+      badge: `${base} rounded-lg bg-gradient-to-r from-orange-200 via-amber-100 to-yellow-100 border-2 border-orange-300 ${compactSize} font-black text-orange-800 shadow-[0_8px_24px_rgba(245,158,11,0.28)]`,
       accent: 'text-orange-600',
     },
     'top-tab': {
       wrapper: '-top-px',
-      badge: `${base} rounded-b-xl bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 px-6 py-2 text-[14px] font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]`,
+      badge: `${base} rounded-b-xl bg-gradient-to-r from-orange-200 to-yellow-100 border-x-2 border-b-2 border-orange-400 ${compactSize} font-black text-orange-800 shadow-[0_8px_22px_rgba(245,158,11,0.22)]`,
       accent: 'text-orange-600',
     },
     'glow-label': {
       wrapper: '-top-4',
-      badge: `${base} rounded-full bg-yellow-50 border-2 border-orange-400 px-6 py-2.5 text-[14px] font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]`,
+      badge: `${base} rounded-full bg-yellow-50 border-2 border-orange-400 ${floatingPillSize} font-black text-orange-800 shadow-[0_0_30px_rgba(251,191,36,0.55)]`,
       accent: 'text-orange-600',
     },
   };
