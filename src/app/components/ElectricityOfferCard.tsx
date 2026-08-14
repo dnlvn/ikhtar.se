@@ -36,9 +36,9 @@ function getSelectedTopCardBadgeVariant(): TopCardBadgeVariant {
 }
 
 function getArabicAgreementTypeLabel(offer: ElectricityOffer): string | null {
-  if (offer.agreementCategory === 'variable') return 'سعر متغير';
-  if (offer.agreementCategory === 'fixed') return 'سعر ثابت';
-  if (offer.agreementCategory === 'hourly') return 'سعر بالساعة/ربع الساعة';
+  if (offer.agreementCategory === 'variable') return 'عقد بسعر متغير';
+  if (offer.agreementCategory === 'fixed') return 'عقد بسعر ثابت';
+  if (offer.agreementCategory === 'hourly') return 'عقد بسعر الساعة/ربع الساعة';
   return null;
 }
 
@@ -309,7 +309,7 @@ export function ElectricityOfferCard({
                 borderRadius: '0.75rem',
               }}
             >
-              {rank === 1 ? 'اشترك الآن' : 'احصل على العرض'}
+              شاهد العرض
             </button>
           </div>
         </div>

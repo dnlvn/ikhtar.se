@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   AlertCircle,
@@ -119,7 +119,6 @@ export function ElectricityComparison() {
   const resultsSectionRef = useRef<HTMLDivElement>(null);
   const trackedResultsViews = useRef<Set<string>>(new Set());
   const customAnnualUsage = Number(customUsage.replace(/\D/g, ''));
-  const cleanPostcode = postcode.replace(/\D/g, '');
 
   const scrollToPostcodeInput = () => {
     postcodeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -172,7 +171,6 @@ export function ElectricityComparison() {
     error,
     annualUsage,
     canSearch,
-    supportedProvidersCount,
   } = useElectricityOffers({
     postcode,
     housingType,
@@ -268,25 +266,23 @@ export function ElectricityComparison() {
             </h1>
 
             <p className="sm:text-xl text-slate-600 mb-3 leading-relaxed text-[15px]">
-              قارن عروض الكهرباء واعثر على عقد أرخص يناسب منزلك واستهلاكك.
+              أدخل الرمز البريدي والاستهلاك وقارن عقود الكهرباء الحالية خلال أقل من دقيقة.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-600">
               <div className="inline-flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-[12px]">يُحدّث يوميًا</span>
+                <span className="font-medium text-[12px]">أسعار محدثة</span>
               </div>
               <div className="w-px h-4 bg-slate-200" />
               <div className="inline-flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-[12px]">أسعار مباشرة من الجهات السويدية الرسمية</span>
+                <span className="font-medium text-[12px]">عدة شركات كهرباء</span>
               </div>
               <div className="w-px h-4 bg-slate-200" />
               <div className="inline-flex items-center gap-1.5">
                 <Zap className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-[12px]">
-                  نقارن {supportedProvidersCount} شركة كهرباء
-                </span>
+                <span className="font-medium text-[12px]">المقارنة مجانية دائمًا</span>
               </div>
             </div>
           </div>
@@ -304,7 +300,7 @@ export function ElectricityComparison() {
                   </span>
                 </div>
                 <p className="mb-2 text-[12px] font-semibold text-slate-500">
-                  الأسعار تختلف حسب منطقتك
+                  شاهد عقود الكهرباء المتاحة في منطقتك.
                 </p>
                 <div className={`group flex min-h-[62px] items-center gap-3 rounded-[22px] border bg-white px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:ring-4 ${
                   postcodeError
@@ -422,7 +418,7 @@ export function ElectricityComparison() {
                   onClick={() => setShowCustomUsage((current) => !current)}
                   className="mt-2 w-full bg-transparent px-2 py-1 text-center text-[12px] font-normal text-slate-400 transition-colors duration-200 hover:text-slate-600"
                 >
-                  أو اضغط هنا لإدخال استهلاكك السنوي بنفسك
+                  أدخل استهلاكك السنوي بنفسك
                 </button>
                 {showCustomUsage && (
                   <div className="mt-2 flex min-h-[54px] items-center gap-3 rounded-[18px] border border-blue-600 bg-white px-4 shadow-inner shadow-blue-900/5 transition-all duration-200 focus-within:ring-4 focus-within:ring-blue-100">
@@ -445,7 +441,7 @@ export function ElectricityComparison() {
                 className="mt-1 flex w-full items-center justify-center gap-2 rounded-[22px] bg-blue-700 px-5 py-4 text-[15px] font-black text-white shadow-lg shadow-blue-700/20 ring-1 ring-blue-600 transition duration-200 hover:bg-blue-800 active:scale-[0.98]"
               >
                 <Zap className="h-5 w-5" />
-                <span dir="rtl">قارن عقود الكهرباء في منطقتك</span>
+                <span dir="rtl">قارن عقود الكهرباء</span>
               </button>
 
             </div>
@@ -493,7 +489,7 @@ export function ElectricityComparison() {
                 <RefreshCw className="h-6 w-6 animate-spin" />
               </div>
               <p className="text-[17px] font-black leading-7 text-slate-950">
-                نقارن عقود الكهرباء المتاحة في منطقتك...
+                نقارن عقود الكهرباء الحالية...
               </p>
               <div className="mx-auto mt-5 h-2.5 max-w-xs overflow-hidden rounded-full bg-blue-50">
                 <div className="h-full w-2/3 animate-pulse rounded-full bg-blue-300" />
@@ -526,34 +522,40 @@ export function ElectricityComparison() {
           <>
             <div ref={resultsSectionRef} className="mb-3 rounded-[22px] bg-blue-50/70 px-4 py-4 text-center ring-1 ring-blue-100">
               <h2 className="text-[22px] font-black text-slate-950">
-                {offers.length} شركة كهرباء متاحة في منطقتك
+                إليك {offers.length} عقود كهرباء لمقارنتها
               </h2>
               <p className="mt-1.5 text-[15px] font-extrabold text-blue-800">
-                قارن عقود الكهرباء المتاحة لاستهلاكك في {cleanPostcode}
+                قارن الأسعار واختر الخيار الذي يناسبك.
               </p>
             </div>
 
             <div className="text-center mb-7">
               <p className="mx-auto max-w-3xl text-[10px] leading-5 text-slate-500">
-                إعلان – نقارن مجموعة مختارة من شركات الكهرباء وقد نحصل على تعويض إذا انتقلت إلى إحدى الشركات. لا يترتب عليك أي تكلفة إضافية. وقد يؤثر التعويض على العروض التي تظهر وترتيبها.
+                إعلان – قد نحصل على تعويض من شركات الكهرباء دون تكلفة إضافية عليك.
               </p>
               <a
                 href="#electricity-comparison-disclosure"
-                className="mt-1.5 inline-flex text-[11px] font-bold text-blue-700 underline-offset-4 hover:underline"
+                className="mt-1.5 inline-flex text-[10px] font-semibold text-slate-600 underline-offset-4 hover:underline"
               >
-                كيف تعمل المقارنة؟
+                كيف تعمل مقارنتنا
               </a>
             </div>
 
             <div id="results-section" className="grid grid-cols-1 gap-3">
               {offers.map((offer, index) => (
-                <ElectricityOfferCard
-                  key={offer.id}
-                  offer={offer}
-                  rank={index + 1}
-                  annualUsage={annualUsage}
-                  postcode={postcode}
-                />
+                <Fragment key={offer.id}>
+                  {index === 3 && (
+                    <h2 className="px-1 pt-2 text-center text-[15px] font-black text-slate-700">
+                      المزيد من عقود الكهرباء للمقارنة
+                    </h2>
+                  )}
+                  <ElectricityOfferCard
+                    offer={offer}
+                    rank={index + 1}
+                    annualUsage={annualUsage}
+                    postcode={postcode}
+                  />
+                </Fragment>
               ))}
             </div>
           </>
