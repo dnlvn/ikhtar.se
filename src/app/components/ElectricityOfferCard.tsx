@@ -1,6 +1,11 @@
 import { Check, Sparkles, Zap } from 'lucide-react';
 import type { ElectricityOffer } from '@/hooks/useElectricityOffers';
-import { buildElectricityOutboundUrl } from '@/lib/electricityOutboundTracking';
+import {
+  buildElectricityOutboundClickPayload,
+  buildElectricityOutboundUrl,
+  createElectricityOutboundClickId,
+  logElectricityOutboundClick,
+} from '@/lib/electricityOutboundTracking';
 import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
 interface ElectricityOfferCardProps {
@@ -147,8 +152,29 @@ export function ElectricityOfferCard({
       affiliate_url_type: offer.affiliateUrlType,
     });
 
+    const clickId = createElectricityOutboundClickId();
+    const outboundUrl = buildElectricityOutboundUrl(
+      offer.affiliateUrl!,
+      offer,
+      rank,
+      annualUsage,
+      clickId
+    );
+
+    if (clickId) {
+      logElectricityOutboundClick(
+        buildElectricityOutboundClickPayload({
+          clickId,
+          ctaUrl: offer.affiliateUrl!,
+          offer,
+          rank,
+          annualUsage,
+        })
+      );
+    }
+
     window.open(
-      buildElectricityOutboundUrl(offer.affiliateUrl!, offer, rank, annualUsage),
+      outboundUrl,
       '_blank',
       'noopener,noreferrer'
     );
