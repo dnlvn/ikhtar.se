@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { Footer } from '@/app/components/Footer';
+import { captureElectricityAttribution } from '@/lib/electricityAffiliateTracking';
 
 export function Layout() {
   const location = useLocation();
@@ -9,6 +10,10 @@ export function Layout() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  useEffect(() => {
+    captureElectricityAttribution();
+  }, [location.pathname, location.search]);
 
   // Load Cookiebot + GTM only in production (not Figma / localhost / iframe)
   useEffect(() => {
@@ -20,6 +25,15 @@ export function Layout() {
       window.self !== window.top;
 
     if (isFigmaPreview) return;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'consent_default',
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+    });
 
     // ---------- Cookiebot ----------
     if (!document.getElementById('Cookiebot')) {
@@ -48,8 +62,16 @@ export function Layout() {
       document.head.appendChild(gtmScript);
     }
 
+    const handleConsentReady = () => {
+      captureElectricityAttribution();
+    };
+
+    window.addEventListener('CookiebotOnAccept', handleConsentReady);
+    window.addEventListener('CookiebotOnConsentReady', handleConsentReady);
+
     return () => {
-      // Cleanup: leave Cookiebot/GTM in place between route changes (do nothing)
+      window.removeEventListener('CookiebotOnAccept', handleConsentReady);
+      window.removeEventListener('CookiebotOnConsentReady', handleConsentReady);
     };
   }, []);
 

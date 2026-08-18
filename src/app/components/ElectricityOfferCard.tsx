@@ -1,11 +1,11 @@
 import { Check, Sparkles, Zap } from 'lucide-react';
 import type { ElectricityOffer } from '@/hooks/useElectricityOffers';
 import {
-  buildElectricityOutboundClickPayload,
-  buildElectricityOutboundUrl,
-  createElectricityOutboundClickId,
-  logElectricityOutboundClick,
-} from '@/lib/electricityOutboundTracking';
+  buildElectricityAffiliateUrl,
+  buildOutboundClickPayload,
+  createOutboundClickId,
+  logOutboundClick,
+} from '@/lib/electricityAffiliateTracking';
 import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
 interface ElectricityOfferCardProps {
@@ -152,20 +152,19 @@ export function ElectricityOfferCard({
       affiliate_url_type: offer.affiliateUrlType,
     });
 
-    const clickId = createElectricityOutboundClickId();
-    const outboundUrl = buildElectricityOutboundUrl(
-      offer.affiliateUrl!,
-      offer,
-      rank,
-      annualUsage,
-      clickId
-    );
+    const clickId = createOutboundClickId();
+    const outboundUrl = clickId
+      ? buildElectricityAffiliateUrl({
+          affiliateUrl: offer.affiliateUrl,
+          clickId,
+        })
+      : offer.affiliateUrl;
 
     if (clickId) {
-      logElectricityOutboundClick(
-        buildElectricityOutboundClickPayload({
+      logOutboundClick(
+        buildOutboundClickPayload({
           clickId,
-          ctaUrl: offer.affiliateUrl!,
+          affiliateUrl: outboundUrl,
           offer,
           rank,
           annualUsage,
@@ -173,11 +172,7 @@ export function ElectricityOfferCard({
       );
     }
 
-    window.open(
-      outboundUrl,
-      '_blank',
-      'noopener,noreferrer'
-    );
+    window.open(outboundUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
