@@ -8,7 +8,12 @@ import {
   getMobileProviderSlug,
   isMobileProviderHighlighted,
 } from '@/lib/mobileProviderConfig';
-import { buildMobileOutboundUrl } from '@/lib/mobileOutboundTracking';
+import {
+  buildMobileOutboundClickPayload,
+  buildMobileOutboundUrl,
+  createOutboundClickId,
+  logMobileOutboundClick,
+} from '@/lib/mobileOutboundTracking';
 import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
 
@@ -63,11 +68,23 @@ export function PremiumPlanCard({
       is_expanded: false,
     });
 
-    window.open(
-      buildMobileOutboundUrl(ctaUrl, plan, operatorPosition, sortMode),
-      '_blank',
-      'noopener,noreferrer'
-    );
+    const clickId = createOutboundClickId();
+    const outboundUrl = clickId ? buildMobileOutboundUrl(ctaUrl, clickId) : ctaUrl;
+    const trackingPosition = operatorPosition ?? cardPosition;
+
+    if (clickId && trackingPosition !== undefined && trackingPosition !== null) {
+      logMobileOutboundClick(
+        buildMobileOutboundClickPayload({
+          clickId,
+          affiliateUrl: outboundUrl,
+          plan,
+          operatorPosition: trackingPosition,
+          sortMode,
+        })
+      );
+    }
+
+    window.open(outboundUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (

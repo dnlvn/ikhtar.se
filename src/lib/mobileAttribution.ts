@@ -10,9 +10,17 @@ export interface MobileAttribution {
   source: MobileTrafficSource;
   campaign: string;
   timestamp: string;
+  captured_at?: string;
+  gclid?: string;
+  gbraid?: string;
+  wbraid?: string;
+  fbclid?: string;
 }
 
 const ATTRIBUTION_STORAGE_KEY = 'ikhtar_mobile_attribution_v1';
+const GOOGLE_CLICK_ID_TTL_DAYS = 90;
+const GOOGLE_CLICK_ID_TTL_MS = GOOGLE_CLICK_ID_TTL_DAYS * 24 * 60 * 60 * 1000;
+const GOOGLE_CLICK_ID_KEYS = ['gclid', 'gbraid', 'wbraid'] as const;
 
 function getParam(params: URLSearchParams, key: string) {
   return params.get(key)?.trim().toLowerCase() ?? '';
@@ -21,6 +29,8 @@ function getParam(params: URLSearchParams, key: string) {
 function isPaidGoogleTraffic(source: string, medium: string, params: URLSearchParams) {
   return (
     params.has('gclid') ||
+    params.has('wbraid') ||
+    params.has('gbraid') ||
     (source === 'google' &&
       ['paid', 'cpc', 'ppc', 'paid_search', 'paid_social'].includes(medium))
   );
@@ -49,10 +59,28 @@ function isInternalReferrer(referrer: string, currentOrigin: string) {
   }
 }
 
+function isExpiredAttribution(attribution: MobileAttribution) {
+  const capturedAt = attribution.captured_at || attribution.timestamp;
+  const capturedAtMs = Date.parse(capturedAt);
+
+  if (!Number.isFinite(capturedAtMs)) return true;
+
+  return Date.now() - capturedAtMs > GOOGLE_CLICK_ID_TTL_MS;
+}
+
 function getStoredAttribution(): MobileAttribution | null {
   try {
     const storedValue = window.localStorage.getItem(ATTRIBUTION_STORAGE_KEY);
-    return storedValue ? (JSON.parse(storedValue) as MobileAttribution) : null;
+    if (!storedValue) return null;
+
+    const attribution = JSON.parse(storedValue) as MobileAttribution;
+
+    if (isExpiredAttribution(attribution)) {
+      window.localStorage.removeItem(ATTRIBUTION_STORAGE_KEY);
+      return null;
+    }
+
+    return attribution;
   } catch {
     return null;
   }
@@ -66,38 +94,88 @@ function storeAttribution(attribution: MobileAttribution) {
   }
 }
 
+function hasMarketingConsent() {
+  return typeof window !== 'undefined' && (window as any).Cookiebot?.consent?.marketing === true;
+}
+
+function isTestClickIdentifier(value: string) {
+  return /^test/i.test(value);
+}
+
+function getOptionalSearchParam(params: URLSearchParams, key: string) {
+  const value = params.get(key)?.trim();
+  return value || undefined;
+}
+
+function getGoogleClickIdentifier(params: URLSearchParams, key: (typeof GOOGLE_CLICK_ID_KEYS)[number]) {
+  const value = getOptionalSearchParam(params, key);
+
+  if (!value || isTestClickIdentifier(value)) return undefined;
+
+  return value.slice(0, 180);
+}
+
+function getGoogleClickIdentifiers(params: URLSearchParams) {
+  return {
+    gclid: getGoogleClickIdentifier(params, 'gclid'),
+    gbraid: getGoogleClickIdentifier(params, 'gbraid'),
+    wbraid: getGoogleClickIdentifier(params, 'wbraid'),
+  };
+}
+
+function hasAnyGoogleClickIdentifier(identifiers: ReturnType<typeof getGoogleClickIdentifiers>) {
+  return Boolean(identifiers.gclid || identifiers.gbraid || identifiers.wbraid);
+}
+
 function getCurrentAttributionFromPage(): MobileAttribution | null {
   const params = new URLSearchParams(window.location.search);
   const source = getParam(params, 'utm_source');
   const medium = getParam(params, 'utm_medium');
   const campaign = params.get('utm_campaign')?.trim() || 'none';
+  const now = new Date().toISOString();
 
   if (isPaidGoogleTraffic(source, medium, params)) {
-    return { source: 'google_ads', campaign, timestamp: new Date().toISOString() };
+    const googleClickIdentifiers = hasMarketingConsent() ? getGoogleClickIdentifiers(params) : {};
+
+    return {
+      source: 'google_ads',
+      campaign,
+      timestamp: now,
+      ...(hasAnyGoogleClickIdentifier(googleClickIdentifiers)
+        ? { ...googleClickIdentifiers, captured_at: now }
+        : {}),
+    };
   }
 
   if (isMetaTraffic(source, params)) {
-    return { source: 'meta', campaign, timestamp: new Date().toISOString() };
+    const fbclid = hasMarketingConsent() ? getOptionalSearchParam(params, 'fbclid')?.slice(0, 260) : undefined;
+
+    return {
+      source: 'meta',
+      campaign,
+      timestamp: now,
+      ...(fbclid ? { fbclid, captured_at: now } : {}),
+    };
   }
 
   if (source === 'alkompis') {
-    return { source: 'alkompis', campaign, timestamp: new Date().toISOString() };
+    return { source: 'alkompis', campaign, timestamp: now };
   }
 
   if (source) {
-    return { source: 'referral', campaign, timestamp: new Date().toISOString() };
+    return { source: 'referral', campaign, timestamp: now };
   }
 
   if (isGoogleOrganicReferrer(document.referrer)) {
     return {
       source: 'google_organic',
       campaign: 'none',
-      timestamp: new Date().toISOString(),
+      timestamp: now,
     };
   }
 
   if (document.referrer && !isInternalReferrer(document.referrer, window.location.origin)) {
-    return { source: 'referral', campaign: 'none', timestamp: new Date().toISOString() };
+    return { source: 'referral', campaign: 'none', timestamp: now };
   }
 
   return null;

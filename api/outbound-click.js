@@ -26,9 +26,10 @@ const ALLOWED_PROVIDERS = new Set([
 const CURRENT_SITE = 'ikhtar';
 const CURRENT_VERTICAL = 'electricity';
 const ALLOWED_SITES = new Set([CURRENT_SITE]);
-const ALLOWED_VERTICALS = new Set(['electricity']);
+const ALLOWED_VERTICALS = new Set(['electricity', 'mobile']);
 const ALLOWED_NETWORKS = new Set(['adtraction', 'addrevenue', 'direct', 'unknown']);
 const ALLOWED_AGREEMENT_TYPES = new Set(['variable', 'fixed', 'hourly', 'quarterly', 'other']);
+const ALLOWED_SORT_MODES = new Set(['12_month_price', 'no_binding', 'best_data_value']);
 const ALLOWED_SOURCES = new Set([
   'google_ads',
   'meta',
@@ -75,6 +76,11 @@ function asInteger(value) {
   return value;
 }
 
+function optionalInteger(value) {
+  if (value === undefined || value === null) return null;
+  return asInteger(value);
+}
+
 function asBoolean(value) {
   return typeof value === 'boolean' ? value : false;
 }
@@ -86,6 +92,22 @@ function optionalString(value, maxLength) {
 
 function sanitizeMarketingAttribution(row) {
   if (row.marketing_consent === true) return row;
+
+  if (row.vertical === 'mobile') {
+    return {
+      ...row,
+      source: null,
+      campaign: null,
+      gclid: null,
+      gbraid: null,
+      wbraid: null,
+      fbclid: null,
+      fbp: null,
+      fbc: null,
+      landing_page: null,
+      referrer: null,
+    };
+  }
 
   const hasGoogleAdsAttribution = row.source === 'google_ads' || row.gclid || row.gbraid || row.wbraid;
   const hasMetaAttribution = row.source === 'meta' || row.fbclid || row.fbp || row.fbc;
@@ -124,26 +146,17 @@ export function validatePayload(body) {
   if (!clickId || !UUID_PATTERN.test(clickId)) return null;
   if (!ALLOWED_SITES.has(site)) return null;
   if (!ALLOWED_VERTICALS.has(vertical)) return null;
-  if (!provider || !ALLOWED_PROVIDERS.has(provider)) return null;
   if (!affiliateNetwork || !ALLOWED_NETWORKS.has(affiliateNetwork)) return null;
   if (position === null || position <= 0 || position >= 100) return null;
-  if (!agreementType || !ALLOWED_AGREEMENT_TYPES.has(agreementType)) return null;
-  if (annualUsageKwh === null || annualUsageKwh <= 0 || annualUsageKwh >= 100000) return null;
-  if (estimatedMonthlyCost === null || estimatedMonthlyCost < 0 || estimatedMonthlyCost >= 100000) return null;
-  if (comparisonPriceOre !== null && (comparisonPriceOre < 0 || comparisonPriceOre >= 100000)) return null;
   if (source !== null && !ALLOWED_SOURCES.has(source)) return null;
 
-  return sanitizeMarketingAttribution({
+  const baseRow = {
     click_id: clickId,
     site,
     vertical,
     provider,
     affiliate_network: affiliateNetwork,
     position,
-    agreement_type: agreementType,
-    annual_usage_kwh: annualUsageKwh,
-    estimated_monthly_cost: estimatedMonthlyCost,
-    comparison_price_ore: comparisonPriceOre,
     source,
     campaign,
     gclid: optionalString(body.gclid, 180),
@@ -156,6 +169,48 @@ export function validatePayload(body) {
     page_path: optionalString(body.page_path, 180),
     landing_page: optionalString(body.landing_page, 500),
     referrer: optionalString(body.referrer, 500),
+  };
+
+  if (vertical === 'electricity') {
+    if (!provider || !ALLOWED_PROVIDERS.has(provider)) return null;
+    if (!agreementType || !ALLOWED_AGREEMENT_TYPES.has(agreementType)) return null;
+    if (annualUsageKwh === null || annualUsageKwh <= 0 || annualUsageKwh >= 100000) return null;
+    if (estimatedMonthlyCost === null || estimatedMonthlyCost < 0 || estimatedMonthlyCost >= 100000) return null;
+    if (comparisonPriceOre !== null && (comparisonPriceOre < 0 || comparisonPriceOre >= 100000)) return null;
+
+    return sanitizeMarketingAttribution({
+      ...baseRow,
+      agreement_type: agreementType,
+      annual_usage_kwh: annualUsageKwh,
+      estimated_monthly_cost: estimatedMonthlyCost,
+      comparison_price_ore: comparisonPriceOre,
+    });
+  }
+
+  const operator = asString(body.operator, 80) ?? provider;
+  const planKey = asString(body.plan_key, 120);
+  const dataGb = optionalInteger(body.data_gb);
+  const isUnlimited = asBoolean(body.is_unlimited);
+  const price = asInteger(body.price);
+  const bindingMonths = asInteger(body.binding_months);
+  const sortMode = asString(body.sort_mode, 40);
+
+  if (!provider || !operator) return null;
+  if (!planKey) return null;
+  if (dataGb !== null && (dataGb < 0 || dataGb >= 10000)) return null;
+  if (price === null || price < 0 || price >= 100000) return null;
+  if (bindingMonths === null || bindingMonths < 0 || bindingMonths >= 1000) return null;
+  if (!sortMode || !ALLOWED_SORT_MODES.has(sortMode)) return null;
+
+  return sanitizeMarketingAttribution({
+    ...baseRow,
+    operator,
+    plan_key: planKey,
+    data_gb: dataGb,
+    is_unlimited: isUnlimited,
+    price,
+    binding_months: bindingMonths,
+    sort_mode: sortMode,
   });
 }
 

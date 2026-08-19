@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { Footer } from '@/app/components/Footer';
 import { captureElectricityAttribution } from '@/lib/electricityAffiliateTracking';
+import { captureMobileAttribution } from '@/lib/mobileAttribution';
 
 export function Layout() {
   const location = useLocation();
@@ -13,6 +14,7 @@ export function Layout() {
 
   useEffect(() => {
     captureElectricityAttribution();
+    captureMobileAttribution();
   }, [location.pathname, location.search]);
 
   // Load Cookiebot + GTM only in production (not Figma / localhost / iframe)
@@ -64,6 +66,7 @@ export function Layout() {
 
     const handleConsentReady = () => {
       captureElectricityAttribution();
+      captureMobileAttribution();
     };
 
     window.addEventListener('CookiebotOnAccept', handleConsentReady);
