@@ -104,13 +104,16 @@ function sanitizeMarketingAttribution(row) {
       fbclid: null,
       fbp: null,
       fbc: null,
+      campaign_id: null,
+      adset_id: null,
+      ad_id: null,
       landing_page: null,
       referrer: null,
     };
   }
 
   const hasGoogleAdsAttribution = row.source === 'google_ads' || row.gclid || row.gbraid || row.wbraid;
-  const hasMetaAttribution = row.source === 'meta' || row.fbclid || row.fbp || row.fbc;
+  const hasMetaAttribution = row.source === 'meta' || row.fbclid || row.fbp || row.fbc || row.campaign_id || row.adset_id || row.ad_id;
 
   return {
     ...row,
@@ -122,6 +125,9 @@ function sanitizeMarketingAttribution(row) {
     fbclid: null,
     fbp: null,
     fbc: null,
+    campaign_id: null,
+    adset_id: null,
+    ad_id: null,
     landing_page: hasGoogleAdsAttribution || hasMetaAttribution ? null : row.landing_page,
     referrer: hasGoogleAdsAttribution || hasMetaAttribution ? null : row.referrer,
   };
@@ -165,6 +171,9 @@ export function validatePayload(body) {
     fbclid: optionalString(body.fbclid, 260),
     fbp: optionalString(body.fbp, 260),
     fbc: optionalString(body.fbc, 320),
+    campaign_id: optionalString(body.campaign_id, 120),
+    adset_id: optionalString(body.adset_id, 120),
+    ad_id: optionalString(body.ad_id, 120),
     marketing_consent: asBoolean(body.marketing_consent),
     page_path: optionalString(body.page_path, 180),
     landing_page: optionalString(body.landing_page, 500),
@@ -234,12 +243,15 @@ async function insertOutboundClick({ supabaseUrl, supabaseServiceRoleKey, row })
 
   if (
     response.status === 400 &&
-    (text.includes('marketing_consent') || text.includes('fbp') || text.includes('fbc'))
+    (text.includes('marketing_consent') || text.includes('fbp') || text.includes('fbc') || text.includes('campaign_id') || text.includes('adset_id') || text.includes('ad_id'))
   ) {
     const {
       marketing_consent: _marketingConsent,
       fbp: _fbp,
       fbc: _fbc,
+      campaign_id: _campaignId,
+      adset_id: _adsetId,
+      ad_id: _adId,
       ...legacySchemaRow
     } = row;
     const fallbackResponse = await fetch(`${supabaseUrl}/rest/v1/outbound_clicks`, {

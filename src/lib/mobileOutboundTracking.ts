@@ -27,6 +27,9 @@ interface OutboundClickPayload {
   fbclid?: string;
   fbp?: string;
   fbc?: string;
+  campaign_id?: string;
+  adset_id?: string;
+  ad_id?: string;
   marketing_consent?: boolean;
   page_path?: string;
   landing_page?: string;
@@ -236,6 +239,9 @@ export function buildMobileOutboundClickPayload({
 
     payload.source = attribution.source;
     payload.campaign = attribution.campaign || 'none';
+    payload.campaign_id = attribution.campaign_id;
+    payload.adset_id = attribution.adset_id;
+    payload.ad_id = attribution.ad_id;
     payload.gclid = googleClickIdentifiers.gclid;
     payload.gbraid = googleClickIdentifiers.gbraid;
     payload.wbraid = googleClickIdentifiers.wbraid;

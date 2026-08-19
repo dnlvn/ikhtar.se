@@ -15,6 +15,9 @@ export interface MobileAttribution {
   gbraid?: string;
   wbraid?: string;
   fbclid?: string;
+  campaign_id?: string;
+  adset_id?: string;
+  ad_id?: string;
 }
 
 const ATTRIBUTION_STORAGE_KEY = 'ikhtar_mobile_attribution_v1';
@@ -107,6 +110,14 @@ function getOptionalSearchParam(params: URLSearchParams, key: string) {
   return value || undefined;
 }
 
+function getCampaignId(params: URLSearchParams) {
+  return getOptionalSearchParam(params, 'campaign_id')?.slice(0, 120);
+}
+
+function getMetaIdentifier(params: URLSearchParams, key: 'campaign_id' | 'adset_id' | 'ad_id') {
+  return getOptionalSearchParam(params, key)?.slice(0, 120);
+}
+
 function getGoogleClickIdentifier(params: URLSearchParams, key: (typeof GOOGLE_CLICK_ID_KEYS)[number]) {
   const value = getOptionalSearchParam(params, key);
 
@@ -149,12 +160,18 @@ function getCurrentAttributionFromPage(): MobileAttribution | null {
 
   if (isMetaTraffic(source, params)) {
     const fbclid = hasMarketingConsent() ? getOptionalSearchParam(params, 'fbclid')?.slice(0, 260) : undefined;
+    const campaignId = hasMarketingConsent() ? getCampaignId(params) : undefined;
+    const adsetId = hasMarketingConsent() ? getMetaIdentifier(params, 'adset_id') : undefined;
+    const adId = hasMarketingConsent() ? getMetaIdentifier(params, 'ad_id') : undefined;
 
     return {
       source: 'meta',
       campaign,
       timestamp: now,
       ...(fbclid ? { fbclid, captured_at: now } : {}),
+      ...(campaignId ? { campaign_id: campaignId } : {}),
+      ...(adsetId ? { adset_id: adsetId } : {}),
+      ...(adId ? { ad_id: adId } : {}),
     };
   }
 

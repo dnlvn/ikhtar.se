@@ -55,6 +55,9 @@ const consentPayload = validatePayload({
   fbclid: 'REAL-FBCLID-123',
   fbp: 'fb.1.123.abc',
   fbc: 'fb.1.123.REAL-FBCLID-123',
+  campaign_id: '6956582083628',
+  adset_id: '1234567890123',
+  ad_id: '2345678901234',
   marketing_consent: true,
   page_path: '/mobilabonnemang',
   landing_page: 'https://ikhtar.se/mobilabonnemang?gclid=REAL-GCLID-123',
@@ -73,6 +76,58 @@ assert.equal(consentPayload.binding_months, 0);
 assert.equal(consentPayload.sort_mode, '12_month_price');
 assert.equal(consentPayload.gclid, 'REAL-GCLID-123');
 assert.equal(consentPayload.fbc, 'fb.1.123.REAL-FBCLID-123');
+assert.equal(consentPayload.campaign_id, '6956582083628');
+assert.equal(consentPayload.adset_id, '1234567890123');
+assert.equal(consentPayload.ad_id, '2345678901234');
+
+const electricityConsentPayload = validatePayload({
+  click_id: clickId,
+  site: 'ikhtar',
+  vertical: 'electricity',
+  provider: 'Fortum',
+  affiliate_network: 'adtraction',
+  position: 1,
+  agreement_type: 'variable',
+  annual_usage_kwh: 2000,
+  estimated_monthly_cost: 450,
+  comparison_price_ore: 270,
+  source: 'meta',
+  campaign: 'Ikhtar.se | El | OutboundClicks',
+  fbclid: 'REAL-FBCLID-EL-123',
+  fbp: 'fb.1.123.elabc',
+  fbc: 'fb.1.123.REAL-FBCLID-EL-123',
+  campaign_id: '52510248866432',
+  adset_id: '3456789012345',
+  ad_id: '4567890123456',
+  marketing_consent: true,
+  page_path: '/elavtal',
+  landing_page: 'https://ikhtar.se/elavtal?utm_source=meta&campaign_id=52510248866432',
+  referrer: 'https://facebook.com/',
+});
+
+assert.equal(electricityConsentPayload.site, 'ikhtar');
+assert.equal(electricityConsentPayload.vertical, 'electricity');
+assert.equal(electricityConsentPayload.source, 'meta');
+assert.equal(electricityConsentPayload.campaign, 'Ikhtar.se | El | OutboundClicks');
+assert.equal(electricityConsentPayload.fbclid, 'REAL-FBCLID-EL-123');
+assert.equal(electricityConsentPayload.campaign_id, '52510248866432');
+assert.equal(electricityConsentPayload.adset_id, '3456789012345');
+assert.equal(electricityConsentPayload.ad_id, '4567890123456');
+
+const electricityNoConsentPayload = validatePayload({
+  ...electricityConsentPayload,
+  campaign_id: '52510248866432',
+  adset_id: '3456789012345',
+  ad_id: '4567890123456',
+  marketing_consent: false,
+});
+
+assert.equal(electricityNoConsentPayload.source, null);
+assert.equal(electricityNoConsentPayload.campaign, null);
+assert.equal(electricityNoConsentPayload.fbclid, null);
+assert.equal(electricityNoConsentPayload.campaign_id, null);
+assert.equal(electricityNoConsentPayload.adset_id, null);
+assert.equal(electricityNoConsentPayload.ad_id, null);
 
 const noConsentPayload = validatePayload({
   click_id: clickId,
@@ -96,6 +151,9 @@ const noConsentPayload = validatePayload({
   fbclid: 'REAL-FBCLID-123',
   fbp: 'fb.1.123.abc',
   fbc: 'fb.1.123.REAL-FBCLID-123',
+  campaign_id: '6889268342428',
+  adset_id: '5678901234567',
+  ad_id: '6789012345678',
   marketing_consent: false,
   page_path: '/mobilabonnemang',
   landing_page: 'https://ikhtar.se/mobilabonnemang?gclid=REAL-GCLID-123',
@@ -110,6 +168,9 @@ assert.equal(noConsentPayload.wbraid, null);
 assert.equal(noConsentPayload.fbclid, null);
 assert.equal(noConsentPayload.fbp, null);
 assert.equal(noConsentPayload.fbc, null);
+assert.equal(noConsentPayload.campaign_id, null);
+assert.equal(noConsentPayload.adset_id, null);
+assert.equal(noConsentPayload.ad_id, null);
 assert.equal(noConsentPayload.landing_page, null);
 assert.equal(noConsentPayload.referrer, null);
 

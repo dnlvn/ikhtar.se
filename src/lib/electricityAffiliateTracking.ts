@@ -17,6 +17,9 @@ interface ElectricityAttribution {
   gbraid?: string;
   wbraid?: string;
   fbclid?: string;
+  campaign_id?: string;
+  adset_id?: string;
+  ad_id?: string;
 }
 
 export type ElectricityAffiliateNetwork = 'adtraction' | 'addrevenue' | 'direct' | 'unknown';
@@ -40,6 +43,9 @@ interface OutboundClickPayload {
   fbclid?: string;
   fbp?: string;
   fbc?: string;
+  campaign_id?: string;
+  adset_id?: string;
+  ad_id?: string;
   marketing_consent?: boolean;
   page_path?: string;
   landing_page?: string;
@@ -135,6 +141,14 @@ function getOptionalSearchParam(params: URLSearchParams, key: string) {
   return value || undefined;
 }
 
+function getCampaignId(params: URLSearchParams) {
+  return getOptionalSearchParam(params, 'campaign_id')?.slice(0, 120);
+}
+
+function getMetaIdentifier(params: URLSearchParams, key: 'campaign_id' | 'adset_id' | 'ad_id') {
+  return getOptionalSearchParam(params, key)?.slice(0, 120);
+}
+
 function getCookieValue(name: string) {
   if (typeof document === 'undefined' || typeof document.cookie !== 'string') return undefined;
 
@@ -207,12 +221,18 @@ function getCurrentAttributionFromPage(): ElectricityAttribution | null {
 
   if (isMetaTraffic(source, params)) {
     const fbclid = hasMarketingConsent() ? getOptionalSearchParam(params, 'fbclid')?.slice(0, 260) : undefined;
+    const campaignId = hasMarketingConsent() ? getCampaignId(params) : undefined;
+    const adsetId = hasMarketingConsent() ? getMetaIdentifier(params, 'adset_id') : undefined;
+    const adId = hasMarketingConsent() ? getMetaIdentifier(params, 'ad_id') : undefined;
 
     return {
       source: 'meta',
       campaign,
       timestamp: now,
       ...(fbclid ? { fbclid, captured_at: now } : {}),
+      ...(campaignId ? { campaign_id: campaignId } : {}),
+      ...(adsetId ? { adset_id: adsetId } : {}),
+      ...(adId ? { ad_id: adId } : {}),
     };
   }
 
@@ -395,6 +415,9 @@ export function buildOutboundClickPayload({
 
     payload.source = attribution.source;
     payload.campaign = attribution.campaign || 'none';
+    payload.campaign_id = attribution.campaign_id;
+    payload.adset_id = attribution.adset_id;
+    payload.ad_id = attribution.ad_id;
     payload.gclid = googleClickIdentifiers.gclid;
     payload.gbraid = googleClickIdentifiers.gbraid;
     payload.wbraid = googleClickIdentifiers.wbraid;
