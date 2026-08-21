@@ -49,7 +49,7 @@ const ELECTRICITY_AFFILIATE_LINKS: AffiliateLink[] = [
   {
     vertical: 'electricity',
     provider: 'Göteborg Energi',
-    affiliateUrl: 'https://goteborgenergi.se/alkompis',
+    affiliateUrl: 'https://www.goteborgenergi.se/privat/elavtal/alkompis?utm_source=ikhtar&utm_medium=referral&utm_campaign=vekst_se_alkompis&utm_content=exit-link',
     aliases: ['Goteborg Energi', 'Göteborg Energi Din El', 'Göteborg Energi Din El AB'],
   },
   {
