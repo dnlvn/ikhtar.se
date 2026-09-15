@@ -3,6 +3,12 @@ import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getActiveMobileProviderPromotion } from '@/lib/mobileProviderConfig';
 import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { getOperatorLogo } from '@/lib/operatorLogos';
+import {
+  buildMobileOutboundClickPayload,
+  buildMobileOutboundUrl,
+  createOutboundClickId,
+  openTrackedMobileOutboundUrl,
+} from '@/lib/mobileOutboundTracking';
 
 interface MobileQuickComparisonProps {
   plans: Plan[];
@@ -33,7 +39,19 @@ function trackAndOpen(plan: Plan, sortMode: SortOption, position: number) {
     card_position: position,
   });
 
-  window.open(ctaUrl, '_blank', 'noopener,noreferrer');
+  const clickId = createOutboundClickId();
+  const outboundUrl = clickId ? buildMobileOutboundUrl(ctaUrl, clickId) : ctaUrl;
+  const payload = clickId
+    ? buildMobileOutboundClickPayload({
+        clickId,
+        affiliateUrl: outboundUrl,
+        plan,
+        operatorPosition: position,
+        sortMode,
+      })
+    : null;
+
+  void openTrackedMobileOutboundUrl({ outboundUrl, payload });
 }
 
 export function MobileQuickComparison({ plans, sortMode }: MobileQuickComparisonProps) {

@@ -1,6 +1,6 @@
-import type { SortOption } from '@/hooks/useFilteredPlans';
-import type { Plan } from '@/hooks/usePlans';
-import { getMobileAttribution } from '@/lib/mobileAttribution';
+import type { SortOption } from '../hooks/useFilteredPlans';
+import type { Plan } from '../hooks/usePlans';
+import { getMobileAttribution } from './mobileAttribution.ts';
 
 const EPI_KEYS = new Set(['epi', 'epi2', 'epi3', 'epi4', 'epi5']);
 
@@ -37,10 +37,13 @@ interface OutboundClickPayload {
 }
 
 const SORT_MODE_EPI_VALUES: Partial<Record<SortOption, string>> = {
+  'price-asc': 'price_asc',
   'yearly-cost': '12_month_price',
   'no-binding': 'no_binding',
   'surf-value': 'best_data_value',
 };
+
+const OUTBOUND_LOG_TIMEOUT_MS = 400;
 
 function getDecodedParamKey(param: string) {
   const rawKey = param.split('=')[0] || '';
@@ -255,29 +258,89 @@ export function buildMobileOutboundClickPayload({
   return payload;
 }
 
-export function logMobileOutboundClick(payload: OutboundClickPayload) {
+export async function logMobileOutboundClick(
+  payload: OutboundClickPayload,
+  { timeoutMs = OUTBOUND_LOG_TIMEOUT_MS }: { timeoutMs?: number } = {}
+) {
   const body = JSON.stringify(payload);
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeout = new Promise<boolean>((resolve) => {
+    timeoutId = setTimeout(() => {
+      try {
+        controller?.abort();
+      } catch {
+        // Timeout fallback must never block affiliate navigation.
+      }
+      resolve(false);
+    }, Math.max(0, timeoutMs));
+  });
+
+  const request = fetch('/api/outbound-click', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+    keepalive: true,
+    signal: controller?.signal,
+  })
+    .then((response) => response.ok)
+    .catch(() => false)
+    .finally(() => {
+      if (timeoutId) clearTimeout(timeoutId);
+    });
+
+  return Promise.race([request, timeout]);
+}
+
+export function openPendingMobileOutboundWindow() {
+  if (typeof window === 'undefined' || typeof window.open !== 'function') return null;
+
+  const outboundWindow = window.open('about:blank', '_blank');
 
   try {
-    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
-      const sent = navigator.sendBeacon(
-        '/api/outbound-click',
-        new Blob([body], { type: 'application/json' })
-      );
-      if (sent) return;
+    if (outboundWindow) {
+      outboundWindow.opener = null;
     }
-
-    void fetch('/api/outbound-click', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body,
-      keepalive: true,
-    }).catch(() => {
-      // Outbound logging must never affect affiliate navigation.
-    });
   } catch {
-    // Outbound logging must never affect affiliate navigation.
+    // Best-effort opener protection for browsers that expose the handle.
+  }
+
+  return outboundWindow;
+}
+
+export function navigatePendingMobileOutboundWindow(
+  outboundWindow: Window | null,
+  outboundUrl: string
+) {
+  if (outboundWindow && !outboundWindow.closed) {
+    outboundWindow.location.href = outboundUrl;
+    return;
+  }
+
+  if (typeof window !== 'undefined' && typeof window.open === 'function') {
+    window.open(outboundUrl, '_blank', 'noopener,noreferrer');
+  }
+}
+
+export async function openTrackedMobileOutboundUrl({
+  outboundUrl,
+  payload,
+  timeoutMs = OUTBOUND_LOG_TIMEOUT_MS,
+}: {
+  outboundUrl: string;
+  payload: OutboundClickPayload | null;
+  timeoutMs?: number;
+}) {
+  const outboundWindow = openPendingMobileOutboundWindow();
+
+  try {
+    if (payload) {
+      await logMobileOutboundClick(payload, { timeoutMs });
+    }
+  } finally {
+    navigatePendingMobileOutboundWindow(outboundWindow, outboundUrl);
   }
 }

@@ -12,7 +12,7 @@ import {
   buildMobileOutboundClickPayload,
   buildMobileOutboundUrl,
   createOutboundClickId,
-  logMobileOutboundClick,
+  openTrackedMobileOutboundUrl,
 } from '@/lib/mobileOutboundTracking';
 import { formatSek, getPlanCostSummary } from '@/lib/mobilePlanCost';
 import { t } from '@/i18n';
@@ -72,19 +72,17 @@ export function PremiumPlanCard({
     const outboundUrl = clickId ? buildMobileOutboundUrl(ctaUrl, clickId) : ctaUrl;
     const trackingPosition = operatorPosition ?? cardPosition;
 
-    if (clickId && trackingPosition !== undefined && trackingPosition !== null) {
-      logMobileOutboundClick(
-        buildMobileOutboundClickPayload({
+    const payload = clickId && trackingPosition !== undefined && trackingPosition !== null
+      ? buildMobileOutboundClickPayload({
           clickId,
           affiliateUrl: outboundUrl,
           plan,
           operatorPosition: trackingPosition,
           sortMode,
         })
-      );
-    }
+      : null;
 
-    window.open(outboundUrl, '_blank', 'noopener,noreferrer');
+    void openTrackedMobileOutboundUrl({ outboundUrl, payload });
   };
 
   return (

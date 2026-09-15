@@ -14,7 +14,14 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { Plan } from '@/hooks/usePlans';
+import type { SortOption } from '@/hooks/useFilteredPlans';
 import { getActiveMobileProviderPromotion } from '@/lib/mobileProviderConfig';
+import {
+  buildMobileOutboundClickPayload,
+  buildMobileOutboundUrl,
+  createOutboundClickId,
+  openTrackedMobileOutboundUrl,
+} from '@/lib/mobileOutboundTracking';
 import { getOperatorLogo } from '@/lib/operatorLogos';
 
 type OperatorSlug =
@@ -28,6 +35,7 @@ type OperatorSlug =
 
 type SeoContentSectionProps = {
   plans: Plan[];
+  sortMode?: SortOption;
 };
 
 const operatorLabels: Record<OperatorSlug, string> = {
@@ -84,7 +92,12 @@ function getOutboundUrl(plan?: Plan) {
   return activePromotion?.promotionUrl || plan.sourceUrl || null;
 }
 
-function trackAndOpenOperator(plan: Plan, operatorSlug: OperatorSlug) {
+function trackAndOpenOperator(
+  plan: Plan,
+  operatorSlug: OperatorSlug,
+  position: number,
+  sortMode?: SortOption
+) {
   const ctaUrl = getOutboundUrl(plan);
   if (!ctaUrl) return;
 
@@ -98,7 +111,19 @@ function trackAndOpenOperator(plan: Plan, operatorSlug: OperatorSlug) {
     operator_slug: operatorSlug,
   });
 
-  window.open(ctaUrl, '_blank', 'noopener,noreferrer');
+  const clickId = createOutboundClickId();
+  const outboundUrl = clickId ? buildMobileOutboundUrl(ctaUrl, clickId) : ctaUrl;
+  const payload = clickId && sortMode
+    ? buildMobileOutboundClickPayload({
+        clickId,
+        affiliateUrl: outboundUrl,
+        plan,
+        operatorPosition: position,
+        sortMode,
+      })
+    : null;
+
+  void openTrackedMobileOutboundUrl({ outboundUrl, payload });
 }
 
 function InternalTextLink({
@@ -118,10 +143,14 @@ function InternalTextLink({
 function OperatorActionLink({
   slug,
   plans,
+  position,
+  sortMode,
   children,
 }: {
   slug: OperatorSlug;
   plans: Plan[];
+  position: number;
+  sortMode?: SortOption;
   children: ReactNode;
 }) {
   const plan = getOperatorPlan(plans, slug);
@@ -143,7 +172,7 @@ function OperatorActionLink({
     <button
       type="button"
       data-operator-outbound={slug}
-      onClick={() => trackAndOpenOperator(plan, slug)}
+      onClick={() => trackAndOpenOperator(plan, slug, position, sortMode)}
       className="inline-flex cursor-pointer items-center gap-1 font-bold text-green-800 underline decoration-emerald-300 underline-offset-4 transition-colors hover:text-green-900"
     >
       {children}
@@ -152,7 +181,17 @@ function OperatorActionLink({
   );
 }
 
-function OperatorLogoLink({ slug, plans }: { slug: OperatorSlug; plans: Plan[] }) {
+function OperatorLogoLink({
+  slug,
+  plans,
+  position,
+  sortMode,
+}: {
+  slug: OperatorSlug;
+  plans: Plan[];
+  position: number;
+  sortMode?: SortOption;
+}) {
   const plan = getOperatorPlan(plans, slug);
   const outboundUrl = getOutboundUrl(plan);
   const logo = getOperatorLogo(slug);
@@ -180,7 +219,7 @@ function OperatorLogoLink({ slug, plans }: { slug: OperatorSlug; plans: Plan[] }
     <button
       type="button"
       data-operator-logo-outbound={slug}
-      onClick={() => trackAndOpenOperator(plan, slug)}
+      onClick={() => trackAndOpenOperator(plan, slug, position, sortMode)}
       className="mb-3 inline-flex h-12 cursor-pointer items-center justify-center rounded-xl px-3 transition-transform hover:-translate-y-0.5"
       aria-label={`شاهد عروض ${label}`}
     >
@@ -189,12 +228,22 @@ function OperatorLogoLink({ slug, plans }: { slug: OperatorSlug; plans: Plan[] }
   );
 }
 
-function OperatorOfferCard({ slug, plans }: { slug: OperatorSlug; plans: Plan[] }) {
+function OperatorOfferCard({
+  slug,
+  plans,
+  position,
+  sortMode,
+}: {
+  slug: OperatorSlug;
+  plans: Plan[];
+  position: number;
+  sortMode?: SortOption;
+}) {
   return (
     <li className="rounded-[12px] border border-emerald-100 bg-white px-4 py-4 text-center shadow-sm transition-shadow hover:shadow-md">
-      <OperatorLogoLink slug={slug} plans={plans} />
+      <OperatorLogoLink slug={slug} plans={plans} position={position} sortMode={sortMode} />
       <div className="text-base leading-relaxed">
-        شاهد عروض <OperatorActionLink slug={slug} plans={plans}>{operatorLabels[slug]}</OperatorActionLink>
+        شاهد عروض <OperatorActionLink slug={slug} plans={plans} position={position} sortMode={sortMode}>{operatorLabels[slug]}</OperatorActionLink>
       </div>
     </li>
   );
@@ -338,7 +387,7 @@ const faqItems = [
   },
 ];
 
-export function SeoContentSection({ plans }: SeoContentSectionProps) {
+export function SeoContentSection({ plans, sortMode }: SeoContentSectionProps) {
   return (
     <section className="mx-auto mt-12 max-w-4xl px-[16px] py-[24px]">
       <div className="mb-12">
@@ -396,8 +445,14 @@ export function SeoContentSection({ plans }: SeoContentSectionProps) {
           يمكنك مقارنة عروض من عدة مشغّلين في السويد. إذا وجدت عرضًا مناسبًا، يمكنك الانتقال مباشرة إلى المشغّل لمتابعة الطلب.
         </p>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {operatorSlugs.map((slug) => (
-            <OperatorOfferCard key={slug} slug={slug} plans={plans} />
+          {operatorSlugs.map((slug, index) => (
+            <OperatorOfferCard
+              key={slug}
+              slug={slug}
+              plans={plans}
+              position={index + 1}
+              sortMode={sortMode}
+            />
           ))}
         </ul>
         <p>

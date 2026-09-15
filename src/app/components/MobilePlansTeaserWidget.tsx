@@ -4,6 +4,13 @@ import { usePlans, type Plan } from "@/hooks/usePlans";
 import { useFilteredPlans } from "@/hooks/useFilteredPlans";
 import { getOperatorLogo } from "@/lib/operatorLogos";
 import { getActiveMobileProviderPromotion } from "@/lib/mobileProviderConfig";
+import {
+  buildMobileOutboundClickPayload,
+  buildMobileOutboundUrl,
+  createOutboundClickId,
+  openTrackedMobileOutboundUrl,
+} from "@/lib/mobileOutboundTracking";
+import type { SortOption } from "@/hooks/useFilteredPlans";
 
 type MobilePlansTeaserWidgetProps = {
   intent?: "cheapest" | "operator" | "no-binding" | "data-guide";
@@ -141,7 +148,7 @@ function selectTeaserPlans(
   return selectCheapestUniqueOperatorPlans(plans);
 }
 
-function trackAndOpenOffer(plan: Plan) {
+function trackAndOpenOffer(plan: Plan, position: number, sortMode: SortOption) {
   const activePromotion = getActiveMobileProviderPromotion(plan.title);
   const ctaUrl = activePromotion?.promotionUrl || plan.sourceUrl;
 
@@ -155,7 +162,19 @@ function trackAndOpenOffer(plan: Plan) {
     price: plan.price,
   });
 
-  window.open(ctaUrl, "_blank", "noopener,noreferrer");
+  const clickId = createOutboundClickId();
+  const outboundUrl = clickId ? buildMobileOutboundUrl(ctaUrl, clickId) : ctaUrl;
+  const payload = clickId
+    ? buildMobileOutboundClickPayload({
+        clickId,
+        affiliateUrl: outboundUrl,
+        plan,
+        operatorPosition: position,
+        sortMode,
+      })
+    : null;
+
+  void openTrackedMobileOutboundUrl({ outboundUrl, payload });
 }
 
 function FallbackCtaCard({ message }: { message?: string }) {
@@ -177,9 +196,13 @@ function FallbackCtaCard({ message }: { message?: string }) {
 
 function TeaserPlanCard({
   plan,
+  position,
+  sortMode,
   showDetailedPricing = false,
 }: {
   plan: Plan;
+  position: number;
+  sortMode: SortOption;
   showDetailedPricing?: boolean;
 }) {
   const operatorLogo = getOperatorLogo(plan.title);
@@ -243,7 +266,7 @@ function TeaserPlanCard({
 
       <button
         type="button"
-        onClick={() => trackAndOpenOffer(plan)}
+        onClick={() => trackAndOpenOffer(plan, position, sortMode)}
         disabled={!hasOfferLink}
         className="inline-flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg transition-all duration-500 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
         style={{
@@ -268,11 +291,12 @@ export function MobilePlansTeaserWidget({
   showDetailedPricing = false,
   fallbackMessage,
 }: MobilePlansTeaserWidgetProps) {
+  const sortMode: SortOption = "price-asc";
   const { plans, loading, error } = usePlans();
   const { filteredPlans } = useFilteredPlans({
     plans,
     activeFilters: new Set(),
-    sortBy: "price-asc",
+    sortBy: sortMode,
   });
 
   const teaserPlans = selectTeaserPlans(
@@ -310,10 +334,12 @@ export function MobilePlansTeaserWidget({
         {!loading && !error && teaserPlans.length > 0 && (
           <>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              {teaserPlans.map((plan) => (
+              {teaserPlans.map((plan, index) => (
                 <TeaserPlanCard
                   key={plan.id}
                   plan={plan}
+                  position={index + 1}
+                  sortMode={sortMode}
                   showDetailedPricing={showDetailedPricing}
                 />
               ))}

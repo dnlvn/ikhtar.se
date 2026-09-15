@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { validatePayload } from '../api/outbound-click.js';
 import {
   buildElectricityAffiliateUrl,
@@ -6,6 +7,12 @@ import {
   logOutboundClick as logElectricityOutboundClick,
   openTrackedOutboundUrl as openElectricityTrackedOutboundUrl,
 } from '../src/lib/electricityAffiliateTracking.ts';
+import {
+  buildMobileOutboundClickPayload,
+  buildMobileOutboundUrl,
+  logMobileOutboundClick,
+  openTrackedMobileOutboundUrl,
+} from '../src/lib/mobileOutboundTracking.ts';
 
 const clickId = '5038a136-e46a-4607-ac9d-7d9d93b1e345';
 
@@ -40,6 +47,19 @@ const addrevenueUrl = buildTrackedUrl(
   clickId
 );
 assert.equal(new URL(addrevenueUrl).searchParams.get('r'), clickId);
+
+const mobileAdtractionUrl = buildMobileOutboundUrl(
+  'https://on.vimla.se/t/t?a=1081333617&as=2043693860&t=2&tk=1&epi=position_1&url=vimla.se/bestall/',
+  clickId
+);
+assert.equal(new URL(mobileAdtractionUrl).searchParams.get('epi'), clickId);
+assert.equal(new URL(mobileAdtractionUrl).searchParams.get('epi2'), null);
+
+const mobileAddrevenueUrl = buildMobileOutboundUrl(
+  'https://addrevenue.io/t?a=123&c=456&u=https%3A%2F%2Fexample.com%2F',
+  clickId
+);
+assert.equal(new URL(mobileAddrevenueUrl).searchParams.get('r'), clickId);
 
 const electricityOffer = {
   id: 'eon-test',
@@ -232,6 +252,46 @@ assert.equal(noConsentPayload.referrer, null);
 
 assert.equal(validatePayload({ ...consentPayload, click_id: 'position_1' }), null);
 
+const plan = {
+  id: 'vimla-20gb-test',
+  planKey: 'vimla-20gb-test',
+  title: 'Vimla',
+  subtitle: '20 GB',
+  dataLabel: '20 GB',
+  dataSortValue: 20,
+  isUnlimited: false,
+  price: 99,
+  regularPrice: 199,
+  bindingMonths: 0,
+  campaign: null,
+  sourceUrl: 'https://on.vimla.se/t/t?a=1081333617&as=2043693860&t=2&tk=1&url=vimla.se/bestall/',
+  affiliateUrl: 'https://on.vimla.se/t/t?a=1081333617&as=2043693860&t=2&tk=1&url=vimla.se/bestall/',
+};
+
+const mobileTrackingPayload = buildMobileOutboundClickPayload({
+  clickId,
+  affiliateUrl: mobileAdtractionUrl,
+  plan,
+  operatorPosition: 1,
+  sortMode: 'yearly-cost',
+});
+assert.equal(mobileTrackingPayload.click_id, clickId);
+assert.equal(mobileTrackingPayload.site, 'ikhtar');
+assert.equal(mobileTrackingPayload.vertical, 'mobile');
+assert.equal(mobileTrackingPayload.provider, 'Vimla');
+assert.equal(mobileTrackingPayload.sort_mode, '12_month_price');
+assert.equal(validatePayload(mobileTrackingPayload).click_id, clickId);
+
+const mobilePriceAscPayload = buildMobileOutboundClickPayload({
+  clickId,
+  affiliateUrl: mobileAdtractionUrl,
+  plan,
+  operatorPosition: 2,
+  sortMode: 'price-asc',
+});
+assert.equal(mobilePriceAscPayload.sort_mode, 'price_asc');
+assert.equal(validatePayload(mobilePriceAscPayload).sort_mode, 'price_asc');
+
 async function withMockedFetch(implementation, callback) {
   const originalFetch = globalThis.fetch;
   const calls = [];
@@ -289,6 +349,55 @@ async function runElectricityNavigationScenario(fetchImplementation) {
   });
 }
 
+async function runMobileNavigationScenario(fetchImplementation) {
+  await withMockedWindowOpen(async (openedWindows) => {
+    await withMockedFetch(fetchImplementation, async (calls) => {
+      await openTrackedMobileOutboundUrl({
+        outboundUrl: mobileAdtractionUrl,
+        payload: mobileTrackingPayload,
+        timeoutMs: 10,
+      });
+
+      assert.equal(openedWindows.length, 1);
+      assert.equal(openedWindows[0].url, 'about:blank');
+      assert.equal(openedWindows[0].openedWindow.location.href, mobileAdtractionUrl);
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0][0], '/api/outbound-click');
+      assert.equal(JSON.parse(calls[0][1].body).click_id, clickId);
+      assert.equal(new URL(mobileAdtractionUrl).searchParams.get('epi'), clickId);
+    });
+  });
+}
+
+await withMockedFetch(async () => ({ ok: true }), async (calls) => {
+  assert.equal(await logMobileOutboundClick(mobileTrackingPayload, { timeoutMs: 20 }), true);
+  assert.equal(calls.length, 1);
+});
+
+await withMockedFetch(async () => ({ ok: false }), async (calls) => {
+  assert.equal(await logMobileOutboundClick(mobileTrackingPayload, { timeoutMs: 20 }), false);
+  assert.equal(calls.length, 1);
+});
+
+await withMockedFetch(async () => {
+  throw new Error('network_failed');
+}, async (calls) => {
+  assert.equal(await logMobileOutboundClick(mobileTrackingPayload, { timeoutMs: 20 }), false);
+  assert.equal(calls.length, 1);
+});
+
+await withMockedFetch(() => new Promise(() => {}), async (calls) => {
+  assert.equal(await logMobileOutboundClick(mobileTrackingPayload, { timeoutMs: 5 }), false);
+  assert.equal(calls.length, 1);
+});
+
+await runMobileNavigationScenario(async () => ({ ok: true }));
+await runMobileNavigationScenario(async () => ({ ok: false }));
+await runMobileNavigationScenario(async () => {
+  throw new Error('network_failed');
+});
+await runMobileNavigationScenario(() => new Promise(() => {}));
+
 await withMockedFetch(async () => ({ ok: true }), async (calls) => {
   assert.equal(await logElectricityOutboundClick(electricityTrackingPayload, { timeoutMs: 20 }), true);
   assert.equal(calls.length, 1);
@@ -317,5 +426,24 @@ await runElectricityNavigationScenario(async () => {
   throw new Error('network_failed');
 });
 await runElectricityNavigationScenario(() => new Promise(() => {}));
+
+const activeSurfaceFiles = [
+  'src/app/components/PremiumPlanCard_V1.tsx',
+  'src/app/components/MobileQuickComparison.tsx',
+  'src/app/components/MobilePlansTeaserWidget.tsx',
+  'src/app/components/SeoContentSection.tsx',
+];
+
+for (const filePath of activeSurfaceFiles) {
+  const source = readFileSync(filePath, 'utf8');
+  assert.match(source, /buildMobileOutboundUrl/);
+  assert.match(source, /buildMobileOutboundClickPayload/);
+  assert.match(source, /createOutboundClickId/);
+  assert.match(source, /openTrackedMobileOutboundUrl/);
+}
+
+const seoSource = readFileSync('src/app/components/SeoContentSection.tsx', 'utf8');
+assert.match(seoSource, /<InternalTextLink/);
+assert.match(seoSource, /to=\{operatorInternalLinks\[slug\]\}/);
 
 console.log('mobile affiliate tracking checks passed');

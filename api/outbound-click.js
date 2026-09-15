@@ -29,7 +29,7 @@ const ALLOWED_SITES = new Set([CURRENT_SITE]);
 const ALLOWED_VERTICALS = new Set(['electricity', 'mobile']);
 const ALLOWED_NETWORKS = new Set(['adtraction', 'addrevenue', 'direct', 'unknown']);
 const ALLOWED_AGREEMENT_TYPES = new Set(['variable', 'fixed', 'hourly', 'quarterly', 'other']);
-const ALLOWED_SORT_MODES = new Set(['12_month_price', 'no_binding', 'best_data_value']);
+const ALLOWED_SORT_MODES = new Set(['12_month_price', 'price_asc', 'no_binding', 'best_data_value']);
 const ALLOWED_SOURCES = new Set([
   'google_ads',
   'meta',
