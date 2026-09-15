@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict';
 import { validatePayload } from '../api/outbound-click.js';
+import {
+  buildElectricityAffiliateUrl,
+  buildOutboundClickPayload as buildElectricityOutboundClickPayload,
+  logOutboundClick as logElectricityOutboundClick,
+  openTrackedOutboundUrl as openElectricityTrackedOutboundUrl,
+} from '../src/lib/electricityAffiliateTracking.ts';
 
 const clickId = '5038a136-e46a-4607-ac9d-7d9d93b1e345';
 
@@ -34,6 +40,42 @@ const addrevenueUrl = buildTrackedUrl(
   clickId
 );
 assert.equal(new URL(addrevenueUrl).searchParams.get('r'), clickId);
+
+const electricityOffer = {
+  id: 'eon-test',
+  provider: 'E.ON SE',
+  agreementName: 'Rörligt pris',
+  agreementType: 'Rörligt pris',
+  agreementTypeLabel: 'Rörligt pris',
+  agreementCategory: 'variable',
+  comparisonPriceOre: 50,
+  estimatedMonthlyCost: 100,
+  newCustomersOnly: false,
+  affiliateUrl: 'https://go.adt256.com/t/t?a=2028688348&as=2043693860&t=2&tk=1',
+  affiliateUrlType: 'standard',
+  raw: {},
+};
+const electricityAffiliateUrl = buildElectricityAffiliateUrl({
+  affiliateUrl: electricityOffer.affiliateUrl,
+  clickId,
+});
+assert.equal(new URL(electricityAffiliateUrl).searchParams.get('epi'), clickId);
+
+const electricityAddrevenueUrl = buildElectricityAffiliateUrl({
+  affiliateUrl: 'https://addrevenue.io/t?a=985028&c=3467756&u=https%3A%2F%2Fexample.com%2F',
+  clickId,
+});
+assert.equal(new URL(electricityAddrevenueUrl).searchParams.get('r'), clickId);
+
+const electricityTrackingPayload = buildElectricityOutboundClickPayload({
+  clickId,
+  affiliateUrl: electricityAffiliateUrl,
+  offer: electricityOffer,
+  rank: 1,
+  annualUsage: 2000,
+});
+assert.equal(electricityTrackingPayload.click_id, clickId);
+assert.equal(electricityTrackingPayload.provider, 'Eon');
 
 const consentPayload = validatePayload({
   click_id: clickId,
@@ -114,6 +156,20 @@ assert.equal(electricityConsentPayload.campaign_id, '52510248866432');
 assert.equal(electricityConsentPayload.adset_id, '3456789012345');
 assert.equal(electricityConsentPayload.ad_id, '4567890123456');
 
+const electricityEonSePayload = validatePayload({
+  ...electricityConsentPayload,
+  provider: 'E.ON SE',
+  marketing_consent: false,
+});
+assert.equal(electricityEonSePayload.provider, 'Eon');
+
+const electricityVattenfallPayload = validatePayload({
+  ...electricityConsentPayload,
+  provider: 'Vattenfall',
+  marketing_consent: false,
+});
+assert.equal(electricityVattenfallPayload.provider, 'Vattenfall');
+
 const electricityNoConsentPayload = validatePayload({
   ...electricityConsentPayload,
   campaign_id: '52510248866432',
@@ -175,5 +231,91 @@ assert.equal(noConsentPayload.landing_page, null);
 assert.equal(noConsentPayload.referrer, null);
 
 assert.equal(validatePayload({ ...consentPayload, click_id: 'position_1' }), null);
+
+async function withMockedFetch(implementation, callback) {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (...args) => {
+    calls.push(args);
+    return implementation(...args);
+  };
+
+  try {
+    await callback(calls);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+async function withMockedWindowOpen(callback) {
+  const originalWindow = globalThis.window;
+  const openedWindows = [];
+  globalThis.window = {
+    open: (url, target, features) => {
+      const openedWindow = {
+        closed: false,
+        location: { href: url },
+        opener: {},
+      };
+      openedWindows.push({ url, target, features, openedWindow });
+      return openedWindow;
+    },
+  };
+
+  try {
+    await callback(openedWindows);
+  } finally {
+    globalThis.window = originalWindow;
+  }
+}
+
+async function runElectricityNavigationScenario(fetchImplementation) {
+  await withMockedWindowOpen(async (openedWindows) => {
+    await withMockedFetch(fetchImplementation, async (calls) => {
+      await openElectricityTrackedOutboundUrl({
+        outboundUrl: electricityAffiliateUrl,
+        payload: electricityTrackingPayload,
+        timeoutMs: 10,
+      });
+
+      assert.equal(openedWindows.length, 1);
+      assert.equal(openedWindows[0].url, 'about:blank');
+      assert.equal(openedWindows[0].openedWindow.location.href, electricityAffiliateUrl);
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0][0], '/api/outbound-click');
+      assert.equal(JSON.parse(calls[0][1].body).click_id, clickId);
+      assert.equal(new URL(electricityAffiliateUrl).searchParams.get('epi'), clickId);
+    });
+  });
+}
+
+await withMockedFetch(async () => ({ ok: true }), async (calls) => {
+  assert.equal(await logElectricityOutboundClick(electricityTrackingPayload, { timeoutMs: 20 }), true);
+  assert.equal(calls.length, 1);
+});
+
+await withMockedFetch(async () => ({ ok: false }), async (calls) => {
+  assert.equal(await logElectricityOutboundClick(electricityTrackingPayload, { timeoutMs: 20 }), false);
+  assert.equal(calls.length, 1);
+});
+
+await withMockedFetch(async () => {
+  throw new Error('network_failed');
+}, async (calls) => {
+  assert.equal(await logElectricityOutboundClick(electricityTrackingPayload, { timeoutMs: 20 }), false);
+  assert.equal(calls.length, 1);
+});
+
+await withMockedFetch(() => new Promise(() => {}), async (calls) => {
+  assert.equal(await logElectricityOutboundClick(electricityTrackingPayload, { timeoutMs: 5 }), false);
+  assert.equal(calls.length, 1);
+});
+
+await runElectricityNavigationScenario(async () => ({ ok: true }));
+await runElectricityNavigationScenario(async () => ({ ok: false }));
+await runElectricityNavigationScenario(async () => {
+  throw new Error('network_failed');
+});
+await runElectricityNavigationScenario(() => new Promise(() => {}));
 
 console.log('mobile affiliate tracking checks passed');

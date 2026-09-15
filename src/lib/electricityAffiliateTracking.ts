@@ -52,6 +52,8 @@ interface OutboundClickPayload {
   referrer?: string;
 }
 
+const OUTBOUND_LOG_TIMEOUT_MS = 400;
+
 const ATTRIBUTION_STORAGE_KEY = 'ikhtar_electricity_attribution_v1';
 const GOOGLE_CLICK_ID_TTL_DAYS = 90;
 const GOOGLE_CLICK_ID_TTL_MS = GOOGLE_CLICK_ID_TTL_DAYS * 24 * 60 * 60 * 1000;
@@ -173,6 +175,14 @@ function buildFbcFromFbclid(fbclid: string | undefined) {
   if (!fbclid) return undefined;
 
   return `fb.1.${Date.now()}.${fbclid}`;
+}
+
+function normalizeElectricityProviderForTracking(provider: string) {
+  const normalized = normalizeText(provider);
+
+  if (normalized === 'eon' || normalized === 'eonse') return 'Eon';
+
+  return provider;
 }
 
 function getGoogleClickIdentifier(params: URLSearchParams, key: (typeof GOOGLE_CLICK_ID_KEYS)[number]) {
@@ -385,7 +395,7 @@ export function buildOutboundClickPayload({
     click_id: clickId,
     site: 'ikhtar',
     vertical: 'electricity',
-    provider: offer.provider,
+    provider: normalizeElectricityProviderForTracking(offer.provider),
     affiliate_network: getAffiliateNetwork(affiliateUrl),
     position: rank,
     agreement_type: normalizeAgreementType(offer),
@@ -431,29 +441,89 @@ export function buildOutboundClickPayload({
   return payload;
 }
 
-export function logOutboundClick(payload: OutboundClickPayload) {
+export async function logOutboundClick(
+  payload: OutboundClickPayload,
+  { timeoutMs = OUTBOUND_LOG_TIMEOUT_MS }: { timeoutMs?: number } = {}
+) {
   const body = JSON.stringify(payload);
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeout = new Promise<boolean>((resolve) => {
+    timeoutId = setTimeout(() => {
+      try {
+        controller?.abort();
+      } catch {
+        // Timeout fallback must never block affiliate navigation.
+      }
+      resolve(false);
+    }, Math.max(0, timeoutMs));
+  });
+
+  const request = fetch('/api/outbound-click', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+    keepalive: true,
+    signal: controller?.signal,
+  })
+    .then((response) => response.ok)
+    .catch(() => false)
+    .finally(() => {
+      if (timeoutId) clearTimeout(timeoutId);
+    });
+
+  return Promise.race([request, timeout]);
+}
+
+export function openPendingOutboundWindow() {
+  if (typeof window === 'undefined' || typeof window.open !== 'function') return null;
+
+  const outboundWindow = window.open('about:blank', '_blank');
+
+  if (outboundWindow) {
+    try {
+      outboundWindow.opener = null;
+    } catch {
+      // Best-effort opener protection for browsers that expose the handle.
+    }
+  }
+
+  return outboundWindow;
+}
+
+export function navigatePendingOutboundWindow(
+  outboundWindow: Window | null,
+  outboundUrl: string
+) {
+  if (outboundWindow && !outboundWindow.closed) {
+    outboundWindow.location.href = outboundUrl;
+    return;
+  }
+
+  if (typeof window !== 'undefined' && typeof window.open === 'function') {
+    window.open(outboundUrl, '_blank', 'noopener,noreferrer');
+  }
+}
+
+export async function openTrackedOutboundUrl({
+  outboundUrl,
+  payload,
+  timeoutMs = OUTBOUND_LOG_TIMEOUT_MS,
+}: {
+  outboundUrl: string;
+  payload: OutboundClickPayload | null;
+  timeoutMs?: number;
+}) {
+  const outboundWindow = openPendingOutboundWindow();
 
   try {
-    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
-      const sent = navigator.sendBeacon(
-        '/api/outbound-click',
-        new Blob([body], { type: 'application/json' })
-      );
-      if (sent) return;
+    if (payload) {
+      await logOutboundClick(payload, { timeoutMs });
     }
-
-    void fetch('/api/outbound-click', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body,
-      keepalive: true,
-    }).catch(() => {
-      // Outbound logging must never affect affiliate navigation.
-    });
-  } catch {
-    // Outbound logging must never affect affiliate navigation.
+  } finally {
+    navigatePendingOutboundWindow(outboundWindow, outboundUrl);
   }
 }

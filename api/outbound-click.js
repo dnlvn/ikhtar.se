@@ -39,6 +39,20 @@ const ALLOWED_SOURCES = new Set([
   'referral',
 ]);
 
+function normalizeProviderName(value) {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  const normalized = trimmed
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+
+  if (normalized === 'eon' || normalized === 'eonse') return 'Eon';
+
+  return trimmed;
+}
+
 function sendJson(response, status, payload) {
   response.status(status).json(payload);
 }
@@ -137,7 +151,7 @@ export function validatePayload(body) {
   const clickId = asString(body.click_id, 64);
   const site = asString(body.site, 40) ?? CURRENT_SITE;
   const vertical = asString(body.vertical, 40) ?? CURRENT_VERTICAL;
-  const provider = asString(body.provider, 80);
+  const provider = normalizeProviderName(asString(body.provider, 80));
   const affiliateNetwork = asString(body.affiliate_network, 32);
   const position = asInteger(body.position);
   const agreementType = asString(body.agreement_type, 32);

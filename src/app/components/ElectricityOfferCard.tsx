@@ -4,7 +4,7 @@ import {
   buildElectricityAffiliateUrl,
   buildOutboundClickPayload,
   createOutboundClickId,
-  logOutboundClick,
+  openTrackedOutboundUrl,
 } from '@/lib/electricityAffiliateTracking';
 import { getElectricityProviderLogo } from '@/lib/electricityProviderLogos';
 
@@ -160,19 +160,17 @@ export function ElectricityOfferCard({
         })
       : offer.affiliateUrl;
 
-    if (clickId) {
-      logOutboundClick(
-        buildOutboundClickPayload({
+    const payload = clickId
+      ? buildOutboundClickPayload({
           clickId,
           affiliateUrl: outboundUrl,
           offer,
           rank,
           annualUsage,
         })
-      );
-    }
+      : null;
 
-    window.open(outboundUrl, '_blank', 'noopener,noreferrer');
+    void openTrackedOutboundUrl({ outboundUrl, payload });
   };
 
   return (
