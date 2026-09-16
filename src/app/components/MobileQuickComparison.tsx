@@ -63,7 +63,7 @@ export function MobileQuickComparison({ plans, sortMode }: MobileQuickComparison
       <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-lg font-black text-slate-900">مقارنة سريعة</h2>
-          <span className="text-[11px] font-bold text-slate-500">أفضل النتائج الحالية</span>
+          <span className="text-[11px] font-bold text-slate-500">أبرز العروض في مقارنتنا</span>
         </div>
 
         <div className="space-y-2">

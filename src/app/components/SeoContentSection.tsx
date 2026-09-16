@@ -392,20 +392,20 @@ export function SeoContentSection({ plans, sortMode }: SeoContentSectionProps) {
     <section className="mx-auto mt-12 max-w-4xl px-[16px] py-[24px]">
       <div className="mb-12">
         <h2 className="mb-4 text-3xl font-black text-slate-900 md:text-4xl">
-          قارن باقات الجوال في السويد واعثر على أرخص اشتراك
+          قارن باقات الجوال في السويد واعثر على عرض يناسبك
         </h2>
         <div className="space-y-4 text-lg leading-relaxed text-slate-700">
           <p>
             هنا يمكنك مقارنة باقات الجوال واشتراكات الهاتف المحمول في السويد في مكان واحد. قارن السعر، كمية الإنترنت، فترة الالتزام، الشبكة والعروض الحالية، ثم انتقل مباشرة إلى موقع المشغّل عندما تجد الباقة المناسبة.
           </p>
           <p className="text-base text-slate-600">
-            نحدّث الأسعار والشروط يوميًا حتى تحصل على صورة واضحة عن العروض المتاحة الآن.
+            تحقق من السعر والشروط لدى المشغّل قبل الاشتراك.
           </p>
         </div>
       </div>
 
       <div className="mb-12 flex flex-wrap gap-3">
-        <TrustChip icon={RefreshCw}>يُحدَّث يوميًا</TrustChip>
+        <TrustChip icon={RefreshCw}>قارن الأسعار والشروط</TrustChip>
         <TrustChip icon={CheckCircle}>مجاني للاستخدام</TrustChip>
         <TrustChip icon={Tag}>نفس سعر المشغّل</TrustChip>
         <TrustChip icon={Info}>روابط إعلانية واضحة</TrustChip>
@@ -592,14 +592,17 @@ export function SeoContentSection({ plans, sortMode }: SeoContentSectionProps) {
         </div>
       </section>
 
-      <section className="rounded-[12px] border border-emerald-200/60 bg-emerald-50 p-5">
+      <section id="mobile-comparison-disclosure" className="scroll-mt-28 rounded-[12px] border border-emerald-200/60 bg-emerald-50 p-5">
         <div className="flex gap-3">
           <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
           <div>
-            <h2 className="mb-1 text-lg font-black text-emerald-950">حول روابطنا</h2>
-            <p className="text-sm leading-relaxed text-emerald-900">
-              قد نحصل على عمولة إذا طلبت عبر روابطنا، دون أي تكلفة إضافية عليك. المقارنة مجانية للمستخدم، والأسعار تأتي من مواقع المشغّلين ويتم تحديثها يوميًا.
-            </p>
+            <h2 className="mb-1 text-lg font-black text-emerald-950">كيف تعمل مقارنتنا</h2>
+            <div className="space-y-3 text-sm leading-relaxed text-emerald-900">
+              <p>يقارن Ikhtar.se مجموعة مختارة من باقات الجوال من شركات الاتصالات التي نتعاون معها. قد تؤثر علاقاتنا التجارية والتعويض الذي نحصل عليه من شركات الاتصالات على المشغلين والعروض التي تظهر في المقارنة.</p>
+              <p>يتم ترتيب العروض التي تشملها مقارنتنا افتراضيًا حسب السعر، بناءً على التكلفة خلال الفترة المحددة للمقارنة. عند اختيار "أفضل قيمة للإنترنت"، يعتمد الترتيب على كمية الإنترنت مقابل السعر.</p>
+              <p>قد نحصل على عمولة عندما تنتقل إلى شركة الاتصالات أو تشترك في باقة عبر روابطنا. ولا يؤثر ذلك على السعر الذي تدفعه لدى شركة الاتصالات.</p>
+              <p>لا تشمل مقارنة Ikhtar.se جميع شركات الاتصالات أو جميع باقات الجوال المتاحة في السوق السويدية.</p>
+            </div>
           </div>
         </div>
       </section>

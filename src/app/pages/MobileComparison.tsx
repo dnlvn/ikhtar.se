@@ -153,6 +153,12 @@ export function MobileComparison() {
                   <p className="text-[10px] leading-relaxed text-slate-500">
                     إعلان – نقارن باقات الجوال واشتراكات الهاتف المحمول. عند النقر على عرض، قد نحصل على عمولة من المشغل دون تكلفة إضافية عليك.
                   </p>
+                  <a
+                    href="#mobile-comparison-disclosure"
+                    className="mt-0 inline-flex text-[10px] font-normal leading-4 text-slate-600 underline underline-offset-4 hover:text-slate-700"
+                  >
+                    كيف تعمل مقارنتنا
+                  </a>
                 </div>
 
                 {/* Plan Cards Grid */}
