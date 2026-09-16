@@ -8,7 +8,7 @@ interface HeroProps {
 
 export function Hero({ resultsCount = 0 }: HeroProps) {
   const updatedLabel = resultsCount > 0
-    ? `${resultsCount} باقة ضمن مقارنتنا`
+    ? `تحديث يومي لـ ${resultsCount} باقة`
     : t('hero.trust.updatedToday');
 
   return (

@@ -16,8 +16,8 @@ export const ar = {
     },
     subtitle: 'قارن العروض وغيّر اشتراكك خلال دقائق.',
     trust: {
-      updatedToday: 'باقات ضمن مقارنتنا',
-      officialPrices: 'قارن أسعار الباقات'
+      updatedToday: 'محدَّث اليوم',
+      officialPrices: 'أسعار رسمية من مواقع المشغلين'
     }
   },
 

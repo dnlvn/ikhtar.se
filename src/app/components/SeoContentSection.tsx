@@ -399,13 +399,13 @@ export function SeoContentSection({ plans, sortMode }: SeoContentSectionProps) {
             هنا يمكنك مقارنة باقات الجوال واشتراكات الهاتف المحمول في السويد في مكان واحد. قارن السعر، كمية الإنترنت، فترة الالتزام، الشبكة والعروض الحالية، ثم انتقل مباشرة إلى موقع المشغّل عندما تجد الباقة المناسبة.
           </p>
           <p className="text-base text-slate-600">
-            تحقق من السعر والشروط لدى المشغّل قبل الاشتراك.
+            نحدّث الأسعار والشروط يوميًا حتى تحصل على صورة واضحة عن العروض المتاحة الآن.
           </p>
         </div>
       </div>
 
       <div className="mb-12 flex flex-wrap gap-3">
-        <TrustChip icon={RefreshCw}>قارن الأسعار والشروط</TrustChip>
+        <TrustChip icon={RefreshCw}>يُحدَّث يوميًا</TrustChip>
         <TrustChip icon={CheckCircle}>مجاني للاستخدام</TrustChip>
         <TrustChip icon={Tag}>نفس سعر المشغّل</TrustChip>
         <TrustChip icon={Info}>روابط إعلانية واضحة</TrustChip>
