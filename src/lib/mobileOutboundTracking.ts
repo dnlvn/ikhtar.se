@@ -68,9 +68,14 @@ function isAddrevenueUrl(url: URL) {
   return url.hostname.toLowerCase().includes('addrevenue.io');
 }
 
-function isAdtractionUrl(url: URL) {
+export function isAdtractionUrl(url: URL) {
   const hostname = url.hostname.toLowerCase();
-  return hostname.includes('adt') || hostname.includes('adtraction') || hostname.endsWith('.vimla.se');
+  return (
+    hostname === 'at.to.comviq.se' ||
+    hostname.includes('adt') ||
+    hostname.includes('adtraction') ||
+    hostname.endsWith('.vimla.se')
+  );
 }
 
 function getAffiliateNetwork(ctaUrl: string): MobileAffiliateNetwork {

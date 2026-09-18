@@ -10,6 +10,7 @@ import {
 import {
   buildMobileOutboundClickPayload,
   buildMobileOutboundUrl,
+  isAdtractionUrl,
   logMobileOutboundClick,
   openTrackedMobileOutboundUrl,
 } from '../src/lib/mobileOutboundTracking.ts';
@@ -54,6 +55,24 @@ const mobileAdtractionUrl = buildMobileOutboundUrl(
 );
 assert.equal(new URL(mobileAdtractionUrl).searchParams.get('epi'), clickId);
 assert.equal(new URL(mobileAdtractionUrl).searchParams.get('epi2'), null);
+
+const comviqRawUrl =
+  'https://at.to.comviq.se/t/t?a=1864643893&as=2043693860&t=2&tk=1&url=www.comviq.se/mobilabonnemang&epi=legacy&epi2=legacy';
+const comviqAdtractionUrl = buildMobileOutboundUrl(comviqRawUrl, clickId);
+const parsedComviqAdtractionUrl = new URL(comviqAdtractionUrl);
+
+assert.equal(isAdtractionUrl(new URL(comviqRawUrl)), true);
+assert.equal(parsedComviqAdtractionUrl.searchParams.get('a'), '1864643893');
+assert.equal(parsedComviqAdtractionUrl.searchParams.get('as'), '2043693860');
+assert.equal(parsedComviqAdtractionUrl.searchParams.get('t'), '2');
+assert.equal(parsedComviqAdtractionUrl.searchParams.get('tk'), '1');
+assert.equal(parsedComviqAdtractionUrl.searchParams.get('url'), 'www.comviq.se/mobilabonnemang');
+assert.deepEqual(parsedComviqAdtractionUrl.searchParams.getAll('epi'), [clickId]);
+assert.equal(parsedComviqAdtractionUrl.searchParams.get('epi2'), null);
+
+const regularComviqUrl = 'https://www.comviq.se/mobilabonnemang';
+assert.equal(isAdtractionUrl(new URL(regularComviqUrl)), false);
+assert.equal(buildMobileOutboundUrl(regularComviqUrl, clickId), regularComviqUrl);
 
 const mobileAddrevenueUrl = buildMobileOutboundUrl(
   'https://addrevenue.io/t?a=123&c=456&u=https%3A%2F%2Fexample.com%2F',
@@ -281,6 +300,36 @@ assert.equal(mobileTrackingPayload.vertical, 'mobile');
 assert.equal(mobileTrackingPayload.provider, 'Vimla');
 assert.equal(mobileTrackingPayload.sort_mode, '12_month_price');
 assert.equal(validatePayload(mobileTrackingPayload).click_id, clickId);
+
+const comviqPlan = {
+  ...plan,
+  id: 'comviq-40gb-test',
+  planKey: 'comviq-40gb-test',
+  title: 'Comviq',
+  subtitle: '40 GB',
+  sourceUrl: comviqRawUrl,
+  affiliateUrl: comviqRawUrl,
+};
+const comviqTrackingPayload = buildMobileOutboundClickPayload({
+  clickId,
+  affiliateUrl: comviqAdtractionUrl,
+  plan: comviqPlan,
+  operatorPosition: 3,
+  sortMode: 'yearly-cost',
+});
+
+assert.equal(comviqTrackingPayload.click_id, clickId);
+assert.equal(comviqTrackingPayload.affiliate_network, 'adtraction');
+assert.equal(new URL(comviqAdtractionUrl).searchParams.get('epi'), comviqTrackingPayload.click_id);
+
+const regularComviqPayload = buildMobileOutboundClickPayload({
+  clickId,
+  affiliateUrl: regularComviqUrl,
+  plan: comviqPlan,
+  operatorPosition: 3,
+  sortMode: 'yearly-cost',
+});
+assert.equal(regularComviqPayload.affiliate_network, 'direct');
 
 const mobilePriceAscPayload = buildMobileOutboundClickPayload({
   clickId,
