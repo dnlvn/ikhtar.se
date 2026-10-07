@@ -9,16 +9,14 @@ interface ElectricityRankingOffer {
 }
 
 interface SpecialProviderRule {
-  cannotRankFirst: boolean;
-  fallbackProviderIfFirst?: string;
+  maximumPosition?: number;
 }
 
 const priorityProviders = ['Vattenfall', 'Fortum', 'Eon'];
 
 const specialProviders: Record<string, SpecialProviderRule> = {
   [normalizeProviderSlug('Göteborg Energi')]: {
-    cannotRankFirst: true,
-    fallbackProviderIfFirst: 'Svekraft',
+    maximumPosition: 3,
   },
 };
 
@@ -70,72 +68,25 @@ function findProviderIndex<T extends ElectricityRankingOffer>(offers: T[], provi
   return offers.findIndex((offer) => getProviderSlug(offer) === providerSlug);
 }
 
-function ensureOfferIncluded<T extends ElectricityRankingOffer>(offers: T[], offer: T): T[] {
-  const offerSlug = getProviderSlug(offer);
+function limitOffersAheadOfSpecialProviders<T extends ElectricityRankingOffer>(
+  visibleOffers: T[]
+): T[] {
+  let nextOffers = [...visibleOffers];
 
-  if (offers.some((candidate) => getProviderSlug(candidate) === offerSlug)) {
-    return offers;
-  }
+  for (const [providerSlug, rule] of Object.entries(specialProviders)) {
+    const providerIndex = findProviderIndex(nextOffers, providerSlug);
+    if (providerIndex < 0) continue;
 
-  return [...offers, offer];
-}
-
-function moveProviderToFirst<T extends ElectricityRankingOffer>(offers: T[], providerSlug: string): T[] {
-  const providerIndex = findProviderIndex(offers, providerSlug);
-  if (providerIndex <= 0) return offers;
-
-  const nextOffers = [...offers];
-  const [providerOffer] = nextOffers.splice(providerIndex, 1);
-  return [providerOffer, ...nextOffers];
-}
-
-function preventSpecialProviderFirst<T extends ElectricityRankingOffer>({
-  visibleOffers,
-  baseSortedOffers,
-  priorityAnchor,
-}: {
-  visibleOffers: T[];
-  baseSortedOffers: T[];
-  priorityAnchor: T | null;
-}): T[] {
-  const firstOffer = visibleOffers[0];
-  if (!firstOffer) return visibleOffers;
-
-  const firstProviderSlug = getProviderSlug(firstOffer);
-  const rule = specialProviders[firstProviderSlug];
-
-  if (!rule?.cannotRankFirst) return visibleOffers;
-
-  const fallbackSlug = rule.fallbackProviderIfFirst
-    ? normalizeProviderSlug(rule.fallbackProviderIfFirst)
-    : null;
-
-  if (fallbackSlug) {
-    const fallbackOffer = baseSortedOffers.find((offer) => getProviderSlug(offer) === fallbackSlug);
-    const fallbackIndex = fallbackSlug ? findProviderIndex(baseSortedOffers, fallbackSlug) : -1;
-    const specialIndex = findProviderIndex(baseSortedOffers, firstProviderSlug);
-
-    if (fallbackOffer && fallbackIndex >= 0 && specialIndex >= 0 && fallbackIndex < specialIndex) {
-      const withFallback = sortByEstimatedMonthlyCost(
-        ensureOfferIncluded(visibleOffers, fallbackOffer)
-      );
-      return moveProviderToFirst(withFallback, fallbackSlug);
+    if (rule.maximumPosition && providerIndex >= rule.maximumPosition) {
+      const maximumOffersAhead = rule.maximumPosition - 1;
+      nextOffers = [
+        ...nextOffers.slice(0, maximumOffersAhead),
+        ...nextOffers.slice(providerIndex),
+      ];
     }
   }
 
-  if (!priorityAnchor) {
-    const nextProvider = baseSortedOffers.find((offer) => getProviderSlug(offer) !== firstProviderSlug);
-
-    if (nextProvider) {
-      const nextProviderSlug = getProviderSlug(nextProvider);
-      const withNextProvider = sortByEstimatedMonthlyCost(
-        ensureOfferIncluded(visibleOffers, nextProvider)
-      );
-      return moveProviderToFirst(withNextProvider, nextProviderSlug);
-    }
-  }
-
-  return visibleOffers;
+  return nextOffers;
 }
 
 export function rankElectricityOffersCommercially<T extends ElectricityRankingOffer>(offers: T[]): T[] {
@@ -154,9 +105,7 @@ export function rankElectricityOffersCommercially<T extends ElectricityRankingOf
       })
     : baseSortedOffers;
 
-  return preventSpecialProviderFirst({
-    visibleOffers: sortByEstimatedMonthlyCost(commerciallyFilteredOffers),
-    baseSortedOffers,
-    priorityAnchor,
-  });
+  return limitOffersAheadOfSpecialProviders(
+    sortByEstimatedMonthlyCost(commerciallyFilteredOffers)
+  );
 }
