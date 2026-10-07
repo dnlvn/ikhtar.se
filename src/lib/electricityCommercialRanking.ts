@@ -13,6 +13,7 @@ interface SpecialProviderRule {
 }
 
 const priorityProviders = ['Vattenfall', 'Fortum', 'Eon'];
+const conditionalProviders = ['Svekraft', 'Cheap Energy'];
 
 const specialProviders: Record<string, SpecialProviderRule> = {
   [normalizeProviderSlug('Göteborg Energi')]: {
@@ -22,6 +23,7 @@ const specialProviders: Record<string, SpecialProviderRule> = {
 
 // Later this list can be replaced by a dynamic commercial score or affiliate-performance API.
 const priorityProviderSlugs = new Set(priorityProviders.map(normalizeProviderSlug));
+const conditionalProviderSlugs = new Set(conditionalProviders.map(normalizeProviderSlug));
 
 function normalizeProviderSlug(provider: string): string {
   return normalizeAffiliateProviderName(provider);
@@ -90,7 +92,12 @@ function limitOffersAheadOfSpecialProviders<T extends ElectricityRankingOffer>(
 }
 
 export function rankElectricityOffersCommercially<T extends ElectricityRankingOffer>(offers: T[]): T[] {
-  const baseSortedOffers = sortByEstimatedMonthlyCost(offers);
+  const conditionalOffers = offers.filter((offer) =>
+    conditionalProviderSlugs.has(getProviderSlug(offer))
+  );
+  const baseSortedOffers = sortByEstimatedMonthlyCost(
+    offers.filter((offer) => !conditionalProviderSlugs.has(getProviderSlug(offer)))
+  );
   const priorityAnchor =
     baseSortedOffers.find((offer) => getProviderRankingStatus(offer) === 'priority') ?? null;
 
@@ -105,7 +112,20 @@ export function rankElectricityOffersCommercially<T extends ElectricityRankingOf
       })
     : baseSortedOffers;
 
-  return limitOffersAheadOfSpecialProviders(
-    sortByEstimatedMonthlyCost(commerciallyFilteredOffers)
+  let visibleOffers = sortByEstimatedMonthlyCost(commerciallyFilteredOffers);
+  const gothenburgEnergySlug = normalizeProviderSlug('Göteborg Energi');
+  const gothenburgEnergyOffer = visibleOffers.find(
+    (offer) => getProviderSlug(offer) === gothenburgEnergySlug
   );
+  const cheapestVisibleOffer = visibleOffers[0];
+
+  if (
+    gothenburgEnergyOffer &&
+    cheapestVisibleOffer &&
+    compareOffersByCost(gothenburgEnergyOffer, cheapestVisibleOffer) === 0
+  ) {
+    visibleOffers = sortByEstimatedMonthlyCost([...visibleOffers, ...conditionalOffers]);
+  }
+
+  return limitOffersAheadOfSpecialProviders(visibleOffers);
 }
