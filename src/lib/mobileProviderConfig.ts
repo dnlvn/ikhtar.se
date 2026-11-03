@@ -39,7 +39,7 @@ export const MOBILE_PROVIDER_PROMOTIONS: Record<string, MobileProviderPromotion>
     promotionBadge: '١٠٠ GB إنترنت إضافي!',
     promotionText: 'ساري حتى 31 مايو',
     promotionUrl:
-      'https://on.vimla.se/t/t?a=1081333617&as=2043693860&t=2&tk=1&url=vimla.se/bestall/special-offer/',
+      'https://on.vimla.se/t/t?a=1081333617&as=2043693860&t=2&tk=1&url=vimla.se/bestall/',
     promotionValidFrom: '2026-02-01',
     promotionValidUntil: '2026-05-31',
     promotionActive: true,
