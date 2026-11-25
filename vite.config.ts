@@ -25,4 +25,12 @@ export default defineConfig({
       process.env.VITE_SUPABASE_ANON_KEY
     ),
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, './index.html'),
+        electricity: path.resolve(__dirname, './elavtal.html'),
+      },
+    },
+  },
 })

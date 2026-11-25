@@ -236,12 +236,25 @@ export function ElectricityComparison() {
   return (
     <>
       <Helmet>
-        <title>قارن عقود الكهرباء في السويد واعثر على خيار أرخص | Ikhtar.se</title>
+        <title>قارن عقود الكهرباء في السويد | Ikhtar</title>
         <meta
           name="description"
-          content="قارن عقود الكهرباء من مجموعة مختارة من شركات الكهرباء في السويد. أدخل الرمز البريدي والاستهلاك وقارن الأسعار والتكاليف التقديرية."
+          content="أدخل رمزك البريدي واستهلاكك لتقارن الأسعار والشروط لدى مجموعة مختارة من شركات الكهرباء."
         />
         <link rel="canonical" href="https://ikhtar.se/elavtal" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_AR" />
+        <meta property="og:site_name" content="Ikhtar" />
+        <meta property="og:title" content="قارن عقود الكهرباء في السويد | Ikhtar" />
+        <meta
+          property="og:description"
+          content="أدخل رمزك البريدي واستهلاكك لتقارن الأسعار والشروط لدى مجموعة مختارة من شركات الكهرباء."
+        />
+        <meta property="og:url" content="https://ikhtar.se/elavtal" />
+        <meta property="og:image" content="https://ikhtar.se/og/electricity-contracts-ar.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="مقارنة عقود الكهرباء في السويد" />
         <link rel="icon" type="image/svg+xml" href="/assets/electricity-favicon.svg" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>

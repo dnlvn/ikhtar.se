@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/elavtal", "destination": "/elavtal.html" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
